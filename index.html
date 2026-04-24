@@ -135,6 +135,7 @@
                     <i class="fas fa-receipt w-5 text-center text-rose-400"></i> Daftar Transaksi
                 </button>
                 
+                <!-- ID admin-extras ini yang harus muncul otomatis -->
                 <div id="admin-extras" class="hidden">
                     <p class="px-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-6 mb-3">Sistem</p>
                     <button id="menu-pengaturan" onclick="switchView('view-pengaturan', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition text-left text-slate-400">
@@ -469,11 +470,11 @@
                     <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Kategori</label>
                         <select id="formCat" required class="w-full p-3 border border-slate-200 rounded-xl outline-none bg-white">
-                            <option value="Sembako">Sembako</option>
-                            <option value="Minuman">Minuman</option>
-                            <option value="Makanan">Makanan</option>
-                            <option value="Kebutuhan Rumah">Kebutuhan Rumah</option>
-                            <option value="Lainnya">Lainnya</option>
+                            <option value="Obat Bebas">Obat Bebas</option>
+                            <option value="Obat Bebas Terbatas">Obat Bebas Terbatas</option>
+                            <option value="Obat Keras">Obat Keras</option>
+                            <option value="Jamu">Jamu</option>
+                            <option value="Obat Herbal">Obat Herbal</option>
                         </select>
                     </div>
                     <div>
@@ -636,6 +637,7 @@
             const badge = document.getElementById('userBadge');
             const nameDisp = document.getElementById('userNameDisplay');
             const roleDisp = document.getElementById('userRoleDisplay');
+            const adminExtras = document.getElementById('admin-extras');
             
             badge.innerText = state.currentUser.name.charAt(0);
             badge.className = `w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${state.currentUser.role === 'Admin' ? 'bg-indigo-500' : 'bg-emerald-500'}`;
@@ -645,12 +647,12 @@
             if (state.currentUser.role === 'Kasir') {
                 document.getElementById('menu-produk').classList.add('hidden');
                 document.getElementById('menu-barang-masuk').classList.add('hidden');
-                document.getElementById('admin-extras').classList.add('hidden');
+                adminExtras.classList.add('hidden');
                 switchView('view-kasir', document.getElementById('menu-kasir'));
             } else {
                 document.getElementById('menu-produk').classList.remove('hidden');
                 document.getElementById('menu-barang-masuk').classList.remove('hidden');
-                document.getElementById('admin-extras').classList.remove('hidden');
+                adminExtras.classList.remove('hidden');
                 switchView('view-produk', document.getElementById('menu-produk'));
             }
 
@@ -670,6 +672,21 @@
         };
 
         window.switchView = (id, btn) => {
+            // Handle Fullscreen for view-kasir
+            if (id === 'view-kasir') {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(e => {
+                        console.log("Fullscreen request failed: ", e);
+                    });
+                }
+            } else {
+                if (document.fullscreenElement) {
+                    document.exitFullscreen().catch(e => {
+                        console.log("Exit fullscreen failed: ", e);
+                    });
+                }
+            }
+
             document.querySelectorAll('.view-section').forEach(v => v.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
             document.querySelectorAll('.nav-item').forEach(n => {
