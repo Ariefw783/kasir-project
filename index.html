@@ -12,7 +12,6 @@
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: #f8fafc;
-            /* Background Motif Samar (Subtle Dots) */
             background-image: radial-gradient(#cbd5e1 0.8px, transparent 0.8px);
             background-size: 24px 24px;
         }
@@ -29,11 +28,26 @@
         .added-feedback { animation: pulse-green 0.5s ease-out; }
 
         .blink-low-stock { 
-            animation: blink-yellow 1s infinite; 
+            animation: blink-red-block 0.8s infinite; 
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
         }
-        @keyframes blink-yellow {
-            0%, 100% { background-color: #ff8080; }
-            50% { background-color: white; }
+        @keyframes blink-red-block {
+            0%, 100% { background-color: #e11d48; color: white; }
+            50% { background-color: #4c0519; color: white; }
+        }
+
+        /* INSTRUKSI 3: Blink Block Expired */
+        @keyframes blink-red-block {
+            0%, 100% { background-color: #e11d48; color: white; }
+            50% { background-color: #4c0519; color: white; }
+        }
+        .blink-expired { 
+            animation: blink-red-block 0.8s infinite; 
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
         }
 
         .pos-square { border-radius: 0px !important; border: 2px solid #1e293b !important; }
@@ -57,11 +71,24 @@
         .modal-enter { animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
         @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
-        /* Login Overlay */
         #login-screen {
             background-color: rgba(15, 23, 42, 0.95);
             backdrop-blur: 8px;
         }
+
+        /* ANIMASI DATABASE */
+        @keyframes db-pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.4; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes db-flow {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .anim-online { animation: db-pulse 1.5s infinite; background: #10b981; }
+        .anim-connecting { animation: db-flow 1s infinite linear; background: #f59e0b; }
+        .anim-offline { background: #ef4444; }
     </style>
 </head>
 <body class="text-slate-800 overflow-hidden text-sm">
@@ -69,27 +96,47 @@
     <!-- Login Screen -->
     <div id="login-screen" class="fixed inset-0 z-[1000] flex flex-col items-center justify-center p-6">
         <div class="mb-8 text-center">
-            <h1 class="text-4xl font-black text-white mb-2">KASIR<span class="text-indigo-500">PRO</span></h1>
+            <h1 class="text-3xl font-black text-white mb-2">KASIR<span class="text-indigo-500">PRO</span><span class="text-yellow-300"> V.1</span></h1>
+            <h2 class="text-5xl font-black text-white mb-2">APOTEK<span class="text-white-500"> KELUARGA SEHAT</span></h2></br>
             <p class="text-slate-400">Pilih mode masuk untuk melanjutkan</p>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
-            <!-- Card Admin -->
             <div onclick="showLoginInput('Admin')" class="bg-white p-8 rounded-3xl shadow-2xl cursor-pointer hover:ring-4 hover:ring-indigo-500 transition-all group">
                 <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition">
                     <i class="fas fa-user-shield"></i>
                 </div>
                 <h3 class="text-2xl font-bold mb-2">Administrator</h3>
-                <p class="text-slate-500 text-xs">Akses penuh ke semua fitur, produk, laporan, dan pengaturan sistem.</p>
+                <p class="text-slate-500 text-xs">Klik disini untuk Login</p>
             </div>
 
-            <!-- Card Kasir -->
             <div onclick="showLoginInput('Kasir')" class="bg-white p-8 rounded-3xl shadow-2xl cursor-pointer hover:ring-4 hover:ring-emerald-500 transition-all group">
                 <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition">
                     <i class="fas fa-cash-register"></i>
                 </div>
                 <h3 class="text-2xl font-bold mb-2">Petugas Kasir</h3>
-                <p class="text-slate-500 text-xs">Akses terbatas untuk transaksi penjualan dan melihat riwayat transaksi.</p>
+                <p class="text-slate-500 text-xs">Klik disini untuk Login</p>
+            </div>
+        </div>
+
+        <!-- INSTRUKSI 1: Copyright text as access button -->
+        <button onclick="openThermalModal()" class="fixed bottom-8 right-8 text-[10px] font-mono text-white/30 hover:text-white/80 transition-all uppercase tracking-widest">
+            Copyright 2026 &copy; All Rights Reserved
+        </button>
+    </div>
+
+    <!-- INSTRUKSI 1: Thermal Password Modal -->
+    <div id="thermalModal" class="fixed inset-0 bg-black/90 hidden z-[2000] flex justify-center items-center p-4 backdrop-blur-sm">
+        <div class="bg-white p-1 border-4 border-black w-full max-w-[280px] shadow-[8px_8px_0px_#333]">
+            <div class="border-2 border-black p-4 font-mono text-center">
+                <p class="text-[10px] font-bold mb-4 border-b-2 border-black pb-2 uppercase">System Access Auth</p>
+                <div class="bg-black text-white p-2 mb-4">
+                    <input type="password" id="thermalPassInput" class="bg-transparent w-full text-center outline-none border-none text-xl tracking-[0.5em]" placeholder="******">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="closeThermalModal()" class="border-2 border-black py-1 text-[10px] font-bold active:bg-black active:text-white">CANCEL</button>
+                    <button onclick="validateThermalPass()" class="bg-black text-white py-1 text-[10px] font-bold active:bg-white active:text-black">VALIDATE</button>
+                </div>
             </div>
         </div>
     </div>
@@ -134,15 +181,10 @@
                 <button id="menu-transaksi" onclick="switchView('view-transaksi', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition text-left text-slate-400">
                     <i class="fas fa-receipt w-5 text-center text-rose-400"></i> Daftar Transaksi
                 </button>
-                
-                <!-- ID admin-extras ini yang harus muncul otomatis -->
                 <div id="admin-extras" class="hidden">
                     <p class="px-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-6 mb-3">Sistem</p>
                     <button id="menu-pengaturan" onclick="switchView('view-pengaturan', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition text-left text-slate-400">
                         <i class="fas fa-cog w-5 text-center"></i> Pengaturan
-                    </button>
-                    <button id="nav-log" onclick="switchView('view-log', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition text-left text-slate-400">
-                        <i class="fas fa-terminal w-5 text-center text-indigo-400"></i> Firebase Log
                     </button>
                 </div>
             </nav>
@@ -151,10 +193,10 @@
                     <div id="userBadge" class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold">A</div>
                     <div class="overflow-hidden">
                         <p id="userNameDisplay" class="text-[10px] font-bold text-white truncate">Administrator</p>
-                        <p id="userRoleDisplay" class="text-[8px] text-slate-400 uppercase">Super Admin</p>
+                        <p id="userRoleDisplay" class="text-[8px] text-slate-400 uppercase">Administrator</p>
                     </div>
                 </div>
-                <button onclick="logout()" class="w-full py-2 bg-rose-500/10 text-rose-500 text-[10px] font-bold uppercase rounded-lg hover:bg-rose-500 hover:text-white transition">Keluar Sistem</button>
+                <button onclick="logout()" class="w-full py-2 bg-rose-500/10 text-rose-500 text-[10px] font-bold uppercase rounded-lg hover:bg-rose-500 hover:text-white transition">Logout</button>
             </div>
         </aside>
 
@@ -168,9 +210,13 @@
                         <p id="digital-clock" class="text-[11px] font-bold text-indigo-600 uppercase tracking-tight leading-tight">Memuat Waktu...</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-4">
+                <div class="flex flex-col items-end">
+                    <!-- INSTRUKSI 2: Database status with animation -->
                     <div id="firebase-status" class="flex items-center gap-2 text-[10px] font-bold text-amber-500 bg-amber-50 px-3 py-1.5 rounded-full uppercase border border-amber-100">
-                        <i class="fas fa-circle-notch fa-spin"></i> Menghubungkan...
+                        <i class="fas fa-circle-notch fa-spin"></i> Database Menghubungkan...
+                    </div>
+                    <div id="db-indicator-box" class="w-full h-1 bg-slate-100 rounded-full mt-1 overflow-hidden relative">
+                        <div id="db-indicator-bar" class="absolute inset-0 anim-connecting"></div>
                     </div>
                 </div>
             </header>
@@ -179,33 +225,40 @@
                 
                 <!-- View Produk -->
                 <div id="view-produk" class="view-section block animate-[fadeIn_0.3s_ease-out]">
-                    <div class="mb-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-                            <div class="bg-blue-50 text-blue-600 p-3 rounded-xl hidden sm:block"><i class="fas fa-database"></i></div>
+                    <div class="mb-6 grid grid-cols-2 md:grid-cols-5 gap-3">
+                        <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
+                            <div class="bg-blue-50 text-blue-600 p-2.5 rounded-xl hidden sm:block"><i class="fas fa-database text-xs"></i></div>
                             <div>
-                                <p class="text-[10px] text-slate-400 uppercase font-bold">Produk</p>
-                                <p class="text-xl font-bold text-slate-800" id="stat-record">0</p>
+                                <p class="text-[9px] text-slate-400 uppercase font-bold">Produk</p>
+                                <p class="text-base font-bold text-slate-800" id="stat-record">0</p>
                             </div>
                         </div>
-                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-                            <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl hidden sm:block"><i class="fas fa-money-bill-wave"></i></div>
+                        <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
+                            <div class="bg-emerald-50 text-emerald-600 p-2.5 rounded-xl hidden sm:block"><i class="fas fa-money-bill-wave text-xs"></i></div>
                             <div>
-                                <p class="text-[10px] text-slate-400 uppercase font-bold">Modal Stok</p>
-                                <p class="text-sm font-bold text-slate-800" id="stat-modal">Rp 0</p>
+                                <p class="text-[9px] text-slate-400 uppercase font-bold">Modal Stok</p>
+                                <p class="text-[11px] font-bold text-slate-800" id="stat-modal">Rp 0</p>
                             </div>
                         </div>
-                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-                            <div class="bg-indigo-50 text-indigo-600 p-3 rounded-xl hidden sm:block"><i class="fas fa-chart-line"></i></div>
+                        <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
+                            <div class="bg-indigo-50 text-indigo-600 p-2.5 rounded-xl hidden sm:block"><i class="fas fa-chart-line text-xs"></i></div>
                             <div>
-                                <p class="text-[10px] text-slate-400 uppercase font-bold">Total Pendapatan</p>
-                                <p class="text-sm font-bold text-slate-800" id="stat-jual">Rp 0</p>
+                                <p class="text-[9px] text-slate-400 uppercase font-bold">Total Pendapatan</p>
+                                <p class="text-[11px] font-bold text-slate-800" id="stat-jual">Rp 0</p>
                             </div>
                         </div>
-                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-                            <div class="bg-amber-50 text-amber-600 p-3 rounded-xl hidden sm:block"><i class="fas fa-boxes"></i></div>
+                        <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
+                            <div class="bg-rose-50 text-rose-600 p-2.5 rounded-xl hidden sm:block"><i class="fas fa-hand-holding-usd text-xs"></i></div>
                             <div>
-                                <p class="text-[10px] text-slate-400 uppercase font-bold">Item Stok</p>
-                                <p class="text-xl font-bold text-slate-800" id="stat-stok">0</p>
+                                <p class="text-[9px] text-slate-400 uppercase font-bold">Laba Bersih</p>
+                                <p class="text-[11px] font-bold text-emerald-600" id="stat-laba">Rp 0</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
+                            <div class="bg-amber-50 text-amber-600 p-2.5 rounded-xl hidden sm:block"><i class="fas fa-boxes text-xs"></i></div>
+                            <div>
+                                <p class="text-[9px] text-slate-400 uppercase font-bold">Item Stok</p>
+                                <p class="text-base font-bold text-slate-800" id="stat-stok">0</p>
                             </div>
                         </div>
                     </div>
@@ -229,6 +282,7 @@
                                         <th class="px-5 py-3">Kategori</th>
                                         <th class="px-5 py-3 text-right">Modal</th>
                                         <th class="px-5 py-3 text-right">Jual</th>
+                                        <th class="px-5 py-3 text-center">Expired</th>
                                         <th class="px-5 py-3 text-center">Stok</th>
                                         <th class="px-5 py-3 text-center">Aksi</th>
                                     </tr>
@@ -295,7 +349,6 @@
                                 <button onclick="clearCart()" class="text-[10px] uppercase font-bold bg-white/10 hover:bg-rose-500 px-3 py-1.5 pos-btn transition">RESET</button>
                             </div>
                         </div>
-                        
                         <div class="flex-1 overflow-y-auto p-4 custom-scrollbar bg-white" id="cartContainer">
                             <ul id="cartList" class="divide-y divide-slate-200 max-w-4xl mx-auto"></ul>
                             <div id="emptyCartMsg" class="flex flex-col items-center justify-center h-48 text-slate-300">
@@ -303,7 +356,6 @@
                                 <p class="text-xs font-bold uppercase tracking-tighter">Keranjang Kosong</p>
                             </div>
                         </div>
-
                         <div class="p-4 border-t-2 border-slate-900 bg-slate-100 shrink-0">
                             <div class="max-w-4xl mx-auto flex flex-col md:flex-row gap-4 items-center justify-between">
                                 <div class="w-full md:w-auto">
@@ -388,29 +440,33 @@
                     </div>
                 </div>
 
-                <!-- View Firebase Log -->
-                <div id="view-log" class="view-section hidden h-full overflow-y-auto animate-[fadeIn_0.3s_ease-out]">
-                    <div class="bg-slate-900 text-slate-300 rounded-2xl shadow-xl overflow-hidden font-mono text-[10px]">
-                        <div class="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center">
-                            <span>Sistem Log Aktivitas Cloud (Database Realtime)</span>
-                        </div>
-                        <div class="p-2 overflow-x-auto min-h-[400px]">
-                            <table class="w-full text-left">
-                                <thead class="text-slate-500 border-b border-slate-800 uppercase">
-                                    <tr><th class="p-2">Waktu</th><th class="p-2">Aksi</th><th class="p-2">Detail</th></tr>
-                                </thead>
-                                <tbody id="logTableBody"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
             </main>
         </div>
     </div>
 
-    <!-- Modals -->
-    
-    <!-- Modal Pilih Barang Belanja -->
+    <!-- Modal Firebase Log (Universal) -->
+    <div id="logModal" class="fixed inset-0 bg-slate-900/95 hidden z-[3000] flex justify-center items-center p-4 backdrop-blur-xl">
+        <div class="bg-slate-900 text-slate-300 rounded-2xl shadow-2xl w-full max-w-5xl overflow-hidden font-mono text-[10px] border border-slate-800 flex flex-col h-[90vh]">
+            <div class="p-5 bg-slate-800 border-b border-slate-700 flex justify-between items-center shrink-0">
+                <span class="font-bold flex items-center gap-2"><i class="fas fa-terminal text-indigo-400"></i> Cloud Activity Logs (Detailed)</span>
+                <button onclick="closeLogModal()" class="text-slate-500 hover:text-white transition"><i class="fas fa-times text-lg"></i></button>
+            </div>
+            <div class="flex-1 overflow-auto custom-scrollbar p-2">
+                <table class="w-full text-left">
+                    <thead class="text-slate-500 border-b border-slate-800 uppercase sticky top-0 bg-slate-900">
+                        <tr><th class="p-3">Timestamp</th><th class="p-3">Action</th><th class="p-3">Detail Information</th></tr>
+                    </thead>
+                    <tbody id="logTableBody"></tbody>
+                </table>
+            </div>
+            <div class="p-4 bg-slate-800 text-[9px] text-slate-500 border-t border-slate-700 flex justify-between">
+                <span>Firebase Collection: system_logs</span>
+                <span>Press Esc to close</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals (POS & Product) -->
     <div id="posItemModal" class="fixed inset-0 bg-slate-900/80 hidden z-[70] flex justify-center items-center p-4 backdrop-blur-md">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-5xl modal-enter overflow-hidden flex flex-col max-h-[90vh]">
             <div class="p-5 border-b border-slate-100 flex justify-between items-center shrink-0">
@@ -426,7 +482,6 @@
                     <option value="all">Semua Kategori</option>
                 </select>
             </div>
-            
             <div class="flex-1 overflow-auto custom-scrollbar bg-white">
                 <table class="w-full text-left border-collapse min-w-[700px]">
                     <thead class="bg-slate-100 sticky top-0 z-10">
@@ -434,6 +489,7 @@
                             <th class="p-4 border-b">Nama Barang</th>
                             <th class="p-4 border-b">Kategori</th>
                             <th class="p-4 border-b text-right">Harga Jual</th>
+                            <th class="p-4 border-b text-center">Expired</th>
                             <th class="p-4 border-b text-center">Stok</th>
                             <th class="p-4 border-b text-center">Aksi</th>
                         </tr>
@@ -445,7 +501,6 @@
                     <p class="font-bold">Barang tidak ditemukan...</p>
                 </div>
             </div>
-            
             <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center shrink-0">
                 <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Tekan Esc untuk menutup</p>
                 <button onclick="closePosItemModal()" class="bg-slate-900 text-white px-6 py-2.5 rounded-xl font-bold text-xs">Selesai</button>
@@ -453,7 +508,6 @@
         </div>
     </div>
 
-    <!-- Modal Form Produk -->
     <div id="productModal" class="fixed inset-0 bg-slate-900/60 hidden z-[60] flex justify-center items-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md modal-enter overflow-hidden">
             <div class="p-5 border-b border-slate-100 flex justify-between items-center">
@@ -475,6 +529,9 @@
                             <option value="Obat Keras">Obat Keras</option>
                             <option value="Jamu">Jamu</option>
                             <option value="Obat Herbal">Obat Herbal</option>
+                            <option value="Narkotika">Narkotika</option>
+                            <option value="Fitofarmaka">Fitofarmaka</option>
+                            <option value="Lainnya">Lainnya</option>
                         </select>
                     </div>
                     <div>
@@ -491,6 +548,11 @@
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Stok Awal</label>
                         <input type="number" id="formStock" required class="w-full p-3 border border-slate-200 rounded-xl outline-none">
                     </div>
+                </div>
+                <!-- INSTRUKSI 3: Expired Date Input -->
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Tanggal Kadaluarsa (Exp Date)</label>
+                    <input type="date" id="formExp" class="w-full p-3 border border-slate-200 rounded-xl outline-none">
                 </div>
                 <div class="pt-4 flex gap-3">
                     <button type="button" onclick="closeProductModal()" class="flex-1 py-3 border border-slate-200 rounded-xl font-bold">Batal</button>
@@ -510,6 +572,25 @@
         </div>
     </div>
 
+    <!-- Modal Konfirmasi Transaksi -->
+    <div id="confirmTrxModal" class="fixed inset-0 bg-slate-900/60 hidden z-[2100] flex justify-center items-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm modal-enter p-8 text-center border-4 border-slate-900">
+            <div class="mx-auto w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-3xl mb-4">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">Konfirmasi Bayar?</h3>
+            <p class="text-slate-500 mb-2 text-xs">Pastikan uang tunai yang diterima sudah benar.</p>
+            <div class="bg-slate-50 p-4 rounded-2xl mb-6">
+                <p class="text-[10px] text-slate-400 font-bold uppercase">Total Tagihan</p>
+                <p id="confirmTotalText" class="text-2xl font-black text-slate-900"></p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="document.getElementById('confirmTrxModal').classList.add('hidden')" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold">Batal</button>
+                <button onclick="processFinalTransaction()" class="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100">Ya, Bayar</button>
+            </div>
+        </div>
+    </div>
+
     <div id="receiptModal" class="fixed inset-0 bg-slate-900/60 hidden z-[80] flex justify-center items-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm modal-enter text-center p-8">
             <div class="mx-auto w-16 h-16 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center text-2xl mb-4"><i class="fas fa-check"></i></div>
@@ -522,7 +603,6 @@
         </div>
     </div>
 
-    <!-- Container for PDFs and Printing -->
     <div id="printContainer" class="hidden"></div>
     <div id="toast-container" class="fixed top-5 right-5 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
@@ -554,18 +634,39 @@
 
         let state = {
             products: [], cart: [], transactions: [], stockLogs: [], firebaseLogs: [],
-            settings: { storeName: 'KASIR PRO', adminName: 'Super Admin', cashierName: 'Kasir Utama', address: '-', phone: '-' },
+            settings: { storeName: 'KASIR PRO', adminName: 'Administrator', cashierName: 'Kasir Utama', address: '-', phone: '-' },
             currentUser: null, lastTrx: null, targetLogin: null
         };
 
-        // UI HELPERS
+        // INSTRUKSI 1: Thermal Modal Access
+        window.openThermalModal = () => {
+            document.getElementById('thermalModal').classList.remove('hidden');
+            document.getElementById('thermalPassInput').focus();
+        };
+        window.closeThermalModal = () => {
+            document.getElementById('thermalModal').classList.add('hidden');
+            document.getElementById('thermalPassInput').value = '';
+        };
+        window.validateThermalPass = () => {
+            const pass = document.getElementById('thermalPassInput').value;
+            if (pass === 'log123') {
+                closeThermalModal();
+                document.getElementById('logModal').classList.remove('hidden');
+                renderSystemLogs();
+            } else {
+                alert("ACCESS DENIED: WRONG PASSWORD");
+                document.getElementById('thermalPassInput').value = '';
+            }
+        };
+
+        window.closeLogModal = () => document.getElementById('logModal').classList.add('hidden');
+
         window.showFeedback = (title, text, type = 'success') => {
             const modal = document.getElementById('feedbackModal');
             const icon = document.getElementById('feedbackIcon');
             const titleEl = document.getElementById('feedbackTitle');
             const textEl = document.getElementById('feedbackText');
             if (!modal || !icon || !titleEl || !textEl) return;
-            
             titleEl.innerText = title;
             textEl.innerText = text;
             if (type === 'success') {
@@ -588,13 +689,21 @@
 
         const formatRupiah = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
 
-        // LOGIN SYSTEM
+        // INSTRUKSI 3: Helper logic expired check
+        const checkExpired = (dateStr) => {
+            if (!dateStr) return false;
+            const exp = new Date(dateStr);
+            const now = new Date();
+            const oneMonthLater = new Date();
+            oneMonthLater.setMonth(now.getMonth() + 1);
+            return exp <= oneMonthLater;
+        };
+
         window.showLoginInput = (role) => {
             state.targetLogin = role;
             const modal = document.getElementById('loginInputModal');
             const iconBox = document.getElementById('loginIconBox');
             const title = document.getElementById('loginTitle');
-            
             if (role === 'Admin') {
                 iconBox.className = "mx-auto w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-3xl mb-4";
                 iconBox.innerHTML = '<i class="fas fa-user-shield"></i>';
@@ -604,7 +713,6 @@
                 iconBox.innerHTML = '<i class="fas fa-cash-register"></i>';
                 title.innerText = "Login Petugas Kasir";
             }
-            
             modal.classList.remove('hidden');
             document.getElementById('loginPasswordInput').focus();
         };
@@ -617,7 +725,6 @@
         window.processLogin = () => {
             const pass = document.getElementById('loginPasswordInput').value;
             const role = state.targetLogin;
-
             if (role === 'Admin' && pass === 'admin**') {
                 state.currentUser = { role: 'Admin', name: state.settings.adminName };
                 authorizeApp();
@@ -633,17 +740,14 @@
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('loginInputModal').classList.add('hidden');
             document.getElementById('app-wrapper').classList.remove('hidden');
-            
             const badge = document.getElementById('userBadge');
             const nameDisp = document.getElementById('userNameDisplay');
             const roleDisp = document.getElementById('userRoleDisplay');
             const adminExtras = document.getElementById('admin-extras');
-            
             badge.innerText = state.currentUser.name.charAt(0);
             badge.className = `w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${state.currentUser.role === 'Admin' ? 'bg-indigo-500' : 'bg-emerald-500'}`;
             nameDisp.innerText = state.currentUser.name;
-            roleDisp.innerText = state.currentUser.role === 'Admin' ? 'Super Admin' : 'Staff Kasir';
-
+            roleDisp.innerText = state.currentUser.role === 'Admin' ? 'Administrator' : 'Staff Kasir';
             if (state.currentUser.role === 'Kasir') {
                 document.getElementById('menu-produk').classList.add('hidden');
                 document.getElementById('menu-barang-masuk').classList.add('hidden');
@@ -655,15 +759,10 @@
                 adminExtras.classList.remove('hidden');
                 switchView('view-produk', document.getElementById('menu-produk'));
             }
-
             window.showFeedback('Berhasil Masuk', `Selamat bekerja, ${state.currentUser.name}!`);
         };
 
-        window.logout = () => {
-            location.reload();
-        };
-
-        // UI Helpers
+        window.logout = () => { location.reload(); };
         window.toggleSidebar = () => {
             const s = document.getElementById('sidebar');
             const o = document.getElementById('sidebarOverlay');
@@ -672,21 +771,11 @@
         };
 
         window.switchView = (id, btn) => {
-            // Handle Fullscreen for view-kasir
             if (id === 'view-kasir') {
-                if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen().catch(e => {
-                        console.log("Fullscreen request failed: ", e);
-                    });
-                }
+                if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(e => console.log(e)); }
             } else {
-                if (document.fullscreenElement) {
-                    document.exitFullscreen().catch(e => {
-                        console.log("Exit fullscreen failed: ", e);
-                    });
-                }
+                if (document.fullscreenElement) { document.exitFullscreen().catch(e => console.log(e)); }
             }
-
             document.querySelectorAll('.view-section').forEach(v => v.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
             document.querySelectorAll('.nav-item').forEach(n => {
@@ -699,15 +788,44 @@
             if (window.innerWidth < 1024) toggleSidebar();
         };
 
-        // Firebase Sync
         onAuthStateChanged(auth, async (user) => {
+            const statusEl = document.getElementById('firebase-status');
+            const barEl = document.getElementById('db-indicator-bar');
+
             if (user) {
                 state.user = user;
-                document.getElementById('firebase-status').innerHTML = '<i class="fas fa-check-circle"></i> Database Online';
-                document.getElementById('firebase-status').className = 'flex items-center gap-2 text-[10px] font-bold text-emerald-500 bg-emerald-50 px-3 py-1.5 rounded-full uppercase border border-emerald-100';
+                statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Database Online';
+                statusEl.className = 'flex items-center gap-2 text-[10px] font-bold text-emerald-500 bg-emerald-50 px-3 py-1.5 rounded-full uppercase border border-emerald-100';
+                
+                // INSTRUKSI 2: Update animation to Online
+                barEl.className = "absolute inset-0 anim-online";
+                
                 initSync();
-            } else { await signInAnonymously(auth); }
+            } else { 
+                // INSTRUKSI 2: Update animation to Connecting
+                statusEl.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Database Menghubungkan...';
+                statusEl.className = 'flex items-center gap-2 text-[10px] font-bold text-amber-500 bg-amber-50 px-3 py-1.5 rounded-full uppercase border border-amber-100';
+                barEl.className = "absolute inset-0 anim-connecting";
+                
+                await signInAnonymously(auth); 
+            }
         });
+
+        const updateHeaderStats = () => {
+            let tModal = 0, tStok = 0;
+            state.products.forEach(p => {
+                tModal += (p.buyPrice * p.stock);
+                tStok += p.stock;
+            });
+            let tPendapatan = 0;
+            state.transactions.forEach(trx => { tPendapatan += trx.total; });
+            let tLaba = tPendapatan - tModal;
+            document.getElementById('stat-modal').innerText = formatRupiah(tModal);
+            document.getElementById('stat-jual').innerText = formatRupiah(tPendapatan);
+            document.getElementById('stat-laba').innerText = formatRupiah(tLaba);
+            document.getElementById('stat-laba').className = tLaba >= 0 ? "text-[11px] font-bold text-emerald-600" : "text-[11px] font-bold text-rose-600";
+            document.getElementById('stat-stok').innerText = tStok;
+        };
 
         const initSync = () => {
             onSnapshot(doc(colSettings, 'config'), (snap) => {
@@ -719,6 +837,11 @@
                     document.getElementById('setPhone').value = state.settings.phone;
                     document.getElementById('setAddress').value = state.settings.address;
                 }
+            }, (err) => {
+                // INSTRUKSI 2: Handle Offline animation
+                document.getElementById('firebase-status').innerHTML = '<i class="fas fa-times-circle"></i> Database Offline';
+                document.getElementById('firebase-status').className = 'flex items-center gap-2 text-[10px] font-bold text-rose-500 bg-rose-50 px-3 py-1.5 rounded-full uppercase border border-rose-100';
+                document.getElementById('db-indicator-bar').className = "absolute inset-0 anim-offline";
             });
             onSnapshot(colProducts, (snap) => {
                 state.products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -726,10 +849,12 @@
                 renderBarangMasukSelect();
                 updateCategoryFilter();
                 handlePOSSearch();
+                updateHeaderStats();
             });
             onSnapshot(colTransactions, (snap) => {
                 state.transactions = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.timestamp.localeCompare(a.timestamp));
                 renderTransactions();
+                updateHeaderStats();
             });
             onSnapshot(colStockLogs, (snap) => {
                 state.stockLogs = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.timestamp.localeCompare(a.timestamp));
@@ -741,32 +866,31 @@
             });
         };
 
-        // Logic Produk
         window.renderProductTable = () => {
             const tbody = document.getElementById('productTableBody');
             const search = document.getElementById('searchInput').value.toLowerCase();
             tbody.innerHTML = '';
-            let tModal = 0, tStok = 0;
             const filtered = state.products.filter(p => p.name.toLowerCase().includes(search));
             filtered.forEach(p => {
-                tModal += (p.buyPrice * p.stock); tStok += p.stock;
+                const isLow = p.stock < 5;
+                const blinkClass = isLow ? 'blink-low-stock px-2 py-0.5 rounded-md inline-block' : '';
+                // INSTRUKSI 3: Logic blink expired
+                const isExp = checkExpired(p.expiredDate);
+                const expBlink = isExp ? 'blink-expired' : 'text-slate-500';
+                
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition">
                         <td class="px-5 py-4 font-bold text-slate-800">${p.name}</td>
                         <td class="px-5 py-4"><span class="bg-slate-100 text-[9px] px-2 py-0.5 rounded font-bold uppercase">${p.category}</span></td>
                         <td class="px-5 py-4 text-right text-slate-400">${formatRupiah(p.buyPrice)}</td>
                         <td class="px-5 py-4 text-right font-bold text-indigo-600">${formatRupiah(p.sellPrice)}</td>
-                        <td class="px-5 py-4 text-center">
-                            <span class="font-bold ${p.stock < 5 ? 'text-rose-600' : ''}">${p.stock}</span>
-                        </td>
+                        <td class="px-5 py-4 text-center"><span class="${expBlink}">${p.expiredDate || '-'}</span></td>
+                        <td class="px-5 py-4 text-center"><span class="font-bold ${blinkClass}">${p.stock}</span></td>
                         <td class="px-5 py-4 text-center"><button onclick="editProduct('${p.id}')" class="text-indigo-600 p-2"><i class="fas fa-edit"></i></button></td>
                     </tr>
                 `;
             });
             document.getElementById('stat-record').innerText = filtered.length;
-            document.getElementById('stat-modal').innerText = formatRupiah(tModal);
-            document.getElementById('stat-jual').innerText = formatRupiah(state.transactions.reduce((acc, trx) => acc + trx.total, 0));
-            document.getElementById('stat-stok').innerText = tStok;
         };
 
         window.openProductModal = () => {
@@ -785,7 +909,8 @@
                 category: document.getElementById('formCat').value,
                 buyPrice: parseInt(document.getElementById('formBuy').value),
                 sellPrice: parseInt(document.getElementById('formSell').value),
-                stock: parseInt(document.getElementById('formStock').value)
+                stock: parseInt(document.getElementById('formStock').value),
+                expiredDate: document.getElementById('formExp').value // INSTRUKSI 3
             };
             try {
                 await setDoc(doc(colProducts, id), data);
@@ -803,11 +928,11 @@
             document.getElementById('formBuy').value = p.buyPrice;
             document.getElementById('formSell').value = p.sellPrice;
             document.getElementById('formStock').value = p.stock;
+            document.getElementById('formExp').value = p.expiredDate || ''; // INSTRUKSI 3
             document.getElementById('modalTitle').innerText = 'Edit Produk';
             document.getElementById('productModal').classList.remove('hidden');
         };
 
-        // Barang Masuk
         window.renderBarangMasukSelect = () => {
             const s = document.getElementById('bmSelectProduct');
             s.innerHTML = '<option value="">Cari & Pilih Produk...</option>' + state.products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
@@ -835,7 +960,6 @@
             tbody.innerHTML = filtered.map(l => `<tr><td class="px-5 py-3 text-slate-400">${new Date(l.timestamp).toLocaleString()}</td><td class="px-5 py-3 font-bold">${l.productName}</td><td class="px-5 py-3 text-center text-emerald-600 font-bold">+${l.qty}</td><td class="px-5 py-3">${l.admin}</td></tr>`).join('');
         };
 
-        // Kasir POS
         window.openPosItemModal = () => { document.getElementById('posItemModal').classList.remove('hidden'); handlePOSSearch(); };
         window.closePosItemModal = () => document.getElementById('posItemModal').classList.add('hidden');
 
@@ -844,16 +968,12 @@
             const tableBody = document.getElementById('posProductTableBody');
             const empty = document.getElementById('posEmptyState');
             const cat = document.getElementById('posCategoryFilter').value;
-            
             let filtered = state.products.filter(p => p.name.toLowerCase().includes(s));
             if (cat !== 'all') filtered = filtered.filter(p => p.category === cat);
-            
             if (filtered.length === 0) { 
-                tableBody.innerHTML = ''; 
-                empty.classList.remove('hidden'); 
+                tableBody.innerHTML = ''; empty.classList.remove('hidden'); 
             } else { 
-                empty.classList.add('hidden'); 
-                renderPOSList(filtered); 
+                empty.classList.add('hidden'); renderPOSList(filtered); 
             }
         };
 
@@ -867,12 +987,16 @@
             const tbody = document.getElementById('posProductTableBody');
             tbody.innerHTML = prods.map(p => {
                 const isLow = p.stock > 0 && p.stock < 5;
+                const blinkClass = isLow ? 'blink-low-stock px-2 py-0.5 rounded-md inline-block' : '';
+                const isExp = checkExpired(p.expiredDate);
+                const expBlink = isExp ? 'blink-expired' : '';
                 return `
-                <tr class="hover:bg-slate-50 transition ${isLow ? 'blink-low-stock' : ''}">
+                <tr class="hover:bg-slate-50 transition">
                     <td class="p-4 font-bold text-slate-800">${p.name}</td>
                     <td class="p-4 text-[9px] uppercase font-bold text-slate-400">${p.category}</td>
                     <td class="p-4 text-right font-black text-indigo-600">${formatRupiah(p.sellPrice)}</td>
-                    <td class="p-4 text-center font-bold ${p.stock < 5 ? 'text-rose-500' : ''}">${p.stock}</td>
+                    <td class="p-4 text-center"><span class="${expBlink}">${p.expiredDate || '-'}</span></td>
+                    <td class="p-4 text-center"><span class="font-bold ${blinkClass}">${p.stock}</span></td>
                     <td class="p-4 text-center">
                         <button onclick="addToCart('${p.id}')" class="bg-indigo-600 text-white px-4 py-1.5 rounded-lg text-[10px] font-bold hover:bg-slate-900 transition active:scale-95">TAMBAH</button>
                     </td>
@@ -883,16 +1007,14 @@
         window.addToCart = (id) => {
             const p = state.products.find(x => x.id === id);
             if (p.stock <= 0) return window.showFeedback('Stok Habis', 'Barang ini kosong!', 'error');
-            
             const item = state.cart.find(c => c.id === id);
             if (item) { 
                 if (item.qty < p.stock) item.qty++; 
                 else return window.showFeedback('Batas Stok', 'Stok tidak mencukupi!', 'error');
-            } else { 
-                state.cart.push({ ...p, qty: 1 }); 
-            }
+            } else { state.cart.push({ ...p, qty: 1 }); }
             renderCart();
-            closePosItemModal();
+            // INSTRUKSI 2: Otomatis keluar setelah menambahkan barang
+            window.closePosItemModal();
         };
 
         window.updateCartQty = (id, delta) => {
@@ -927,26 +1049,31 @@
 
         window.clearCart = () => { state.cart = []; renderCart(); };
 
-        window.confirmCheckout = async () => {
+        window.confirmCheckout = () => {
             if (state.cart.length === 0) return;
             const total = state.cart.reduce((s, i) => s + (i.sellPrice * i.qty), 0);
             const cash = parseInt(document.getElementById('posCashIn').value) || 0;
             if (cash < total) return window.showFeedback('Uang Kurang', 'Nominal uang belum cukup!', 'error');
+            
+            // Tampilkan modal konfirmasi
+            document.getElementById('confirmTotalText').innerText = formatRupiah(total);
+            document.getElementById('confirmTrxModal').classList.remove('hidden');
+        };
 
+        window.processFinalTransaction = async () => {
+            document.getElementById('confirmTrxModal').classList.add('hidden');
+            const total = state.cart.reduce((s, i) => s + (i.sellPrice * i.qty), 0);
+            const cash = parseInt(document.getElementById('posCashIn').value) || 0;
             try {
                 const trxId = `TRX-${Date.now()}`;
                 const trxData = { 
-                    items: state.cart.map(i => ({ name: i.name, qty: i.qty, price: i.sellPrice })), 
-                    total, cash, change: cash - total, 
-                    timestamp: new Date().toISOString(), 
-                    cashier: state.currentUser.name 
+                    items: state.cart.map(i => ({ name: i.name, qty: i.qty, price: i.sellPrice, buyPrice: i.buyPrice })), 
+                    total, cash, change: cash - total, timestamp: new Date().toISOString(), cashier: state.currentUser.name 
                 };
-                
                 for (const item of state.cart) {
                     const p = state.products.find(x => x.id === item.id);
                     await updateDoc(doc(colProducts, item.id), { stock: p.stock - item.qty });
                 }
-                
                 await setDoc(doc(colTransactions, trxId), trxData);
                 await addDoc(colSystemLogs, { action: 'TRANSAKSI', details: `Penjualan baru ${trxId} (${formatRupiah(total)})`, timestamp: new Date().toISOString() });
                 state.lastTrx = { id: trxId, ...trxData };
@@ -972,109 +1099,46 @@
             } catch (e) { window.showFeedback('Gagal', 'Gagal simpan', 'error'); }
         };
 
-        // EXPORT / PDF FEATURE (FIXED)
         window.generatePDF = (type) => {
             const container = document.getElementById('printContainer');
-            container.innerHTML = ''; // Clear
-            
+            container.innerHTML = ''; 
             let contentHtml = `<div style="padding: 20mm; font-family: sans-serif; background: white;">`;
             contentHtml += `<div style="text-align:center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px;">
                                 <h1 style="margin:0; font-size: 24px;">LAPORAN ${type.toUpperCase()}</h1>
                                 <p style="margin:5px 0;">${state.settings.storeName} | Dicetak pada: ${new Date().toLocaleString()}</p>
                             </div>`;
-
             if (type === 'produk') {
                 contentHtml += `<table class="print-table">
-                    <thead>
-                        <tr>
-                            <th>Nama Produk</th>
-                            <th>Kategori</th>
-                            <th>H. Modal</th>
-                            <th>H. Jual</th>
-                            <th>Stok</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Nama Produk</th><th>Kategori</th><th>H. Modal</th><th>H. Jual</th><th>Expired</th><th>Stok</th></tr></thead>
                     <tbody>`;
                 state.products.forEach(p => {
-                    contentHtml += `<tr>
-                        <td>${p.name}</td>
-                        <td>${p.category}</td>
-                        <td>${formatRupiah(p.buyPrice)}</td>
-                        <td>${formatRupiah(p.sellPrice)}</td>
-                        <td>${p.stock}</td>
-                    </tr>`;
+                    contentHtml += `<tr><td>${p.name}</td><td>${p.category}</td><td>${formatRupiah(p.buyPrice)}</td><td>${formatRupiah(p.sellPrice)}</td><td>${p.expiredDate || '-'}</td><td>${p.stock}</td></tr>`;
                 });
                 contentHtml += `</tbody></table>`;
-            } else if (type === 'barang-masuk') {
+            } 
+            // INSTRUKSI 1: Memperbaiki logic PDF Barang Masuk agar data tampil
+            else if (type === 'barang-masuk') {
                 contentHtml += `<table class="print-table">
-                    <thead>
-                        <tr>
-                            <th>Waktu</th>
-                            <th>Produk</th>
-                            <th>Qty</th>
-                            <th>Admin</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Waktu</th><th>Produk</th><th>Qty Masuk</th><th>Admin</th></tr></thead>
                     <tbody>`;
                 state.stockLogs.forEach(l => {
-                    contentHtml += `<tr>
-                        <td>${new Date(l.timestamp).toLocaleString()}</td>
-                        <td>${l.productName}</td>
-                        <td>+${l.qty}</td>
-                        <td>${l.admin}</td>
-                    </tr>`;
-                });
-                contentHtml += `</tbody></table>`;
-            } else if (type === 'transaksi') {
-                contentHtml += `<table class="print-table">
-                    <thead>
-                        <tr>
-                            <th>Waktu</th>
-                            <th>ID Trx</th>
-                            <th>Kasir</th>
-                            <th>Items</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>`;
-                state.transactions.forEach(t => {
-                    const itemsText = t.items.map(i => `${i.name}(${i.qty})`).join(', ');
-                    contentHtml += `<tr>
-                        <td>${new Date(t.timestamp).toLocaleString()}</td>
-                        <td>${t.id}</td>
-                        <td>${t.cashier}</td>
-                        <td>${itemsText}</td>
-                        <td>${formatRupiah(t.total)}</td>
-                    </tr>`;
-                });
-                contentHtml += `</tbody></table>`;
-            } else if (type === 'logs') {
-                contentHtml += `<table class="print-table">
-                    <thead>
-                        <tr>
-                            <th>Waktu</th>
-                            <th>Aksi</th>
-                            <th>Detail</th>
-                        </tr>
-                    </thead>
-                    <tbody>`;
-                state.firebaseLogs.forEach(l => {
-                    contentHtml += `<tr>
-                        <td>${new Date(l.timestamp).toLocaleString()}</td>
-                        <td>${l.action}</td>
-                        <td>${l.details}</td>
-                    </tr>`;
+                    contentHtml += `<tr><td>${new Date(l.timestamp).toLocaleString()}</td><td>${l.productName}</td><td>+${l.qty}</td><td>${l.admin}</td></tr>`;
                 });
                 contentHtml += `</tbody></table>`;
             }
-
+            else if (type === 'transaksi') {
+                contentHtml += `<table class="print-table">
+                    <thead><tr><th>Waktu</th><th>ID Trx</th><th>Kasir</th><th>Items</th><th>Total</th></tr></thead>
+                    <tbody>`;
+                state.transactions.forEach(t => {
+                    const itemsText = t.items.map(i => `${i.name}(${i.qty})`).join(', ');
+                    contentHtml += `<tr><td>${new Date(t.timestamp).toLocaleString()}</td><td>${t.id}</td><td>${t.cashier}</td><td>${itemsText}</td><td>${formatRupiah(t.total)}</td></tr>`;
+                });
+                contentHtml += `</tbody></table>`;
+            }
             contentHtml += `</div>`;
             container.innerHTML = contentHtml;
-            
-            // Start printing
-            setTimeout(() => {
-                window.print();
-            }, 500);
+            setTimeout(() => { window.print(); }, 500);
         };
 
         window.printLastReceipt = () => { if (state.lastTrx) printInvoice(state.lastTrx); window.closeReceiptModal(); };
@@ -1088,27 +1152,19 @@
                         <h1 style="margin:0; font-size: 28px;">${state.settings.storeName}</h1>
                         <p style="margin: 5px 0;">${state.settings.address} | ${state.settings.phone}</p>
                     </div>
-                    <div style="display:flex; justify-content: space-between; margin-bottom: 20px; font-size: 12px;">
-                        <div>
-                            <p><strong>INVOICE:</strong> ${trx.id}</p>
-                            <p><strong>WAKTU  :</strong> ${new Date(trx.timestamp).toLocaleString()}</p>
-                        </div>
-                        <div style="text-align:right">
-                            <p><strong>KASIR  :</strong> ${trx.cashier}</p>
-                        </div>
-                    </div>
                     <table style="width:100%; border-collapse: collapse;">
-                        <thead style="border-bottom: 1px solid #000;">
-                            <tr><th style="text-align:left">NAMA ITEM</th><th style="text-align:center">QTY</th><th style="text-align:right">TOTAL</th></tr>
-                        </thead>
-                        <tbody>
-                            ${trx.items.map(i => `<tr><td>${i.name}</td><td style="text-align:center">${i.qty}</td><td style="text-align:right">${formatRupiah(i.price * i.qty)}</td></tr>`).join('')}
-                        </tbody>
+                        <thead style="border-bottom: 1px solid #000;"><tr><th style="text-align:left">NAMA ITEM</th><th style="text-align:center">QTY</th><th style="text-align:right">TOTAL</th></tr></thead>
+                        <tbody>${trx.items.map(i => `<tr><td>${i.name}</td><td style="text-align:center">${i.qty}</td><td style="text-align:right">${formatRupiah(i.price * i.qty)}</td></tr>`).join('')}</tbody>
                     </table>
                     <div style="margin-top:20px; border-top: 1px dashed #000; padding-top:10px;">
                         <div style="display:flex; justify-content: space-between; font-weight:bold;"><span>TOTAL</span><span>${formatRupiah(trx.total)}</span></div>
                         <div style="display:flex; justify-content: space-between;"><span>TUNAI</span><span>${formatRupiah(trx.cash)}</span></div>
                         <div style="display:flex; justify-content: space-between;"><span>KEMBALI</span><span>${formatRupiah(trx.change)}</span></div>
+                    </div>
+                    <!-- INSTRUKSI 1: Tambahan Teks Footnote Struk -->
+                    <div style="margin-top:30px; text-align:center; border-top: 1px solid #000; padding-top:10px; font-size: 10px;">
+                        <p style="margin: 2px 0;">Terimakasih atas kunjungan anda</p>
+                        <p style="margin: 2px 0; font-weight: bold;">Barang yang sudah dibeli tidak dapat ditukar atau dikembalikan</p>
                     </div>
                 </div>`;
             window.print();
@@ -1120,85 +1176,49 @@
             const d = state.transactions.filter(t => !f || t.timestamp.startsWith(f));
             tbody.innerHTML = d.map(t => {
                 const itemNames = t.items.map(i => `${i.name} (${i.qty})`).join(', ');
-                return `
-                <tr class="hover:bg-slate-50">
+                return `<tr class="hover:bg-slate-50">
                     <td class="px-5 py-4 text-slate-500">${new Date(t.timestamp).toLocaleString()}</td>
                     <td class="px-5 py-4 font-bold text-indigo-600">${t.id}</td>
                     <td class="px-5 py-4">${t.cashier}</td>
                     <td class="px-5 py-4 text-[10px] text-slate-400 truncate max-w-[200px]" title="${itemNames}">${itemNames}</td>
                     <td class="px-5 py-4 text-right font-bold text-slate-800">${formatRupiah(t.total)}</td>
                     <td class="px-5 py-4 text-center"><button onclick="printSpecificReceipt('${t.id}')" class="bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg text-[10px] font-bold">STRUK</button></td>
-                </tr>
-                `}).join('');
+                </tr>`}).join('');
         };
 
         window.renderSystemLogs = () => {
             const tbody = document.getElementById('logTableBody');
-            tbody.innerHTML = state.firebaseLogs.map(l => `<tr class="border-b border-slate-800 hover:bg-white/5"><td class="p-2 text-slate-500">${new Date(l.timestamp).toLocaleString()}</td><td class="p-2 text-indigo-400 font-bold">${l.action}</td><td class="p-2 text-slate-400">${l.details}</td></tr>`).join('');
+            tbody.innerHTML = state.firebaseLogs.map(l => `<tr class="border-b border-slate-800 hover:bg-white/5"><td class="p-3 text-slate-500 w-32">${new Date(l.timestamp).toLocaleString()}</td><td class="p-3 text-indigo-400 font-bold w-24">${l.action}</td><td class="p-3 text-slate-300">${l.details}</td></tr>`).join('');
         };
 
-        // KEYBOARD INTEGRATION & HOTKEYS
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
-                if (!document.getElementById('loginInputModal').classList.contains('hidden')) {
-                    e.preventDefault();
-                    window.processLogin();
-                } else if (!document.getElementById('feedbackModal').classList.contains('hidden')) {
-                    e.preventDefault();
-                    window.closeFeedback();
-                } else if (!document.getElementById('receiptModal').classList.contains('hidden')) {
-                    e.preventDefault();
-                    window.printLastReceipt();
-                } else if (!document.getElementById('productModal').classList.contains('hidden')) {
-                    e.preventDefault();
-                    window.saveProduct();
-                } else if (!document.getElementById('posItemModal').classList.contains('hidden')) {
+                if (!document.getElementById('thermalModal').classList.contains('hidden')) { e.preventDefault(); validateThermalPass(); }
+                else if (!document.getElementById('loginInputModal').classList.contains('hidden')) { e.preventDefault(); window.processLogin(); }
+                else if (!document.getElementById('confirmTrxModal').classList.contains('hidden')) { e.preventDefault(); window.processFinalTransaction(); }
+                else if (!document.getElementById('feedbackModal').classList.contains('hidden')) { e.preventDefault(); window.closeFeedback(); }
+                else if (!document.getElementById('receiptModal').classList.contains('hidden')) { e.preventDefault(); window.printLastReceipt(); }
+                else if (!document.getElementById('productModal').classList.contains('hidden')) { e.preventDefault(); window.saveProduct(); }
+                else if (!document.getElementById('posItemModal').classList.contains('hidden')) {
                     if (document.activeElement.id === 'posSearch') {
                         const rows = document.querySelectorAll('#posProductTableBody tr');
-                        if (rows.length === 1) {
-                            e.preventDefault();
-                            rows[0].querySelector('button').click();
-                        }
-                    } else {
-                        e.preventDefault();
-                        window.closePosItemModal();
-                    }
-                } else if (document.activeElement.id === 'posCashIn') {
-                    e.preventDefault();
-                    confirmCheckout();
-                }
+                        if (rows.length === 1) { e.preventDefault(); rows[0].querySelector('button').click(); }
+                    } else { e.preventDefault(); window.closePosItemModal(); }
+                } else if (document.activeElement.id === 'posCashIn') { e.preventDefault(); confirmCheckout(); }
             }
-
-            if (e.key === 'Escape') {
-                closePosItemModal();
-                closeProductModal();
-                closeLoginInput();
-                closeFeedback();
+            if (e.key === 'Escape') { 
+                document.getElementById('confirmTrxModal').classList.add('hidden');
+                closePosItemModal(); closeProductModal(); closeLoginInput(); closeFeedback(); closeLogModal(); closeThermalModal(); 
             }
-            if (e.key === 'F2') {
-                e.preventDefault();
-                openPosItemModal();
-            }
-            if (e.key === 'F8') {
-                e.preventDefault();
-                const btn = document.getElementById('menu-kasir');
-                if (btn) btn.click();
-            }
-            if (e.key === 'F9' && !document.getElementById('view-kasir').classList.contains('hidden')) {
-                e.preventDefault();
-                confirmCheckout();
-            }
+            if (e.key === 'F2') { e.preventDefault(); openPosItemModal(); }
+            if (e.key === 'F9' && !document.getElementById('view-kasir').classList.contains('hidden')) { e.preventDefault(); confirmCheckout(); }
         });
 
-        // Clock
         setInterval(() => {
             const clockEl = document.getElementById('digital-clock');
             if (clockEl) {
                 const now = new Date();
-                clockEl.innerHTML = `
-                    <span class="text-slate-400 font-medium">${now.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long'})}</span><br>
-                    <span class="text-lg font-black tracking-widest text-indigo-600">${now.toLocaleTimeString('id-ID', { hour12: false })}</span>
-                `;
+                clockEl.innerHTML = `<span class="text-slate-400 font-medium">${now.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long'})}</span><br><span class="text-lg font-black tracking-widest text-indigo-600">${now.toLocaleTimeString('id-ID', { hour12: false })}</span>`;
             }
         }, 1000);
     </script>
