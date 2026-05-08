@@ -67,6 +67,15 @@
             .print-table th { background-color: #f2f2f2 !important; -webkit-print-color-adjust: exact; 
                 print-color-adjust: exact; }
             .receipt-font { font-family: 'JetBrains Mono', monospace !important; font-size: 12px; color: black; }
+            
+            /* Instruksi 1: Footer PDF */
+            .pdf-footer {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                font-size: 8px;
+                color: #666;
+            }
         }
         
         .modal-enter { animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
@@ -176,6 +185,21 @@
             <div class="flex gap-2">
                 <button onclick="closeLoginInput()" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold">Batal</button>
                 <button onclick="processLogin()" class="flex-1 py-3 bg-indigo-600 text-white rounded-2xl font-bold">Masuk</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instruksi 3: Modal Konfirmasi Logout -->
+    <div id="logoutConfirmModal" class="fixed inset-0 bg-slate-900/60 hidden z-[2200] flex justify-center items-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm modal-enter p-8 text-center border-4 border-rose-500">
+            <div class="mx-auto w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center text-3xl mb-4">
+                <i class="fas fa-sign-out-alt"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">Konfirmasi Logout</h3>
+            <p class="text-slate-500 mb-6 text-xs">Apakah Anda yakin ingin keluar dari sistem? Sesi aktif Anda akan dihentikan.</p>
+            <div class="flex gap-3">
+                <button onclick="document.getElementById('logoutConfirmModal').classList.add('hidden')" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold">Batal</button>
+                <button onclick="location.reload()" class="flex-1 py-3 bg-rose-600 text-white rounded-xl font-bold shadow-lg shadow-rose-100">Ya, Keluar</button>
             </div>
         </div>
     </div>
@@ -812,7 +836,10 @@
             window.showFeedback('Berhasil Masuk', `Selamat bekerja, ${state.currentUser.name}!`);
         };
 
-        window.logout = () => { location.reload(); };
+        // Instruksi 3: Update Logout logic
+        window.logout = () => { 
+            document.getElementById('logoutConfirmModal').classList.remove('hidden');
+        };
         window.toggleSidebar = () => {
             const s = document.getElementById('sidebar');
             const o = document.getElementById('sidebarOverlay');
@@ -1144,10 +1171,11 @@
             } catch (e) { window.showFeedback('Gagal', 'Cloud error', 'error'); }
         };
 
+        // Instruksi 1: Update PDF Export dengan keterangan pencetak
         window.generatePDF = (type) => {
             const container = document.getElementById('printContainer');
             container.innerHTML = ''; 
-            let contentHtml = `<div style="padding: 20mm; font-family: sans-serif; background: white;">`;
+            let contentHtml = `<div style="padding: 20mm; font-family: sans-serif; background: white; position: relative; min-height: 250mm;">`;
             contentHtml += `<div style="text-align:center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px;">
                                 <h1 style="margin:0; font-size: 24px;">LAPORAN ${type.toUpperCase()}</h1>
                                 <p style="margin:5px 0;">${state.settings.storeName} | Dicetak: ${new Date().toLocaleString()}</p>
@@ -1165,6 +1193,10 @@
                 state.transactions.forEach(t => { contentHtml += `<tr><td>${new Date(t.timestamp).toLocaleString()}</td><td>${t.id}</td><td>${t.cashier}</td><td>${formatRupiah(t.total)}</td></tr>`; });
                 contentHtml += `</tbody></table>`;
             }
+
+            // Instruksi 1: Footer identitas pengeksport
+            contentHtml += `<div class="pdf-footer" style="position: absolute; bottom: 0; left: 0; font-size: 8px; font-weight: bold; color: #555;">Document Exported by: ${state.currentUser ? state.currentUser.name : 'Unknown System'}</div>`;
+            
             contentHtml += `</div>`;
             container.innerHTML = contentHtml;
             setTimeout(() => { window.print(); }, 500);
@@ -1173,13 +1205,19 @@
         window.printLastReceipt = () => { if (state.lastTrx) printInvoice(state.lastTrx); window.closeReceiptModal(); };
         window.printSpecificReceipt = (id) => { const trx = state.transactions.find(t => t.id === id); if (trx) printInvoice(trx); };
 
+        // Instruksi 1 & 2: Update Struk Invoice dengan identitas kasir dan pencetak
         const printInvoice = (trx) => {
             const container = document.getElementById('printContainer');
             container.innerHTML = `
-                <div class="receipt-font" style="width: 170mm; margin: 0 auto; color: #000; padding: 40px; border: 1px solid #eee;">
-                    <div style="text-align:center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
+                <div class="receipt-font" style="width: 170mm; margin: 0 auto; color: #000; padding: 40px; border: 1px solid #eee; position: relative;">
+                    <div style="text-align:center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px;">
                         <h1 style="margin:0; font-size: 28px;">${state.settings.storeName}</h1>
                         <p style="margin: 5px 0;">${state.settings.address} | ${state.settings.phone}</p>
+                    </div>
+                    <!-- Instruksi 2: Nama petugas di struk -->
+                    <div style="text-align: center; border-bottom: 1px dashed #ccc; padding-bottom: 10px; margin-bottom: 20px;">
+                        <p style="margin: 0; font-size: 10px; text-transform: uppercase;">Kasir: <strong>${trx.cashier}</strong></p>
+                        <p style="margin: 2px 0; font-size: 9px; color: #666;">ID: ${trx.id}</p>
                     </div>
                     <table style="width:100%; border-collapse: collapse;">
                         <thead style="border-bottom: 1px solid #000;"><tr><th style="text-align:left">NAMA ITEM</th><th style="text-align:center">QTY</th><th style="text-align:right">TOTAL</th></tr></thead>
@@ -1194,6 +1232,8 @@
                         <p style="margin: 2px 0;">Terimakasih atas kunjungan anda</p>
                         <p style="margin: 2px 0; font-weight: bold;">Barang yang sudah dibeli tidak dapat ditukar atau dikembalikan</p>
                     </div>
+                    <!-- Instruksi 1: Footer identitas pencetak -->
+                    <div class="pdf-footer" style="margin-top: 20px; text-align: left; font-size: 7px; color: #999;">Printed by: ${state.currentUser ? state.currentUser.name : 'System'}</div>
                 </div>`;
             window.print();
         };
@@ -1228,6 +1268,7 @@
             if (e.key === 'Escape') { 
                 document.getElementById('confirmTrxModal').classList.add('hidden');
                 document.getElementById('cashierSelectModal').classList.add('hidden');
+                document.getElementById('logoutConfirmModal').classList.add('hidden');
                 closePosItemModal(); closeProductModal(); closeLoginInput(); closeFeedback(); closeLogModal(); closeThermalModal(); 
             }
             if (e.key === 'F2') { e.preventDefault(); openPosItemModal(); }
