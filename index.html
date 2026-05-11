@@ -285,21 +285,21 @@
                             <div class="bg-emerald-50 text-emerald-600 p-2.5 rounded-xl hidden sm:block"><i class="fas fa-money-bill-wave text-xs"></i></div>
                             <div>
                                 <p class="text-[9px] text-slate-400 uppercase font-bold">Modal Stok</p>
-                                <p class="text-[11px] font-bold text-slate-800" id="stat-modal">Rp 0</p>
+                                <p class="text-[11px] font-bold text-slate-800" id="stat-modal">Rp 0,00</p>
                             </div>
                         </div>
                         <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
                             <div class="bg-indigo-50 text-indigo-600 p-2.5 rounded-xl hidden sm:block"><i class="fas fa-chart-line text-xs"></i></div>
                             <div>
                                 <p class="text-[9px] text-slate-400 uppercase font-bold">Total Pendapatan</p>
-                                <p class="text-[11px] font-bold text-slate-800" id="stat-jual">Rp 0</p>
+                                <p class="text-[11px] font-bold text-slate-800" id="stat-jual">Rp 0,00</p>
                             </div>
                         </div>
                         <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
                             <div class="bg-rose-50 text-rose-600 p-2.5 rounded-xl hidden sm:block"><i class="fas fa-hand-holding-usd text-xs"></i></div>
                             <div>
                                 <p class="text-[9px] text-slate-400 uppercase font-bold">Laba Bersih</p>
-                                <p class="text-[11px] font-bold text-emerald-600" id="stat-laba">Rp 0</p>
+                                <p class="text-[11px] font-bold text-emerald-600" id="stat-laba">Rp 0,00</p>
                             </div>
                         </div>
                         <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
@@ -408,16 +408,17 @@
                             <div class="max-w-4xl mx-auto flex flex-col md:flex-row gap-4 items-center justify-between">
                                 <div class="w-full md:w-auto">
                                     <p class="text-slate-500 font-bold uppercase text-[9px] mb-1">Total Tagihan</p>
-                                    <span id="cartTotalPrice" class="font-black text-slate-900 text-2xl md:text-3xl leading-none">Rp 0</span>
+                                    <span id="cartTotalPrice" class="font-black text-slate-900 text-2xl md:text-3xl leading-none">Rp 0,00</span>
                                 </div>
                                 <div class="w-full md:w-48">
                                     <label class="text-[9px] font-bold text-slate-500 uppercase">Uang Tunai (Rp)</label>
-                                    <input type="number" id="posCashIn" onkeyup="calculateChange()" placeholder="0" class="w-full p-2 bg-white border-2 border-slate-900 pos-square outline-none font-bold text-xl text-emerald-600">
+                                    <!-- Instruksi 3: Format nominal on input -->
+                                    <input type="text" id="posCashIn" oninput="handleNominalInput(this); calculateChange()" placeholder="0" class="w-full p-2 bg-white border-2 border-slate-900 pos-square outline-none font-bold text-xl text-emerald-600">
                                 </div>
                                 <div class="w-full md:w-64 flex flex-col gap-1">
                                     <div class="flex justify-between items-center text-[10px] px-1 font-bold">
                                         <span class="text-slate-500">KEMBALIAN:</span>
-                                        <span id="posChange" class="text-slate-900">Rp 0</span>
+                                        <span id="posChange" class="text-slate-900">Rp 0,00</span>
                                     </div>
                                     <button onclick="confirmCheckout()" class="w-full bg-slate-900 text-white font-bold py-3 pos-btn hover:bg-indigo-600 transition active:scale-95 text-xs uppercase tracking-widest">Bayar Sekarang (F9)</button>
                                 </div>
@@ -560,22 +561,23 @@
         </div>
     </div>
 
+    <!-- Instruksi 1: Update Product Modal with PPN & Margin -->
     <div id="productModal" class="fixed inset-0 bg-slate-900/60 hidden z-[60] flex justify-center items-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md modal-enter overflow-hidden">
             <div class="p-5 border-b border-slate-100 flex justify-between items-center">
                 <h3 class="font-bold text-lg" id="modalTitle">Produk Baru</h3>
                 <button onclick="closeProductModal()" class="text-slate-400"><i class="fas fa-times"></i></button>
             </div>
-            <form id="productForm" onsubmit="saveProduct(event)" class="p-6 space-y-4">
+            <form id="productForm" onsubmit="saveProduct(event)" class="p-6 space-y-3">
                 <input type="hidden" id="formId">
-                <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Produk</label>
-                    <input type="text" id="formName" required class="w-full p-3 border border-slate-200 rounded-xl outline-none">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Produk</label>
+                        <input type="text" id="formName" required class="w-full p-2 border border-slate-200 rounded-xl outline-none">
+                    </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Kategori</label>
-                        <select id="formCat" required class="w-full p-3 border border-slate-200 rounded-xl outline-none bg-white">
+                        <select id="formCat" required class="w-full p-2 border border-slate-200 rounded-xl outline-none bg-white">
                             <option value="Obat Bebas">Obat Bebas</option>
                             <option value="Obat Bebas Terbatas">Obat Bebas Terbatas</option>
                             <option value="Obat Keras">Obat Keras</option>
@@ -588,24 +590,45 @@
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Modal</label>
-                        <input type="number" id="formBuy" required class="w-full p-3 border border-slate-200 rounded-xl outline-none">
+                        <input type="text" id="formBuy" oninput="handleNominalInput(this); calculateSellPrice()" required class="w-full p-2 border border-slate-200 rounded-xl outline-none font-bold">
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase">Kalkulator Harga</span>
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" id="formRounding" onchange="calculateSellPrice()" class="rounded border-slate-300">
+                            <label for="formRounding" class="text-[9px] font-bold text-slate-500 uppercase">Bulatkan Harga</label>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">PPN (%)</label>
+                            <input type="number" id="formPPN" value="0" oninput="calculateSellPrice()" class="w-full p-2 border border-slate-200 rounded-lg outline-none text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Margin (%)</label>
+                            <input type="number" id="formMargin" value="0" oninput="calculateSellPrice()" class="w-full p-2 border border-slate-200 rounded-lg outline-none text-xs">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Jual</label>
-                        <input type="number" id="formSell" required class="w-full p-3 border border-slate-200 rounded-xl outline-none font-bold text-indigo-600">
+                        <input type="text" id="formSell" oninput="handleNominalInput(this)" required class="w-full p-2 border border-slate-200 rounded-xl outline-none font-black text-indigo-600 bg-indigo-50">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Stok Awal</label>
-                        <input type="number" id="formStock" required class="w-full p-3 border border-slate-200 rounded-xl outline-none">
+                        <input type="number" id="formStock" required class="w-full p-2 border border-slate-200 rounded-xl outline-none">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Tanggal Kadaluarsa (Exp Date)</label>
-                    <input type="date" id="formExp" class="w-full p-3 border border-slate-200 rounded-xl outline-none">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Tanggal Kadaluarsa</label>
+                    <input type="date" id="formExp" class="w-full p-2 border border-slate-200 rounded-xl outline-none">
                 </div>
-                <div class="pt-4 flex gap-3">
+                <div class="pt-2 flex gap-3">
                     <button type="button" onclick="closeProductModal()" class="flex-1 py-3 border border-slate-200 rounded-xl font-bold">Batal</button>
                     <button type="submit" class="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold">Simpan</button>
                 </div>
@@ -689,6 +712,53 @@
             currentUser: null, lastTrx: null, targetLogin: null, selectedCashierIndex: null
         };
 
+        // Instruksi 2: Format nominal Rupiah lengkap (Rp 1.000,00)
+        const formatRupiah = (n) => {
+            return new Intl.NumberFormat('id-ID', { 
+                style: 'currency', 
+                currency: 'IDR', 
+                minimumFractionDigits: 2 
+            }).format(n);
+        };
+
+        // Instruksi 3: Logic formatting input nominal (thousand separators)
+        window.handleNominalInput = (el) => {
+            let val = el.value.replace(/[^0-9]/g, '');
+            if (val === '') {
+                el.value = '';
+                return;
+            }
+            el.value = new Intl.NumberFormat('id-ID').format(val);
+        };
+
+        const parseNominal = (str) => {
+            if (!str) return 0;
+            return parseInt(str.toString().replace(/[^0-9]/g, '')) || 0;
+        };
+
+        // Instruksi 1: Logic hitung Harga Jual berdasarkan PPN & Margin
+        window.calculateSellPrice = () => {
+            const modal = parseNominal(document.getElementById('formBuy').value);
+            const ppn = parseFloat(document.getElementById('formPPN').value) || 0;
+            const margin = parseFloat(document.getElementById('formMargin').value) || 0;
+            const isRounding = document.getElementById('formRounding').checked;
+
+            if (modal <= 0) return;
+
+            // HJ = HM * (1 + PPN) * (1 + Margin)
+            let result = modal * (1 + (ppn / 100)) * (1 + (margin / 100));
+
+            if (isRounding) {
+                // Pembulatan ke ribuan terdekat atau ratusan terdekat
+                result = Math.ceil(result / 100) * 100;
+            } else {
+                result = Math.round(result);
+            }
+
+            const inputSell = document.getElementById('formSell');
+            inputSell.value = new Intl.NumberFormat('id-ID').format(result);
+        };
+
         window.openThermalModal = () => {
             document.getElementById('thermalModal').classList.remove('hidden');
             document.getElementById('thermalPassInput').focus();
@@ -736,8 +806,6 @@
         const colTransactions = collection(db, 'artifacts', appId, 'public', 'data', 'transactions');
         const colStockLogs = collection(db, 'artifacts', appId, 'public', 'data', 'stock_logs');
         const colSystemLogs = collection(db, 'artifacts', appId, 'public', 'data', 'system_logs');
-
-        const formatRupiah = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
 
         const checkExpired = (dateStr) => {
             if (!dateStr) return false;
@@ -836,7 +904,6 @@
             window.showFeedback('Berhasil Masuk', `Selamat bekerja, ${state.currentUser.name}!`);
         };
 
-        // Instruksi 3: Update Logout logic
         window.logout = () => { 
             document.getElementById('logoutConfirmModal').classList.remove('hidden');
         };
@@ -987,8 +1054,8 @@
             const data = {
                 name: document.getElementById('formName').value.toUpperCase(),
                 category: document.getElementById('formCat').value,
-                buyPrice: parseInt(document.getElementById('formBuy').value),
-                sellPrice: parseInt(document.getElementById('formSell').value),
+                buyPrice: parseNominal(document.getElementById('formBuy').value),
+                sellPrice: parseNominal(document.getElementById('formSell').value),
                 stock: parseInt(document.getElementById('formStock').value),
                 expiredDate: document.getElementById('formExp').value
             };
@@ -1005,8 +1072,8 @@
             document.getElementById('formId').value = p.id;
             document.getElementById('formName').value = p.name;
             document.getElementById('formCat').value = p.category;
-            document.getElementById('formBuy').value = p.buyPrice;
-            document.getElementById('formSell').value = p.sellPrice;
+            document.getElementById('formBuy').value = new Intl.NumberFormat('id-ID').format(p.buyPrice);
+            document.getElementById('formSell').value = new Intl.NumberFormat('id-ID').format(p.sellPrice);
             document.getElementById('formStock').value = p.stock;
             document.getElementById('formExp').value = p.expiredDate || '';
             document.getElementById('modalTitle').innerText = 'Edit Produk';
@@ -1119,7 +1186,7 @@
 
         window.calculateChange = () => {
             const total = state.cart.reduce((s, i) => s + (i.sellPrice * i.qty), 0);
-            const cash = parseInt(document.getElementById('posCashIn').value) || 0;
+            const cash = parseNominal(document.getElementById('posCashIn').value) || 0;
             const change = cash - total;
             document.getElementById('posChange').innerText = formatRupiah(Math.max(0, change));
             document.getElementById('posChange').className = change >= 0 ? 'font-bold text-emerald-600' : 'font-bold text-rose-600';
@@ -1130,7 +1197,7 @@
         window.confirmCheckout = () => {
             if (state.cart.length === 0) return;
             const total = state.cart.reduce((s, i) => s + (i.sellPrice * i.qty), 0);
-            const cash = parseInt(document.getElementById('posCashIn').value) || 0;
+            const cash = parseNominal(document.getElementById('posCashIn').value) || 0;
             if (cash < total) return window.showFeedback('Kurang', 'Uang tunai tidak cukup', 'error');
             document.getElementById('confirmTotalText').innerText = formatRupiah(total);
             document.getElementById('confirmTrxModal').classList.remove('hidden');
@@ -1139,7 +1206,7 @@
         window.processFinalTransaction = async () => {
             document.getElementById('confirmTrxModal').classList.add('hidden');
             const total = state.cart.reduce((s, i) => s + (i.sellPrice * i.qty), 0);
-            const cash = parseInt(document.getElementById('posCashIn').value) || 0;
+            const cash = parseNominal(document.getElementById('posCashIn').value) || 0;
             try {
                 const trxId = `TRX-${Date.now()}`;
                 const trxData = { items: state.cart.map(i => ({ name: i.name, qty: i.qty, price: i.sellPrice, buyPrice: i.buyPrice })), total, cash, change: cash - total, timestamp: new Date().toISOString(), cashier: state.currentUser.name };
@@ -1171,7 +1238,6 @@
             } catch (e) { window.showFeedback('Gagal', 'Cloud error', 'error'); }
         };
 
-        // Instruksi 1: Update PDF Export dengan keterangan pencetak
         window.generatePDF = (type) => {
             const container = document.getElementById('printContainer');
             container.innerHTML = ''; 
@@ -1194,7 +1260,6 @@
                 contentHtml += `</tbody></table>`;
             }
 
-            // Instruksi 1: Footer identitas pengeksport
             contentHtml += `<div class="pdf-footer" style="position: absolute; bottom: 0; left: 0; font-size: 8px; font-weight: bold; color: #555;">Document Exported by: ${state.currentUser ? state.currentUser.name : 'Unknown System'}</div>`;
             
             contentHtml += `</div>`;
@@ -1205,7 +1270,6 @@
         window.printLastReceipt = () => { if (state.lastTrx) printInvoice(state.lastTrx); window.closeReceiptModal(); };
         window.printSpecificReceipt = (id) => { const trx = state.transactions.find(t => t.id === id); if (trx) printInvoice(trx); };
 
-        // Instruksi 1 & 2: Update Struk Invoice dengan identitas kasir dan pencetak
         const printInvoice = (trx) => {
             const container = document.getElementById('printContainer');
             container.innerHTML = `
@@ -1214,7 +1278,6 @@
                         <h1 style="margin:0; font-size: 28px;">${state.settings.storeName}</h1>
                         <p style="margin: 5px 0;">${state.settings.address} | ${state.settings.phone}</p>
                     </div>
-                    <!-- Instruksi 2: Nama petugas di struk -->
                     <div style="text-align: center; border-bottom: 1px dashed #ccc; padding-bottom: 10px; margin-bottom: 20px;">
                         <p style="margin: 0; font-size: 10px; text-transform: uppercase;">Kasir: <strong>${trx.cashier}</strong></p>
                         <p style="margin: 2px 0; font-size: 9px; color: #666;">ID: ${trx.id}</p>
@@ -1232,7 +1295,6 @@
                         <p style="margin: 2px 0;">Terimakasih atas kunjungan anda</p>
                         <p style="margin: 2px 0; font-weight: bold;">Barang yang sudah dibeli tidak dapat ditukar atau dikembalikan</p>
                     </div>
-                    <!-- Instruksi 1: Footer identitas pencetak -->
                     <div class="pdf-footer" style="margin-top: 20px; text-align: left; font-size: 7px; color: #999;">Printed by: ${state.currentUser ? state.currentUser.name : 'System'}</div>
                 </div>`;
             window.print();
