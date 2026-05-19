@@ -2,7 +2,7 @@
 // Auto-generated from Supplier 1.pdf
 
 window.supplier2Products = [
-     "Acifar 400mg tablet 30s",
+  "Acifar 400mg tablet 30s",
   "Acifar cream 5gr",
   "Acnes Sealing Jell 9gr",
   "ACYCLOVIR cream 5% Erella",
