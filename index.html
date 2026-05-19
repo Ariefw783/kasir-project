@@ -6,6 +6,10 @@
     <title>KasirPro-V.1 | ByArf</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="supplier1.js"></script>
+    <script src="supplier2.js"></script>
+    <script src="supplier3.js"></script>
+    <script src="supplier4.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
         
@@ -38,18 +42,6 @@
             50% { background-color: #4c0519; color: white; }
         }
 
-        /* INSTRUKSI 3: Blink Block Expired */
-        @keyframes blink-red-block {
-            0%, 100% { background-color: #e11d48; color: white; }
-            50% { background-color: #4c0519; color: white; }
-        }
-        .blink-expired { 
-            animation: blink-red-block 0.8s infinite; 
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-
         .pos-square { border-radius: 0px !important; border: 2px solid #1e293b !important; }
         .pos-btn { border-radius: 0px !important; transition: all 0.2s; }
 
@@ -68,7 +60,6 @@
                 print-color-adjust: exact; }
             .receipt-font { font-family: 'JetBrains Mono', monospace !important; font-size: 12px; color: black; }
             
-            /* Instruksi 1: Footer PDF */
             .pdf-footer {
                 position: fixed;
                 bottom: 0;
@@ -87,7 +78,6 @@
             backdrop-filter: blur(8px);
         }
 
-        /* ANIMASI DATABASE */
         @keyframes db-pulse {
             0% { transform: scale(1); opacity: 1; }
             50% { transform: scale(1.5); opacity: 0.4; }
@@ -103,6 +93,15 @@
     </style>
 </head>
 <body class="text-slate-800 overflow-hidden text-sm">
+
+    <!-- Modal Loading Sinkronisasi Data -->
+    <div id="loadingModal" class="fixed inset-0 bg-slate-900/80 z-[3100] flex justify-center items-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center modal-enter">
+            <div class="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">DATABASE LOADING</h3>
+            <p class="text-slate-500 text-xs">SINKRONISASI DATA SUPPLIER & CLOUD FIREBASE</p>
+        </div>
+    </div>
 
     <!-- Login Screen -->
     <div id="login-screen" class="fixed inset-0 z-[1000] flex flex-col items-center justify-center p-6">
@@ -189,7 +188,7 @@
         </div>
     </div>
 
-    <!-- Instruksi 3: Modal Konfirmasi Logout -->
+    <!-- Modal Konfirmasi Logout -->
     <div id="logoutConfirmModal" class="fixed inset-0 bg-slate-900/60 hidden z-[2200] flex justify-center items-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm modal-enter p-8 text-center border-4 border-rose-500">
             <div class="mx-auto w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center text-3xl mb-4">
@@ -311,11 +310,20 @@
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 mb-10">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 mb-10 overflow-hidden">
                         <div class="p-4 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-white/50">
-                            <div class="relative w-full md:w-80">
-                                <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400"><i class="fas fa-search"></i></span>
-                                <input type="text" id="searchInput" onkeyup="renderProductTable()" placeholder="Cari produk..." class="pl-11 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl w-full outline-none">
+                            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto flex-1 max-w-2xl">
+                                <div class="relative flex-1">
+                                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400"><i class="fas fa-search"></i></span>
+                                    <input type="text" id="searchInput" onkeyup="if(window.state) { window.state.productPage = 1; } renderProductTable()" placeholder="Cari produk..." class="pl-11 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl w-full outline-none">
+                                </div>
+                                <select id="supplierFilter" onchange="if(window.state) { window.state.productPage = 1; } renderProductTable()" class="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-xs outline-none font-bold min-w-[150px]">
+                                    <option value="all">Semua Supplier</option>
+                                    <option value="supplier1">Supplier 1</option>
+                                    <option value="supplier2">Supplier 2</option>
+                                    <option value="supplier3">Supplier 3</option>
+                                    <option value="supplier4">Supplier 4</option>
+                                </select>
                             </div>
                             <div class="flex gap-2 w-full md:w-auto">
                                 <button onclick="openProductModal()" class="flex-1 md:flex-none bg-indigo-600 text-white px-4 py-2 rounded-xl font-bold"><i class="fas fa-plus mr-1"></i> Tambah</button>
@@ -330,13 +338,34 @@
                                         <th class="px-5 py-3">Kategori</th>
                                         <th class="px-5 py-3 text-right">Modal</th>
                                         <th class="px-5 py-3 text-right">Jual</th>
-                                        <th class="px-5 py-3 text-center">Expired</th>
                                         <th class="px-5 py-3 text-center">Stok</th>
                                         <th class="px-5 py-3 text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody id="productTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
                             </table>
+                        </div>
+                        <!-- Kontrol Paginasi Lokal -->
+                        <div class="p-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50/50">
+                            <div class="text-xs text-slate-500 font-medium">
+                                Menampilkan <span id="paginated-start" class="font-bold">0</span> - <span id="paginated-end" class="font-bold">0</span> dari <span id="paginated-total" class="font-bold">0</span> produk
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <button onclick="prevProductPage()" id="btn-prev-page" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition">
+                                    <i class="fas fa-chevron-left mr-1"></i> Prev
+                                </button>
+                                <span class="text-xs font-bold text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg">
+                                    Halaman <span id="current-page-num">1</span>
+                                </span>
+                                <button onclick="nextProductPage()" id="btn-next-page" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition">
+                                    Next <i class="fas fa-chevron-right ml-1"></i>
+                                </button>
+                                <select id="pageSizeSelect" onchange="changeProductPageSize()" class="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold outline-none ml-2">
+                                    <option value="10">10 / Halaman</option>
+                                    <option value="25">25 / Halaman</option>
+                                    <option value="50">50 / Halaman</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -350,7 +379,14 @@
                                 <form id="formBarangMasuk" onsubmit="handleBarangMasuk(event)" class="space-y-4">
                                     <div>
                                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Pilih Produk</label>
-                                        <select id="bmSelectProduct" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none" required></select>
+                                        <input type="text" id="bmSelectProduct" list="produkListInput" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none" required placeholder="Ketik nama produk...">
+                                        <datalist id="produkListInput"></datalist>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Pilih Nama Supplier</label>
+                                        <select id="bmSelectSupplier" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none" required>
+                                            <option value="">Pilih Supplier...</option>
+                                        </select>
                                     </div>
                                     <div>
                                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Jumlah Masuk</label>
@@ -375,6 +411,7 @@
                                             <tr>
                                                 <th class="px-5 py-3">Waktu</th>
                                                 <th class="px-5 py-3">Produk</th>
+                                                <th class="px-5 py-3">Supplier</th>
                                                 <th class="px-5 py-3 text-center">Qty</th>
                                                 <th class="px-5 py-3">Admin</th>
                                             </tr>
@@ -412,7 +449,6 @@
                                 </div>
                                 <div class="w-full md:w-48">
                                     <label class="text-[9px] font-bold text-slate-500 uppercase">Uang Tunai (Rp)</label>
-                                    <!-- Instruksi 3: Format nominal on input -->
                                     <input type="text" id="posCashIn" oninput="handleNominalInput(this); calculateChange()" placeholder="0" class="w-full p-2 bg-white border-2 border-slate-900 pos-square outline-none font-bold text-xl text-emerald-600">
                                 </div>
                                 <div class="w-full md:w-64 flex flex-col gap-1">
@@ -480,6 +516,24 @@
                                     <input type="text" id="setCashier2Name" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none" required>
                                 </div>
                             </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Supplier 1</label>
+                                    <input type="text" id="setSupp1" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Supplier 2</label>
+                                    <input type="text" id="setSupp2" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Supplier 3</label>
+                                    <input type="text" id="setSupp3" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Supplier 4</label>
+                                    <input type="text" id="setSupp4" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                                </div>
+                            </div>
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nomor Telepon Toko</label>
                                 <input type="text" id="setPhone" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
@@ -542,7 +596,6 @@
                             <th class="p-4 border-b">Nama Barang</th>
                             <th class="p-4 border-b">Kategori</th>
                             <th class="p-4 border-b text-right">Harga Jual</th>
-                            <th class="p-4 border-b text-center">Expired</th>
                             <th class="p-4 border-b text-center">Stok</th>
                             <th class="p-4 border-b text-center">Aksi</th>
                         </tr>
@@ -561,7 +614,7 @@
         </div>
     </div>
 
-    <!-- Instruksi 1: Update Product Modal with PPN & Margin -->
+    <!-- Product Modal -->
     <div id="productModal" class="fixed inset-0 bg-slate-900/60 hidden z-[60] flex justify-center items-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md modal-enter overflow-hidden">
             <div class="p-5 border-b border-slate-100 flex justify-between items-center">
@@ -574,6 +627,10 @@
                     <div class="col-span-2">
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Produk</label>
                         <input type="text" id="formName" required class="w-full p-2 border border-slate-200 rounded-xl outline-none">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Supplier</label>
+                        <input type="text" id="formSupplier" class="w-full p-2 border border-slate-200 rounded-xl outline-none bg-slate-100 cursor-not-allowed" readonly>
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Kategori</label>
@@ -590,31 +647,8 @@
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Modal</label>
-                        <input type="text" id="formBuy" oninput="handleNominalInput(this); calculateSellPrice()" required class="w-full p-2 border border-slate-200 rounded-xl outline-none font-bold">
+                        <input type="text" id="formBuy" oninput="handleNominalInput(this)" required class="w-full p-2 border border-slate-200 rounded-xl outline-none font-bold">
                     </div>
-                </div>
-
-                <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
-                    <div class="flex items-center justify-between mb-1">
-                        <span class="text-[10px] font-bold text-slate-400 uppercase">Kalkulator Harga</span>
-                        <div class="flex items-center gap-2">
-                            <input type="checkbox" id="formRounding" onchange="calculateSellPrice()" class="rounded border-slate-300">
-                            <label for="formRounding" class="text-[9px] font-bold text-slate-500 uppercase">Bulatkan Harga</label>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">PPN (%)</label>
-                            <input type="number" id="formPPN" value="0" oninput="calculateSellPrice()" class="w-full p-2 border border-slate-200 rounded-lg outline-none text-xs">
-                        </div>
-                        <div>
-                            <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Margin (%)</label>
-                            <input type="number" id="formMargin" value="0" oninput="calculateSellPrice()" class="w-full p-2 border border-slate-200 rounded-lg outline-none text-xs">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Jual</label>
                         <input type="text" id="formSell" oninput="handleNominalInput(this)" required class="w-full p-2 border border-slate-200 rounded-xl outline-none font-black text-indigo-600 bg-indigo-50">
@@ -623,10 +657,6 @@
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Stok Awal</label>
                         <input type="number" id="formStock" required class="w-full p-2 border border-slate-200 rounded-xl outline-none">
                     </div>
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Tanggal Kadaluarsa</label>
-                    <input type="date" id="formExp" class="w-full p-2 border border-slate-200 rounded-xl outline-none">
                 </div>
                 <div class="pt-2 flex gap-3">
                     <button type="button" onclick="closeProductModal()" class="flex-1 py-3 border border-slate-200 rounded-xl font-bold">Batal</button>
@@ -667,7 +697,7 @@
 
     <div id="receiptModal" class="fixed inset-0 bg-slate-900/60 hidden z-[80] flex justify-center items-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm modal-enter text-center p-8">
-            <div class="mx-auto w-16 h-16 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center text-2xl mb-4"><i class="fas fa-check"></i></div>
+            <div class="mx-auto w-16 h-16 bg-emerald-100 text-emerald-50 rounded-full flex items-center justify-center text-2xl mb-4"><i class="fas fa-check"></i></div>
             <h3 class="text-xl font-bold mb-2">Transaksi Sukses!</h3>
             <p class="text-slate-500 mb-6 text-xs leading-relaxed font-bold">Invoice telah dicatat secara otomatis.</p>
             <div class="flex flex-col gap-2">
@@ -706,13 +736,32 @@
         const auth = getAuth(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'kasir-pro-prod-v1';
 
+        // Fallback Mock Databases in case files supplier1.js to supplier4.js are not loaded (e.g. preview mode)
+        if (typeof window.supplier1Products === 'undefined') {
+            window.supplier1Products = ["Periksa file supplier1.js"];
+        }
+        if (typeof window.supplier2Products === 'undefined') {
+            window.supplier2Products = ["Periksa file supplier2.js"];
+        }
+        if (typeof window.supplier3Products === 'undefined') {
+            window.supplier3Products = ["Periksa file supplier3.js"];
+        }
+        if (typeof window.supplier4Products === 'undefined') {
+            window.supplier4Products = ["Periksa file supplier1.js4"];
+        }
+
         let state = {
-            products: [], cart: [], transactions: [], stockLogs: [], firebaseLogs: [],
-            settings: { storeName: 'KASIR PRO', adminName: 'Administrator', cashier1Name: 'Kasir 1', cashier2Name: 'Kasir 2', address: '-', phone: '-' },
-            currentUser: null, lastTrx: null, targetLogin: null, selectedCashierIndex: null
+            products: [], firestoreProducts: [], cart: [], transactions: [], stockLogs: [], firebaseLogs: [],
+            settings: { storeName: 'KASIR PRO', adminName: 'Administrator', cashier1Name: 'Kasir 1', cashier2Name: 'Kasir 2', address: '-', phone: '-', supp1:'', supp2:'', supp3:'', supp4:'' },
+            currentUser: null, lastTrx: null, targetLogin: null, selectedCashierIndex: null,
+            // Variabel state Paginasi Lokal
+            productPage: 1,
+            productPageSize: 10
         };
 
-        // Instruksi 2: Format nominal Rupiah lengkap (Rp 1.000,00)
+        // Expose state secara global agar dapat diakses oleh trigger inline HTML
+        window.state = state;
+
         const formatRupiah = (n) => {
             return new Intl.NumberFormat('id-ID', { 
                 style: 'currency', 
@@ -721,7 +770,6 @@
             }).format(n);
         };
 
-        // Instruksi 3: Logic formatting input nominal (thousand separators)
         window.handleNominalInput = (el) => {
             let val = el.value.replace(/[^0-9]/g, '');
             if (val === '') {
@@ -734,29 +782,6 @@
         const parseNominal = (str) => {
             if (!str) return 0;
             return parseInt(str.toString().replace(/[^0-9]/g, '')) || 0;
-        };
-
-        // Instruksi 1: Logic hitung Harga Jual berdasarkan PPN & Margin
-        window.calculateSellPrice = () => {
-            const modal = parseNominal(document.getElementById('formBuy').value);
-            const ppn = parseFloat(document.getElementById('formPPN').value) || 0;
-            const margin = parseFloat(document.getElementById('formMargin').value) || 0;
-            const isRounding = document.getElementById('formRounding').checked;
-
-            if (modal <= 0) return;
-
-            // HJ = HM * (1 + PPN) * (1 + Margin)
-            let result = modal * (1 + (ppn / 100)) * (1 + (margin / 100));
-
-            if (isRounding) {
-                // Pembulatan ke ribuan terdekat atau ratusan terdekat
-                result = Math.ceil(result / 100) * 100;
-            } else {
-                result = Math.round(result);
-            }
-
-            const inputSell = document.getElementById('formSell');
-            inputSell.value = new Intl.NumberFormat('id-ID').format(result);
         };
 
         window.openThermalModal = () => {
@@ -807,14 +832,21 @@
         const colStockLogs = collection(db, 'artifacts', appId, 'public', 'data', 'stock_logs');
         const colSystemLogs = collection(db, 'artifacts', appId, 'public', 'data', 'system_logs');
 
-        const checkExpired = (dateStr) => {
-            if (!dateStr) return false;
-            const exp = new Date(dateStr);
-            const now = new Date();
-            const oneMonthLater = new Date();
-            oneMonthLater.setMonth(now.getMonth() + 1);
-            return exp <= oneMonthLater;
+        // Fungsi kontrol loading modal sinkronisasi data
+        window.showLoading = () => {
+            const modal = document.getElementById('loadingModal');
+            if (modal) modal.classList.remove('hidden');
         };
+
+        window.hideLoading = () => {
+            const modal = document.getElementById('loadingModal');
+            if (modal) modal.classList.add('hidden');
+        };
+
+        // Fail-safe timeout: Menyembunyikan loading setelah maksimal 4 detik meskipun koneksi buruk
+        setTimeout(() => {
+            window.hideLoading();
+        }, 4000);
 
         window.showLoginInput = (role) => {
             state.targetLogin = role;
@@ -966,7 +998,96 @@
             document.getElementById('stat-stok').innerText = tStok;
         };
 
+        const getMergedProducts = () => {
+            const merged = [];
+            const s1Name = state.settings.supp1 || "Supplier 1";
+            const s2Name = state.settings.supp2 || "Supplier 2";
+            const s3Name = state.settings.supp3 || "Supplier 3";
+            const s4Name = state.settings.supp4 || "Supplier 4";
+            
+            const databases = [
+                { list: window.supplier1Products || [], supplier: s1Name, key: "supplier1" },
+                { list: window.supplier2Products || [], supplier: s2Name, key: "supplier2" },
+                { list: window.supplier3Products || [], supplier: s3Name, key: "supplier3" },
+                { list: window.supplier4Products || [], supplier: s4Name, key: "supplier4" }
+            ];
+            
+            databases.forEach(dbItem => {
+                dbItem.list.forEach(name => {
+                    const upperName = name.toUpperCase();
+                    const saved = state.firestoreProducts.find(p => p.name && p.name.toUpperCase() === upperName);
+                    if (saved) {
+                        merged.push({
+                            id: saved.id,
+                            name: upperName,
+                            category: saved.category || "Obat Bebas",
+                            buyPrice: saved.buyPrice || 0,
+                            sellPrice: saved.sellPrice || 0,
+                            stock: typeof saved.stock === 'number' ? saved.stock : 0,
+                            supplier: dbItem.supplier,
+                            supplierKey: dbItem.key
+                        });
+                    } else {
+                        // Generate a deterministic and safe ID based on string Base64 mapping
+                        const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/g, '').substring(0, 15)}`;
+                        merged.push({
+                            id: fallbackId,
+                            name: upperName,
+                            category: "Obat Bebas",
+                            buyPrice: 0,
+                            sellPrice: 0,
+                            stock: 0,
+                            supplier: dbItem.supplier,
+                            supplierKey: dbItem.key
+                        });
+                    }
+                });
+            });
+            return merged;
+        };
+
+        const reconcileProducts = () => {
+            state.products = getMergedProducts();
+            renderProductTable();
+            updateBarangMasukDatalist();
+            updateCategoryFilter();
+            handlePOSSearch();
+            updateHeaderStats();
+        };
+
+        const updateSupplierFilterOptions = () => {
+            const filter = document.getElementById('supplierFilter');
+            if (!filter) return;
+            const s1 = state.settings.supp1 || "Supplier 1";
+            const s2 = state.settings.supp2 || "Supplier 2";
+            const s3 = state.settings.supp3 || "Supplier 3";
+            const s4 = state.settings.supp4 || "Supplier 4";
+            
+            const currentVal = filter.value;
+            filter.innerHTML = `
+                <option value="all">Semua Supplier</option>
+                <option value="supplier1">${s1}</option>
+                <option value="supplier2">${s2}</option>
+                <option value="supplier3">${s3}</option>
+                <option value="supplier4">${s4}</option>
+            `;
+            filter.value = currentVal;
+        };
+
         const initSync = () => {
+            // Tampilkan loading screen di awal proses sinkronisasi data Firebase
+            window.showLoading();
+            let loadedCollectionsCount = 0;
+            const targetCollections = 5;
+
+            // Memeriksa progres load data dari 5 koleksi Firebase sebelum menghilangkan loading modal
+            const trackLoadingProgress = () => {
+                loadedCollectionsCount++;
+                if (loadedCollectionsCount >= targetCollections) {
+                    window.hideLoading();
+                }
+            };
+
             onSnapshot(doc(colSettings, 'config'), (snap) => {
                 if (snap.exists()) {
                     state.settings = { ...state.settings, ...snap.data() };
@@ -976,58 +1097,139 @@
                     document.getElementById('setCashier2Name').value = state.settings.cashier2Name;
                     document.getElementById('setPhone').value = state.settings.phone;
                     document.getElementById('setAddress').value = state.settings.address;
+                    document.getElementById('setSupp1').value = state.settings.supp1 || '';
+                    document.getElementById('setSupp2').value = state.settings.supp2 || '';
+                    document.getElementById('setSupp3').value = state.settings.supp3 || '';
+                    document.getElementById('setSupp4').value = state.settings.supp4 || '';
+                    renderSupplierDropdown();
+                    updateSupplierFilterOptions();
+                    reconcileProducts();
                 }
+                trackLoadingProgress();
             });
             onSnapshot(colProducts, (snap) => {
-                state.products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderProductTable();
-                renderBarangMasukSelect();
-                updateCategoryFilter();
-                handlePOSSearch();
-                updateHeaderStats();
+                state.firestoreProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                reconcileProducts();
+                trackLoadingProgress();
             });
             onSnapshot(colTransactions, (snap) => {
                 state.transactions = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.timestamp.localeCompare(a.timestamp));
                 renderTransactions();
                 updateHeaderStats();
+                trackLoadingProgress();
             });
             onSnapshot(colStockLogs, (snap) => {
                 state.stockLogs = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.timestamp.localeCompare(a.timestamp));
                 renderStockHistory();
+                trackLoadingProgress();
             });
             onSnapshot(colSystemLogs, (snap) => {
                 state.firebaseLogs = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.timestamp.localeCompare(a.timestamp));
                 renderSystemLogs();
+                trackLoadingProgress();
             });
+        };
+
+        // Kontrol navigasi paginasi tabel produk utama
+        window.prevProductPage = () => {
+            if (state.productPage > 1) {
+                state.productPage--;
+                renderProductTable();
+            }
+        };
+
+        window.nextProductPage = () => {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const supplierFilter = document.getElementById('supplierFilter') ? document.getElementById('supplierFilter').value : 'all';
+            let filtered = state.products.filter(p => p.name.toLowerCase().includes(search));
+            if (supplierFilter !== 'all') {
+                filtered = filtered.filter(p => p.supplierKey === supplierFilter);
+            }
+            const totalPages = Math.ceil(filtered.length / state.productPageSize);
+            if (state.productPage < totalPages) {
+                state.productPage++;
+                renderProductTable();
+            }
+        };
+
+        window.changeProductPageSize = () => {
+            state.productPageSize = parseInt(document.getElementById('pageSizeSelect').value);
+            state.productPage = 1;
+            renderProductTable();
         };
 
         window.renderProductTable = () => {
             const tbody = document.getElementById('productTableBody');
-            const search = document.getElementById('searchInput').value.toLowerCase();
+            const search = document.getElementById('searchInput').value.toLowerCase().trim();
+            const supplierFilter = document.getElementById('supplierFilter') ? document.getElementById('supplierFilter').value : 'all';
             tbody.innerHTML = '';
-            const filtered = state.products.filter(p => p.name.toLowerCase().includes(search));
-            filtered.forEach(p => {
-                const isLow = p.stock < 5;
-                const blinkClass = isLow ? 'blink-low-stock px-2 py-0.5 rounded-md inline-block' : '';
-                const isExp = checkExpired(p.expiredDate);
-                const expBlink = isExp ? 'blink-expired' : 'text-slate-500';
+            
+            // 1. Filter berdasarkan supplier terlebih dahulu
+            let supplierFiltered = state.products;
+            if (supplierFilter !== 'all') {
+                supplierFiltered = supplierFiltered.filter(p => p.supplierKey === supplierFilter);
+            }
+            
+            let filtered = [];
+
+            if (search === '') {
+                filtered = supplierFiltered;
+            } else {
+                // STRATEGI 1: Cari yang KATA PERTAMA-nya diawali kata kunci
+                filtered = supplierFiltered.filter(p => {
+                    const words = p.name.toLowerCase().split(/\s+/); // Pecah nama produk jadi array kata
+                    return words[0] && words[0].startsWith(search);
+                });
                 
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="px-5 py-4 font-bold text-slate-800">${p.name}</td>
-                        <td class="px-5 py-4"><span class="bg-slate-100 text-[9px] px-2 py-0.5 rounded font-bold uppercase">${p.category}</span></td>
-                        <td class="px-5 py-4 text-right text-slate-400">${formatRupiah(p.buyPrice)}</td>
-                        <td class="px-5 py-4 text-right font-bold text-indigo-600">${formatRupiah(p.sellPrice)}</td>
-                        <td class="px-5 py-4 text-center"><span class="${expBlink}">${p.expiredDate || '-'}</span></td>
-                        <td class="px-5 py-4 text-center"><span class="font-bold ${blinkClass}">${p.stock}</span></td>
-                        <td class="px-5 py-4 text-center flex justify-center gap-2">
-                            <button onclick="editProduct('${p.id}')" class="text-indigo-600 p-2 hover:bg-indigo-50 rounded-lg"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteProduct('${p.id}')" class="text-rose-600 p-2 hover:bg-rose-50 rounded-lg"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
+                // STRATEGI 2: Jika tidak ada, cari yang KATA KEDUA, KETIGA, dst yang diawali kata kunci
+                if (filtered.length === 0) {
+                    filtered = supplierFiltered.filter(p => {
+                        const words = p.name.toLowerCase().split(/\s+/);
+                        // Periksa apakah kata ke-2 dan seterusnya ada yang diawali kata kunci
+                        return words.slice(1).some(word => word.startsWith(search));
+                    });
+                }
+            }
+            
+            // Update total baris record yang ditemukan untuk info paginasi
             document.getElementById('stat-record').innerText = filtered.length;
+            
+            // Hitung total halaman berdasarkan data yang tersaring
+            const totalPages = Math.ceil(filtered.length / state.productPageSize) || 1;
+            if (state.productPage > totalPages) state.productPage = totalPages;
+            
+            // Potong data berdasarkan halaman aktif (Paginasi)
+            const start = (state.productPage - 1) * state.productPageSize;
+            const end = start + state.productPageSize;
+            const paginated = filtered.slice(start, end);
+            
+            // Render data ke dalam tabel HTML
+            if (paginated.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 font-bold"><i class="fas fa-search-minus mr-2"></i> Produk tidak ditemukan</td></tr>`;
+            } else {
+                paginated.forEach(p => {
+                    const violence = p.stock < 5;
+                    const blinkClass = violence ? 'blink-low-stock px-2 py-0.5 rounded-md inline-block' : '';
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="px-5 py-4 font-bold text-slate-800">
+                                ${p.name}
+                                <div class="text-[10px] text-slate-400 font-normal mt-0.5">${p.supplier}</div>
+                            </td>
+                            <td class="px-5 py-4"><span class="bg-slate-100 text-[9px] px-2 py-0.5 rounded font-bold uppercase">${p.category}</span></td>
+                            <td class="px-5 py-4 text-right text-slate-400">${formatRupiah(p.buyPrice)}</td>
+                            <td class="px-5 py-4 text-right font-bold text-indigo-600">${formatRupiah(p.sellPrice)}</td>
+                            <td class="px-5 py-4 text-center"><span class="font-bold ${blinkClass}">${p.stock}</span></td>
+                            <td class="px-5 py-4 text-center flex justify-center gap-2">
+                                <button onclick="editProduct('${p.id}')" class="text-indigo-600 p-2 hover:bg-indigo-50 rounded-lg"><i class="fas fa-edit"></i></button>
+                                <button onclick="deleteProduct('${p.id}')" class="text-rose-600 p-2 hover:bg-rose-50 rounded-lg"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            renderPaginationControls(filtered.length, totalPages);
         };
 
         window.deleteProduct = async (id) => {
@@ -1043,6 +1245,13 @@
         window.openProductModal = () => {
             document.getElementById('productForm').reset();
             document.getElementById('formId').value = '';
+            document.getElementById('formName').removeAttribute('readonly');
+            document.getElementById('formName').classList.remove('bg-slate-100', 'cursor-not-allowed');
+            if (document.getElementById('formSupplier')) {
+                document.getElementById('formSupplier').value = '';
+                document.getElementById('formSupplier').removeAttribute('readonly');
+                document.getElementById('formSupplier').classList.remove('bg-slate-100', 'cursor-not-allowed');
+            }
             document.getElementById('modalTitle').innerText = 'Tambah Produk';
             document.getElementById('productModal').classList.remove('hidden');
         };
@@ -1056,8 +1265,7 @@
                 category: document.getElementById('formCat').value,
                 buyPrice: parseNominal(document.getElementById('formBuy').value),
                 sellPrice: parseNominal(document.getElementById('formSell').value),
-                stock: parseInt(document.getElementById('formStock').value),
-                expiredDate: document.getElementById('formExp').value
+                stock: parseInt(document.getElementById('formStock').value)
             };
             try {
                 await setDoc(doc(colProducts, id), data);
@@ -1069,31 +1277,62 @@
 
         window.editProduct = (id) => {
             const p = state.products.find(x => x.id === id);
+            if (!p) return;
             document.getElementById('formId').value = p.id;
             document.getElementById('formName').value = p.name;
+            document.getElementById('formName').setAttribute('readonly', true);
+            document.getElementById('formName').classList.add('bg-slate-100', 'cursor-not-allowed');
+            
+            if (document.getElementById('formSupplier')) {
+                document.getElementById('formSupplier').value = p.supplier;
+                document.getElementById('formSupplier').setAttribute('readonly', true);
+                document.getElementById('formSupplier').classList.add('bg-slate-100', 'cursor-not-allowed');
+            }
+            
             document.getElementById('formCat').value = p.category;
             document.getElementById('formBuy').value = new Intl.NumberFormat('id-ID').format(p.buyPrice);
             document.getElementById('formSell').value = new Intl.NumberFormat('id-ID').format(p.sellPrice);
             document.getElementById('formStock').value = p.stock;
-            document.getElementById('formExp').value = p.expiredDate || '';
             document.getElementById('modalTitle').innerText = 'Edit Produk';
             document.getElementById('productModal').classList.remove('hidden');
         };
 
-        window.renderBarangMasukSelect = () => {
-            const s = document.getElementById('bmSelectProduct');
-            s.innerHTML = '<option value="">Cari & Pilih Produk...</option>' + state.products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+        window.updateBarangMasukDatalist = () => {
+            const d = document.getElementById('produkListInput');
+            d.innerHTML = state.products.map(p => `<option value="${p.name}">`).join('');
+        };
+
+        window.renderSupplierDropdown = () => {
+            const s = document.getElementById('bmSelectSupplier');
+            const suppliers = [state.settings.supp1, state.settings.supp2, state.settings.supp3, state.settings.supp4].filter(x => x && x.trim() !== '');
+            s.innerHTML = '<option value="">Pilih Supplier...</option>' + suppliers.map(n => `<option value="${n}">${n}</option>`).join('');
         };
 
         window.handleBarangMasuk = async (e) => {
             e.preventDefault();
-            const id = document.getElementById('bmSelectProduct').value;
+            const name = document.getElementById('bmSelectProduct').value;
+            const supplier = document.getElementById('bmSelectSupplier').value;
             const qty = parseInt(document.getElementById('bmQty').value);
-            const p = state.products.find(x => x.id === id);
-            if (!id) return;
+            const p = state.products.find(x => x.name.toUpperCase() === name.toUpperCase());
+            if (!p || !supplier) {
+                alert("Produk atau Supplier tidak valid!");
+                return;
+            }
             try {
-                await updateDoc(doc(colProducts, id), { stock: p.stock + qty });
-                await addDoc(colStockLogs, { productId: id, productName: p.name, qty: qty, timestamp: new Date().toISOString(), admin: state.currentUser.name });
+                const docRef = doc(colProducts, p.id);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    await updateDoc(docRef, { stock: p.stock + qty });
+                } else {
+                    await setDoc(docRef, {
+                        name: p.name,
+                        category: p.category,
+                        buyPrice: p.buyPrice,
+                        sellPrice: p.sellPrice,
+                        stock: qty
+                    });
+                }
+                await addDoc(colStockLogs, { productId: p.id, productName: p.name, supplier: supplier, qty: qty, timestamp: new Date().toISOString(), admin: state.currentUser.name });
                 window.showFeedback('Sukses', `Stok ${p.name} ditambah ${qty}`);
                 document.getElementById('formBarangMasuk').reset();
             } catch (e) { window.showFeedback('Gagal', 'Update gagal', 'error'); }
@@ -1103,7 +1342,7 @@
             const tbody = document.getElementById('stockHistoryBody');
             const dateFilter = document.getElementById('filterStockDate').value;
             const filtered = state.stockLogs.filter(l => !dateFilter || l.timestamp.startsWith(dateFilter));
-            tbody.innerHTML = filtered.map(l => `<tr><td class="px-5 py-3 text-slate-400">${new Date(l.timestamp).toLocaleString()}</td><td class="px-5 py-3 font-bold">${l.productName}</td><td class="px-5 py-3 text-center text-emerald-600 font-bold">+${l.qty}</td><td class="px-5 py-3">${l.admin}</td></tr>`).join('');
+            tbody.innerHTML = filtered.map(l => `<tr><td class="px-5 py-3 text-slate-400">${new Date(l.timestamp).toLocaleString()}</td><td class="px-5 py-3 font-bold">${l.productName}</td><td class="px-5 py-3">${l.supplier || '-'}</td><td class="px-5 py-3 text-center text-emerald-600 font-bold">+${l.qty}</td><td class="px-5 py-3">${l.admin}</td></tr>`).join('');
         };
 
         window.openPosItemModal = () => { document.getElementById('posItemModal').classList.remove('hidden'); handlePOSSearch(); };
@@ -1134,14 +1373,11 @@
             tbody.innerHTML = prods.map(p => {
                 const isLow = p.stock > 0 && p.stock < 5;
                 const blinkClass = isLow ? 'blink-low-stock px-2 py-0.5 rounded-md inline-block' : '';
-                const isExp = checkExpired(p.expiredDate);
-                const expBlink = isExp ? 'blink-expired' : '';
                 return `
                 <tr class="hover:bg-slate-50 transition">
                     <td class="p-4 font-bold text-slate-800">${p.name}</td>
                     <td class="p-4 text-[9px] uppercase font-bold text-slate-400">${p.category}</td>
                     <td class="p-4 text-right font-black text-indigo-600">${formatRupiah(p.sellPrice)}</td>
-                    <td class="p-4 text-center"><span class="${expBlink}">${p.expiredDate || '-'}</span></td>
                     <td class="p-4 text-center"><span class="font-bold ${blinkClass}">${p.stock}</span></td>
                     <td class="p-4 text-center">
                         <button onclick="addToCart('${p.id}')" class="bg-indigo-600 text-white px-4 py-1.5 rounded-lg text-[10px] font-bold hover:bg-slate-900 transition active:scale-95">TAMBAH</button>
@@ -1212,7 +1448,19 @@
                 const trxData = { items: state.cart.map(i => ({ name: i.name, qty: i.qty, price: i.sellPrice, buyPrice: i.buyPrice })), total, cash, change: cash - total, timestamp: new Date().toISOString(), cashier: state.currentUser.name };
                 for (const item of state.cart) {
                     const p = state.products.find(x => x.id === item.id);
-                    await updateDoc(doc(colProducts, item.id), { stock: p.stock - item.qty });
+                    const docRef = doc(colProducts, item.id);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        await updateDoc(docRef, { stock: p.stock - item.qty });
+                    } else {
+                        await setDoc(docRef, {
+                            name: p.name,
+                            category: p.category,
+                            buyPrice: p.buyPrice,
+                            sellPrice: p.sellPrice,
+                            stock: p.stock - item.qty
+                        });
+                    }
                 }
                 await setDoc(doc(colTransactions, trxId), trxData);
                 state.lastTrx = { id: trxId, ...trxData };
@@ -1230,7 +1478,11 @@
                 cashier1Name: document.getElementById('setCashier1Name').value, 
                 cashier2Name: document.getElementById('setCashier2Name').value, 
                 phone: document.getElementById('setPhone').value, 
-                address: document.getElementById('setAddress').value 
+                address: document.getElementById('setAddress').value,
+                supp1: document.getElementById('setSupp1').value,
+                supp2: document.getElementById('setSupp2').value,
+                supp3: document.getElementById('setSupp3').value,
+                supp4: document.getElementById('setSupp4').value
             };
             try {
                 await setDoc(doc(colSettings, 'config'), data);
@@ -1247,21 +1499,19 @@
                                 <p style="margin:5px 0;">${state.settings.storeName} | Dicetak: ${new Date().toLocaleString()}</p>
                             </div>`;
             if (type === 'produk') {
-                contentHtml += `<table class="print-table"><thead><tr><th>Produk</th><th>Kategori</th><th>Modal</th><th>Jual</th><th>Exp</th><th>Stok</th></tr></thead><tbody>`;
-                state.products.forEach(p => { contentHtml += `<tr><td>${p.name}</td><td>${p.category}</td><td>${formatRupiah(p.buyPrice)}</td><td>${formatRupiah(p.sellPrice)}</td><td>${p.expiredDate || '-'}</td><td>${p.stock}</td></tr>`; });
+                contentHtml += `<table class="print-table"><thead><tr><th>Produk</th><th>Kategori</th><th>Modal</th><th>Jual</th><th>Stok</th></tr></thead><tbody>`;
+                state.products.forEach(p => { contentHtml += `<tr><td>${p.name}</td><td>${p.category}</td><td>${formatRupiah(p.buyPrice)}</td><td>${formatRupiah(p.sellPrice)}</td><td>${p.stock}</td></tr>`; });
                 contentHtml += `</tbody></table>`;
             } else if (type === 'barang-masuk') {
-                contentHtml += `<table class="print-table"><thead><tr><th>Waktu</th><th>Produk</th><th>Qty</th><th>Admin</th></tr></thead><tbody>`;
-                state.stockLogs.forEach(l => { contentHtml += `<tr><td>${new Date(l.timestamp).toLocaleString()}</td><td>${l.productName}</td><td>+${l.qty}</td><td>${l.admin}</td></tr>`; });
+                contentHtml += `<table class="print-table"><thead><tr><th>Waktu</th><th>Produk</th><th>Supplier</th><th>Qty</th><th>Admin</th></tr></thead><tbody>`;
+                state.stockLogs.forEach(l => { contentHtml += `<tr><td>${new Date(l.timestamp).toLocaleString()}</td><td>${l.productName}</td><td>${l.supplier || '-'}</td><td>+${l.qty}</td><td>${l.admin}</td></tr>`; });
                 contentHtml += `</tbody></table>`;
             } else if (type === 'transaksi') {
                 contentHtml += `<table class="print-table"><thead><tr><th>Waktu</th><th>ID</th><th>Kasir</th><th>Total</th></tr></thead><tbody>`;
                 state.transactions.forEach(t => { contentHtml += `<tr><td>${new Date(t.timestamp).toLocaleString()}</td><td>${t.id}</td><td>${t.cashier}</td><td>${formatRupiah(t.total)}</td></tr>`; });
                 contentHtml += `</tbody></table>`;
             }
-
             contentHtml += `<div class="pdf-footer" style="position: absolute; bottom: 0; left: 0; font-size: 8px; font-weight: bold; color: #555;">Document Exported by: ${state.currentUser ? state.currentUser.name : 'Unknown System'}</div>`;
-            
             contentHtml += `</div>`;
             container.innerHTML = contentHtml;
             setTimeout(() => { window.print(); }, 500);
