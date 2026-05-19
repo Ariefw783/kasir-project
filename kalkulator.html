@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Harga Jual Apotek</title>
+    <!-- Tailwind CSS untuk tata letak modern -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950 text-slate-800 min-h-screen flex flex-col items-center justify-between p-4 md:p-8">
+
+    <!-- CONTAINER UTAMA (HALAMAN BERDIRI SENDIRI) -->
+    <div class="bg-white/95 backdrop-blur-md w-full max-w-5xl rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden flex flex-col my-auto">
+        
+        <!-- HEADER HALAMAN -->
+        <header class="bg-slate-50/90 px-6 py-5 border-b border-slate-200 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <span class="w-3.5 h-3.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <div>
+                    <h1 class="text-lg font-extrabold text-slate-950 tracking-tight">Kalkulator Harga Jual Apotek</h1>
+                    <p class="text-xs text-slate-500 font-medium">Sistem Kalkulasi Nilai Jual Obat & Alkes</p>
+                </div>
+            </div>
+            <span class="text-xs font-bold px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200">
+                Apotek Keluarga Sehat
+            </span>
+        </header>
+
+        <!-- KONTEN UTAMA -->
+        <main class="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- KOLOM KIRI: FORM INPUT -->
+            <section class="lg:col-span-5 bg-slate-50 border border-slate-200/60 p-6 rounded-2xl space-y-6">
+                <div>
+                    <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Input Parameter</h2>
+                    
+                    <!-- Input Harga Modal -->
+                    <div class="mb-4">
+                        <label for="input-modal" class="block text-[10px] font-bold text-slate-600 uppercase mb-2">Harga Modal Pokok (Rp)</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <span class="text-slate-400 font-semibold text-sm">Rp. </span>
+                            </div>
+                            <input type="text" id="input-modal" 
+                                class="block w-full pl-12 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition text-sm"
+                                placeholder="Contoh: 50.000" value="">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <!-- Input Margin -->
+                        <div>
+                            <label for="input-margin" class="block text-[10px] font-bold text-slate-600 uppercase mb-2">Margin (%)</label>
+                            <div class="relative">
+                                <input type="number" id="input-margin" min="0" max="99" step="0.1"
+                                    class="block w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition text-sm"
+                                    placeholder="0" value="">
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <span class="text-slate-400 font-bold text-xs">%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Input PPN -->
+                        <div>
+                            <label for="input-ppn" class="block text-[10px] font-bold text-slate-600 uppercase mb-2">PPN (%)</label>
+                            <div class="relative">
+                                <input type="number" id="input-ppn" min="0" max="100" step="0.1"
+                                    class="block w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition text-sm"
+                                    placeholder="0" value="">
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <span class="text-slate-400 font-bold text-xs">%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEKSI PEMBULATAN NOMINAL (RADIO BUTTON) -->
+                <div class="border-t border-slate-200/80 pt-5">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Tipe Pembulatan (Kelipatan Rp. 500,00)</h3>
+                    
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:bg-slate-100 transition">
+                            <input type="radio" name="round-type" value="aktual" checked class="w-4 h-4 text-emerald-500 accent-emerald-600" onchange="hitungHargaJual()">
+                            <div>
+                                <span class="block text-xs font-bold text-slate-700">Aktual</span>
+                                <span class="block text-[10px] text-slate-400">Harga murni apa adanya tanpa pembulatan.</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:bg-slate-100 transition">
+                            <input type="radio" name="round-type" value="up" class="w-4 h-4 text-emerald-500 accent-emerald-600" onchange="hitungHargaJual()">
+                            <div>
+                                <span class="block text-xs font-bold text-slate-700">Pembulatan Ke Atas (Up)</span>
+                                <span class="block text-[10px] text-slate-400">Membulatkan hasil akhir ke kelipatan Rp. 500,00 di atasnya.</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:bg-slate-100 transition">
+                            <input type="radio" name="round-type" value="down" class="w-4 h-4 text-emerald-500 accent-emerald-600" onchange="hitungHargaJual()">
+                            <div>
+                                <span class="block text-xs font-bold text-slate-700">Pembulatan Ke Bawah (Down)</span>
+                                <span class="block text-[10px] text-slate-400">Membulatkan hasil akhir ke kelipatan Rp. 500,00 di bawahnya.</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- KOLOM KANAN: HASIL, EDUKASI & REKOMENDASI APOTEK -->
+            <section class="lg:col-span-7 space-y-6">
+                
+                <!-- TABS METODE PERHITUNGAN -->
+                <div class="bg-slate-100 p-1 border border-slate-200 rounded-xl flex shadow-sm">
+                    <button id="tab-margin" class="flex-1 py-2 text-center rounded-lg font-bold text-xs transition bg-emerald-600 text-white shadow-sm" onclick="switchMethod('margin')">
+                        Metode Margin (Berdasarkan Harga Jual)
+                    </button>
+                    <button id="tab-markup" class="flex-1 py-2 text-center rounded-lg font-bold text-xs transition text-slate-500 hover:text-slate-800" onclick="switchMethod('markup')">
+                        Metode Markup (Berdasarkan Modal)
+                    </button>
+                </div>
+
+                <!-- LAYOUT DISPLAY HASIL UTAMA -->
+                <div class="bg-emerald-950 text-white rounded-2xl p-6 md:p-8 shadow-lg relative overflow-hidden">
+                    <div class="absolute right-0 top-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
+
+                    <div id="state-empty" class="text-center py-6">
+                        <p class="text-xs text-emerald-200 font-medium">Lengkapi parameter Harga Modal, Margin, dan PPN di kolom kiri untuk melihat kalkulasi harga jual akhir.</p>
+                    </div>
+
+                    <div id="state-calculated" class="hidden space-y-4">
+                        <div>
+                            <p class="text-[9px] uppercase tracking-wider text-emerald-300 font-bold mb-1" id="label-metode-aktif">HARGA JUAL AKHIR (METODE MARGIN)</p>
+                            <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white" id="val-harga-jual-akhir">Rp. 0,00</h2>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-emerald-800 text-xs">
+                            <div class="bg-emerald-900/40 p-3 rounded-lg border border-emerald-800/60">
+                                <span class="block text-emerald-300 text-[10px] mb-0.5">Sebelum PPN</span>
+                                <span class="font-bold text-emerald-50 text-xs" id="val-sebelum-ppn">Rp. 0,00</span>
+                            </div>
+                            <div class="bg-emerald-900/40 p-3 rounded-lg border border-emerald-800/60">
+                                <span class="block text-emerald-300 text-[10px] mb-0.5">Nominal PPN</span>
+                                <span class="font-bold text-emerald-50 text-xs" id="val-nilai-ppn">Rp. 0,00</span>
+                            </div>
+                            <div class="bg-emerald-900/40 p-3 rounded-lg border border-emerald-800/60">
+                                <span class="block text-emerald-300 text-[10px] mb-0.5">Profit Bersih</span>
+                                <span class="font-bold text-emerald-400 text-xs" id="val-profit-bersih">Rp. 0,00</span>
+                            </div>
+                        </div>
+
+                        <p class="text-[10px] text-emerald-300 italic" id="txt-pembulatan-desc"></p>
+                    </div>
+                </div>
+
+                <!-- SEKSI PENJELASAN METODE & REKOMENDASI APOTEK -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm">
+                    <!-- Penjelasan Margin vs Markup Sederhana -->
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <span class="w-1.5 h-4 bg-emerald-500 rounded"></span>
+                            Penjelasan Sederhana Metode Perhitungan
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                <h4 class="font-bold text-emerald-600 mb-1.5">1. Metode Margin (Standard Apotek)</h4>
+                                <p class="text-slate-600 leading-relaxed mb-2">Keuntungan dihitung langsung dari total nilai jual obat ke pasien.</p>
+                                <p class="text-slate-500 italic">"Contoh: Jika harga jual Rp. 10.000,00 dengan margin 20%, maka Rp. 2.000,00 (20%) adalah keuntungan bersih Anda, sisanya adalah modal."</p>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                <h4 class="font-bold text-indigo-600 mb-1.5">2. Metode Markup</h4>
+                                <p class="text-slate-600 leading-relaxed mb-2">Keuntungan ditambahkan langsung di atas harga modal beli obat.</p>
+                                <p class="text-slate-500 italic">"Contoh: Jika modal Rp. 10.000,00 dengan markup 20%, Anda langsung menambahkan untung Rp. 2.000,00 sehingga harga jual sebelum pajak menjadi Rp. 12.000,00."</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rekomendasi Apotek -->
+                    <div class="bg-emerald-50 border border-emerald-200/60 rounded-xl p-4">
+                        <h4 class="text-xs font-bold text-emerald-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                            Rekomendasi Metode untuk Bisnis Apotek
+                        </h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Sangat direkomendasikan untuk menggunakan <strong>Metode Margin (Berdasarkan Harga Jual)</strong> di bisnis apotek Anda. 
+                            Hal ini dikarenakan produsen farmasi (PBF) sering kali memberikan diskon dari Harga Eceran Tertinggi (HET) pabrik. Dengan metode Margin, Anda dapat memantau dengan tepat persentase gross profit aktual (misalnya standar apotek berkisar 20% - 25% untuk obat bebas/ethical) demi menutup biaya operasional apotek yang sensitif terhadap pergerakan harga.
+                        </p>
+                    </div>
+                </div>
+
+            </section>
+
+        </main>
+
+        <!-- FOOTER DI DALAM LAYOUT -->
+        <footer class="py-4 bg-slate-50 border-t border-slate-200 text-center text-[10px] tracking-wide text-slate-400 uppercase">
+            apotek keluarga sehat &copy; 2026 | design and development by arfwcvk
+        </footer>
+    </div>
+
+    <!-- LOGIKA KALKULATOR -->
+    <script>
+        // State Global Aplikasi
+        let currentMethod = 'margin'; // 'margin' atau 'markup'
+        let valModal = null;
+        let valMargin = null;
+        let valPPN = null;
+
+        // Elements
+        const inputModal = document.getElementById('input-modal');
+        const inputMargin = document.getElementById('input-margin');
+        const inputPPN = document.getElementById('input-ppn');
+
+        const stateEmpty = document.getElementById('state-empty');
+        const stateCalculated = document.getElementById('state-calculated');
+
+        // Format Rupiah presisi (Rp. X.XXX,XX)
+        function formatRupiahDecimal(angka) {
+            if (isNaN(angka) || angka === null || angka === undefined) return "Rp. 0,00";
+            let fixed = angka.toFixed(2);
+            let parts = fixed.split('.');
+            let rupiah = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            let sen = parts[1] || "00";
+            return "Rp. " + rupiah + "," + sen;
+        }
+
+        // Event Listeners
+        window.onload = function () {
+            // Event input modal dengan auto-format saat mengetik
+            inputModal.addEventListener('input', function(e) {
+                let rawValue = e.target.value.replace(/\D/g, "");
+                if (rawValue === "") {
+                    valModal = null;
+                    e.target.value = "";
+                } else {
+                    valModal = parseInt(rawValue) || 0;
+                    e.target.value = Number(valModal).toLocaleString('id-ID');
+                }
+                hitungHargaJual();
+            });
+
+            inputMargin.addEventListener('input', function(e) {
+                let val = parseFloat(e.target.value);
+                if (isNaN(val)) {
+                    valMargin = null;
+                } else {
+                    // Proteksi margin maksimal pada metode margin
+                    if (currentMethod === 'margin' && val >= 100) {
+                        val = 99.9;
+                        e.target.value = 99.9;
+                    }
+                    valMargin = val;
+                }
+                hitungHargaJual();
+            });
+
+            inputPPN.addEventListener('input', function(e) {
+                let val = parseFloat(e.target.value);
+                if (isNaN(val)) {
+                    valPPN = null;
+                } else {
+                    valPPN = val;
+                }
+                hitungHargaJual();
+            });
+        };
+
+        // Ganti Tab Perhitungan
+        function switchMethod(method) {
+            currentMethod = method;
+            
+            const tabMargin = document.getElementById('tab-margin');
+            const tabMarkup = document.getElementById('tab-markup');
+            const labelMetode = document.getElementById('label-metode-aktif');
+
+            if (method === 'margin') {
+                tabMargin.className = "flex-1 py-2 text-center rounded-lg font-bold text-xs transition bg-emerald-600 text-white shadow-sm";
+                tabMarkup.className = "flex-1 py-2 text-center rounded-lg font-bold text-xs transition text-slate-500 hover:text-slate-800";
+                labelMetode.textContent = "HARGA JUAL AKHIR (METODE MARGIN)";
+                
+                // Koreksi input jika margin tidak realistis
+                if (valMargin >= 100) {
+                    valMargin = 20;
+                    inputMargin.value = 20;
+                }
+            } else {
+                tabMarkup.className = "flex-1 py-2 text-center rounded-lg font-bold text-xs transition bg-emerald-600 text-white shadow-sm";
+                tabMargin.className = "flex-1 py-2 text-center rounded-lg font-bold text-xs transition text-slate-500 hover:text-slate-800";
+                labelMetode.textContent = "HARGA JUAL AKHIR (METODE MARKUP)";
+            }
+
+            hitungHargaJual();
+        }
+
+        // Perhitungan Utama & Pembulatan Kelipatan Rp. 500,00
+        function hitungHargaJual() {
+            // Validasi: Harus terisi seluruhnya untuk memproses perhitungan
+            if (valModal === null || valMargin === null || valPPN === null) {
+                stateEmpty.classList.remove('hidden');
+                stateCalculated.classList.add('hidden');
+                return;
+            }
+
+            stateEmpty.classList.add('hidden');
+            stateCalculated.classList.remove('hidden');
+
+            let modal = valModal;
+            let margin = valMargin / 100;
+            let ppn = valPPN / 100;
+
+            let hargaSebelumPPN = 0;
+
+            // Perhitungan Sebelum PPN berdasarkan metode pilihan
+            if (currentMethod === 'margin') {
+                if (margin >= 1) {
+                    hargaSebelumPPN = modal;
+                } else {
+                    hargaSebelumPPN = modal / (1 - margin);
+                }
+            } else {
+                hargaSebelumPPN = modal * (1 + margin);
+            }
+
+            let nilaiPPN = hargaSebelumPPN * ppn;
+            let hargaJualDasar = hargaSebelumPPN + nilaiPPN; // Nilai asli / aktual
+
+            // Pengolahan tipe pembulatan kelipatan Rp. 500,00 terdekat
+            const optRoundType = document.querySelector('input[name="round-type"]:checked').value;
+            
+            let hargaJualAkhir = hargaJualDasar;
+            let labelPembulatan = "";
+
+            if (optRoundType === 'aktual') {
+                labelPembulatan = "Menggunakan harga aktual murni tanpa pembulatan.";
+            } else {
+                if (optRoundType === 'up') {
+                    // Dibulatkan ke atas ke kelipatan Rp. 500 terdekat
+                    hargaJualAkhir = Math.ceil(hargaJualDasar / 500) * 500;
+                    labelPembulatan = "Nilai nominal dibulatkan ke ATAS ke kelipatan Rp. 500,00 terdekat.";
+                } else if (optRoundType === 'down') {
+                    // Dibulatkan ke bawah ke kelipatan Rp. 500 terdekat
+                    hargaJualAkhir = Math.floor(hargaJualDasar / 500) * 500;
+                    labelPembulatan = "Nilai nominal dibulatkan ke BAWAH ke kelipatan Rp. 500,00 terdekat.";
+                }
+            }
+
+            // Hitung balik profit riil setelah pembulatan
+            let profitRiil = hargaJualAkhir - modal - nilaiPPN;
+
+            // Update ke Antarmuka
+            document.getElementById('val-harga-jual-akhir').textContent = formatRupiahDecimal(hargaJualAkhir);
+            document.getElementById('val-sebelum-ppn').textContent = formatRupiahDecimal(hargaSebelumPPN);
+            document.getElementById('val-nilai-ppn').textContent = formatRupiahDecimal(nilaiPPN);
+            document.getElementById('val-profit-bersih').textContent = formatRupiahDecimal(profitRiil);
+            document.getElementById('txt-pembulatan-desc').textContent = labelPembulatan;
+        }
+    </script>
+</body>
+</html>
