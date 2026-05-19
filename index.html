@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -313,7 +312,7 @@
 
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-100 mb-10 overflow-hidden">
                         <div class="p-4 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-white/50">
-                            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto flex-1 max-w-2xl">
+                            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto flex-1 max-w-3xl">
                                 <div class="relative flex-1">
                                     <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400"><i class="fas fa-search"></i></span>
                                     <input type="text" id="searchInput" onkeyup="if(window.state) { window.state.productPage = 1; } renderProductTable()" placeholder="Cari produk..." class="pl-11 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl w-full outline-none">
@@ -324,6 +323,11 @@
                                     <option value="supplier2">Supplier 2</option>
                                     <option value="supplier3">Supplier 3</option>
                                     <option value="supplier4">Supplier 4</option>
+                                </select>
+                                <select id="sourceFilter" onchange="if(window.state) { window.state.productPage = 1; } renderProductTable()" class="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-xs outline-none font-bold min-w-[150px]">
+                                    <option value="all">Semua Sumber</option>
+                                    <option value="system">Sistem (File JS)</option>
+                                    <option value="manual">Input Manual (Lokal)</option>
                                 </select>
                             </div>
                             <div class="flex gap-2 w-full md:w-auto">
@@ -1167,13 +1171,35 @@
         };
 
         window.nextProductPage = () => {
-            const search = document.getElementById('searchInput').value.toLowerCase();
+            const search = document.getElementById('searchInput').value.toLowerCase().trim();
             const supplierFilter = document.getElementById('supplierFilter') ? document.getElementById('supplierFilter').value : 'all';
-            let filtered = state.products.filter(p => p.name.toLowerCase().includes(search));
+            const sourceFilter = document.getElementById('sourceFilter') ? document.getElementById('sourceFilter').value : 'all';
+            
+            let filtered = state.products;
             if (supplierFilter !== 'all') {
                 filtered = filtered.filter(p => p.supplierKey === supplierFilter);
             }
-            const totalPages = Math.ceil(filtered.length / state.productPageSize);
+            if (sourceFilter === 'system') {
+                filtered = filtered.filter(p => p.isLocalProduct === false);
+            } else if (sourceFilter === 'manual') {
+                filtered = filtered.filter(p => p.isLocalProduct === true);
+            }
+
+            if (search !== '') {
+                let searchFiltered = filtered.filter(p => {
+                    const words = p.name.toLowerCase().split(/\s+/);
+                    return words[0] && words[0].startsWith(search);
+                });
+                if (searchFiltered.length === 0) {
+                    searchFiltered = filtered.filter(p => {
+                        const words = p.name.toLowerCase().split(/\s+/);
+                        return words.slice(1).some(word => word.startsWith(search));
+                    });
+                }
+                filtered = searchFiltered;
+            }
+            
+            const totalPages = Math.ceil(filtered.length / state.productPageSize) || 1;
             if (state.productPage < totalPages) {
                 state.productPage++;
                 renderProductTable();
@@ -1247,11 +1273,18 @@
             const tbody = document.getElementById('productTableBody');
             const search = document.getElementById('searchInput').value.toLowerCase().trim();
             const supplierFilter = document.getElementById('supplierFilter') ? document.getElementById('supplierFilter').value : 'all';
+            const sourceFilter = document.getElementById('sourceFilter') ? document.getElementById('sourceFilter').value : 'all';
             tbody.innerHTML = '';
             
             let supplierFiltered = state.products;
             if (supplierFilter !== 'all') {
                 supplierFiltered = supplierFiltered.filter(p => p.supplierKey === supplierFilter);
+            }
+            
+            if (sourceFilter === 'system') {
+                supplierFiltered = supplierFiltered.filter(p => p.isLocalProduct === false);
+            } else if (sourceFilter === 'manual') {
+                supplierFiltered = supplierFiltered.filter(p => p.isLocalProduct === true);
             }
             
             let filtered = [];
