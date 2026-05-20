@@ -589,9 +589,9 @@
             <div class="p-4 bg-slate-50 border-b border-slate-100 flex flex-wrap gap-3 shrink-0">
                 <div class="relative flex-1 min-w-[200px]">
                     <i class="fas fa-search absolute left-4 top-3.5 text-slate-400"></i>
-                    <input type="text" id="posSearch" onkeyup="handlePOSSearch()" placeholder="Cari barang..." class="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition">
+                    <input type="text" id="posSearch" onkeyup="if(window.state) { window.state.posPage = 1; } handlePOSSearch()" placeholder="Cari barang..." class="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition">
                 </div>
-                <select id="posCategoryFilter" onchange="handlePOSSearch()" class="bg-white border border-slate-200 px-6 py-3 rounded-2xl font-bold text-xs outline-none min-w-[150px]">
+                <select id="posCategoryFilter" onchange="if(window.state) { window.state.posPage = 1; } handlePOSSearch()" class="bg-white border border-slate-200 px-6 py-3 rounded-2xl font-bold text-xs outline-none min-w-[150px]">
                     <option value="all">Semua Kategori</option>
                 </select>
             </div>
@@ -613,6 +613,29 @@
                     <p class="font-bold">Barang tidak ditemukan...</p>
                 </div>
             </div>
+            
+            <div id="posPaginationBlock" class="p-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0 hidden">
+                <div class="text-xs text-slate-500 font-medium">
+                    Menampilkan <span id="pos-paginated-start" class="font-bold">0</span> - <span id="pos-paginated-end" class="font-bold">0</span> dari <span id="pos-paginated-total" class="font-bold">0</span> produk
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="prevPosPage()" id="btn-prev-pos-page" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition">
+                        <i class="fas fa-chevron-left mr-1"></i> Prev
+                    </button>
+                    <span class="text-xs font-bold text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg">
+                        Halaman <span id="pos-current-page-num">1</span>
+                    </span>
+                    <button onclick="nextPosPage()" id="btn-next-pos-page" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition">
+                        Next <i class="fas fa-chevron-right ml-1"></i>
+                    </button>
+                    <select id="posPageSizeSelect" onchange="changePosPageSize()" class="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold outline-none ml-2">
+                        <option value="10">10 / Halaman</option>
+                        <option value="25">25 / Halaman</option>
+                        <option value="50">50 / Halaman</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center shrink-0">
                 <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Tekan Esc untuk menutup</p>
                 <button onclick="closePosItemModal()" class="bg-slate-900 text-white px-6 py-2.5 rounded-xl font-bold text-xs">Selesai</button>
@@ -788,6 +811,8 @@
             currentUser: null, lastTrx: null, targetLogin: null, selectedCashierIndex: null,
             productPage: 1,
             productPageSize: 10,
+            posPage: 1,
+            posPageSize: 10,
             deleteTrxId: null
         };
 
@@ -1533,30 +1558,122 @@
 
         window.openPosItemModal = () => { 
             document.getElementById('posSearch').value = ''; 
+            state.posPage = 1;
             document.getElementById('posItemModal').classList.remove('hidden'); 
             handlePOSSearch(); 
         };
         window.closePosItemModal = () => document.getElementById('posItemModal').classList.add('hidden');
+
+        window.prevPosPage = () => {
+            if (state.posPage > 1) {
+                state.posPage--;
+                handlePOSSearch();
+            }
+        };
+
+        window.nextPosPage = () => {
+            const s = document.getElementById('posSearch').value.toLowerCase().trim();
+            const cat = document.getElementById('posCategoryFilter').value;
+            
+            let categoryFiltered = state.products;
+            if (cat !== 'all') {
+                categoryFiltered = categoryFiltered.filter(p => p.category === cat);
+            }
+            
+            let filtered = [];
+            if (s === '') {
+                filtered = categoryFiltered;
+            } else {
+                filtered = categoryFiltered.filter(p => {
+                    const words = p.name.toLowerCase().split(/\s+/);
+                    return words[0] && words[0].startsWith(s);
+                });
+                
+                if (filtered.length === 0) {
+                    filtered = categoryFiltered.filter(p => {
+                        const words = p.name.toLowerCase().split(/\s+/);
+                        return words.slice(1).some(word => word.startsWith(s));
+                    });
+                }
+            }
+            
+            const totalPages = Math.ceil(filtered.length / state.posPageSize) || 1;
+            if (state.posPage < totalPages) {
+                state.posPage++;
+                handlePOSSearch();
+            }
+        };
+
+        window.changePosPageSize = () => {
+            state.posPageSize = parseInt(document.getElementById('posPageSizeSelect').value);
+            state.posPage = 1;
+            handlePOSSearch();
+        };
 
         window.handlePOSSearch = () => {
             const s = document.getElementById('posSearch').value.toLowerCase().trim();
             const tableBody = document.getElementById('posProductTableBody');
             const empty = document.getElementById('posEmptyState');
             const cat = document.getElementById('posCategoryFilter').value;
+            const pagBlock = document.getElementById('posPaginationBlock');
             
+            let categoryFiltered = state.products;
+            if (cat !== 'all') {
+                categoryFiltered = categoryFiltered.filter(p => p.category === cat);
+            }
+            
+            let filtered = [];
             if (s === '') {
+                filtered = categoryFiltered;
+            } else {
+                filtered = categoryFiltered.filter(p => {
+                    const words = p.name.toLowerCase().split(/\s+/);
+                    return words[0] && words[0].startsWith(s);
+                });
+                
+                if (filtered.length === 0) {
+                    filtered = categoryFiltered.filter(p => {
+                        const words = p.name.toLowerCase().split(/\s+/);
+                        return words.slice(1).some(word => word.startsWith(s));
+                    });
+                }
+            }
+            
+            const totalPages = Math.ceil(filtered.length / state.posPageSize) || 1;
+            if (state.posPage > totalPages) state.posPage = totalPages;
+            
+            const start = (state.posPage - 1) * state.posPageSize;
+            const end = start + state.posPageSize;
+            const paginated = filtered.slice(start, end);
+            
+            if (paginated.length === 0) {
                 tableBody.innerHTML = '';
+                empty.classList.remove('hidden');
+                if (pagBlock) pagBlock.classList.add('hidden');
+            } else {
                 empty.classList.add('hidden');
-                return;
+                if (pagBlock) pagBlock.classList.remove('hidden');
+                renderPOSList(paginated);
             }
 
-            let filtered = state.products.filter(p => p.name.toLowerCase().includes(s));
-            if (cat !== 'all') filtered = filtered.filter(p => p.category === cat);
-            if (filtered.length === 0) { 
-                tableBody.innerHTML = ''; empty.classList.remove('hidden'); 
-            } else { 
-                empty.classList.add('hidden'); renderPOSList(filtered); 
-            }
+            // Update controls
+            const startIdx = filtered.length === 0 ? 0 : (state.posPage - 1) * state.posPageSize + 1;
+            const endIdx = Math.min(state.posPage * state.posPageSize, filtered.length);
+            
+            const pagStart = document.getElementById('pos-paginated-start');
+            const pagEnd = document.getElementById('pos-paginated-end');
+            const pagTotal = document.getElementById('pos-paginated-total');
+            const pageNum = document.getElementById('pos-current-page-num');
+            const btnPrev = document.getElementById('btn-prev-pos-page');
+            const btnNext = document.getElementById('btn-next-pos-page');
+            
+            if (pagStart) pagStart.innerText = startIdx;
+            if (pagEnd) pagEnd.innerText = endIdx;
+            if (pagTotal) pagTotal.innerText = filtered.length;
+            if (pageNum) pageNum.innerText = state.posPage;
+            
+            if (btnPrev) btnPrev.disabled = (state.posPage === 1);
+            if (btnNext) btnNext.disabled = (state.posPage === totalPages);
         };
 
         const updateCategoryFilter = () => {
@@ -1763,6 +1880,7 @@
         window.processDeleteTransaction = async () => {
             const confirmInput = document.getElementById('deleteTrxConfirmInput').value;
             if (confirmInput !== 'yes') {
+                document.getElementById('deleteTrxModal').classList.add('hidden');
                 window.showFeedback('Gagal', "Password Salah.", 'error');
                 return;
             }
