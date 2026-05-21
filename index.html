@@ -496,10 +496,10 @@
                                     <button onclick="generatePDF('barang-masuk')" class="text-xs bg-rose-50 text-rose-600 px-3 py-1.5 rounded-lg font-bold hover:bg-rose-100 transition"><i class="fas fa-print mr-1"></i> Cetak</button>
                                 </div>
                                 <div class="p-3 bg-slate-50 border-b border-slate-100 space-y-2">
-                                    <input type="date" id="filterStockDate" onchange="renderStockHistory()" class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none font-medium bg-white focus:border-indigo-500">
-                                    <input type="text" id="filterStockSupplier" onkeyup="renderStockHistory()" placeholder="Cari Nama Supplier..." class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none font-medium bg-white focus:border-indigo-500">
-                                    <input type="text" id="filterStockProduct" onkeyup="renderStockHistory()" placeholder="Cari Nama Produk..." class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none font-medium bg-white focus:border-indigo-500">
-                                    <input type="text" id="filterStockInvoice" onkeyup="renderStockHistory()" placeholder="Cari No. Faktur..." class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none font-medium bg-white focus:border-indigo-500">
+                                    <input type="date" id="filterStockDate" onchange="if(window.state) { window.state.stockPage = 1; } renderStockHistory()" class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none font-medium bg-white focus:border-indigo-500">
+                                    <input type="text" id="filterStockSupplier" onkeyup="if(window.state) { window.state.stockPage = 1; } renderStockHistory()" placeholder="Cari Nama Supplier..." class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none font-medium bg-white focus:border-indigo-500">
+                                    <input type="text" id="filterStockProduct" onkeyup="if(window.state) { window.state.stockPage = 1; } renderStockHistory()" placeholder="Cari Nama Produk..." class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none font-medium bg-white focus:border-indigo-500">
+                                    <input type="text" id="filterStockInvoice" onkeyup="if(window.state) { window.state.stockPage = 1; } renderStockHistory()" placeholder="Cari No. Faktur..." class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none font-medium bg-white focus:border-indigo-500">
                                 </div>
                                 <div class="overflow-y-auto max-h-[500px] custom-scrollbar flex-1">
                                     <table class="w-full text-left text-[11px]">
@@ -512,6 +512,23 @@
                                         </thead>
                                         <tbody id="stockHistoryBody" class="divide-y divide-slate-100"></tbody>
                                     </table>
+                                </div>
+                                <!-- Stock Pagination Controls -->
+                                <div class="p-3 bg-slate-50 border-t border-slate-100 flex flex-col gap-2 shrink-0">
+                                    <div class="text-[11px] text-slate-500 font-medium text-center">
+                                        Menampilkan <span id="stock-paginated-start" class="font-bold">0</span> - <span id="stock-paginated-end" class="font-bold">0</span> dari <span id="stock-paginated-total" class="font-bold">0</span> data
+                                    </div>
+                                    <div class="flex justify-center items-center gap-2">
+                                        <button onclick="prevStockPage()" id="btn-prev-stock-page" class="px-2.5 py-1 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-[10px] disabled:opacity-50 disabled:cursor-not-allowed transition">
+                                            <i class="fas fa-chevron-left mr-1"></i> Prev
+                                        </button>
+                                        <span class="text-[10px] font-bold text-slate-700 bg-white border border-slate-200 px-2 py-1 rounded-lg">
+                                            Hal <span id="stock-current-page-num">1</span>
+                                        </span>
+                                        <button onclick="nextStockPage()" id="btn-next-stock-page" class="px-2.5 py-1 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-[10px] disabled:opacity-50 disabled:cursor-not-allowed transition">
+                                            Next <i class="fas fa-chevron-right ml-1"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -920,6 +937,8 @@
             productPageSize: 10,
             posPage: 1,
             posPageSize: 10,
+            stockPage: 1,
+            stockPageSize: 20,
             deleteTrxId: null,
             fakturItems: [] // Temporary array to hold added products before saving the purchase invoice
         };
@@ -1607,18 +1626,26 @@
 
         window.renderSupplierDropdown = () => {
             const s = document.getElementById('formSupplier');
-            if(!s) return;
+            const bmFS = document.getElementById('bmFakturSupplier');
             const s1 = state.settings.supp1 || "Supplier 1";
             const s2 = state.settings.supp2 || "Supplier 2";
             const s3 = state.settings.supp3 || "Supplier 3";
             const s4 = state.settings.supp4 || "Supplier 4";
-            s.innerHTML = `
+            
+            const optionsHtml = `
                 <option value="">Pilih Supplier...</option>
                 <option value="supplier1">${s1}</option>
                 <option value="supplier2">${s2}</option>
                 <option value="supplier3">${s3}</option>
                 <option value="supplier4">${s4}</option>
             `;
+            
+            if (s) s.innerHTML = optionsHtml;
+            if (bmFS) {
+                const currentVal = bmFS.value;
+                bmFS.innerHTML = optionsHtml;
+                bmFS.value = currentVal;
+            }
         };
 
         window.toggleDueDateField = (val) => {
@@ -1837,7 +1864,15 @@
                 return matchDate && matchSupplier && matchProduct && matchInvoice;
             });
 
-            tbody.innerHTML = filtered.map(l => `
+            const totalItems = filtered.length;
+            const totalPages = Math.ceil(totalItems / state.stockPageSize) || 1;
+            if (state.stockPage > totalPages) state.stockPage = totalPages;
+            
+            const start = (state.stockPage - 1) * state.stockPageSize;
+            const end = start + state.stockPageSize;
+            const paginated = filtered.slice(start, end);
+
+            tbody.innerHTML = paginated.map(l => `
                 <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
                     <td class="px-4 py-2 text-slate-500">
                         <div class="font-bold text-slate-800 text-[10px]">${l.productName} ${l.supplier ? '<span class="text-slate-400 font-normal">(' + l.supplier + ')</span>' : ''}</div>
@@ -1847,6 +1882,45 @@
                     <td class="px-3 py-2 text-center text-emerald-600 font-bold">+${l.qty}</td>
                     <td class="px-4 py-2 font-medium text-slate-600 text-[10px]">${l.admin}</td>
                 </tr>`).join('');
+
+            const startIdx = totalItems === 0 ? 0 : start + 1;
+            const endIdx = Math.min(end, totalItems);
+            
+            document.getElementById('stock-paginated-start').innerText = startIdx;
+            document.getElementById('stock-paginated-end').innerText = endIdx;
+            document.getElementById('stock-paginated-total').innerText = totalItems;
+            document.getElementById('stock-current-page-num').innerText = state.stockPage;
+            
+            document.getElementById('btn-prev-stock-page').disabled = (state.stockPage === 1);
+            document.getElementById('btn-next-stock-page').disabled = (state.stockPage === totalPages);
+        };
+
+        window.prevStockPage = () => {
+            if (state.stockPage > 1) {
+                state.stockPage--;
+                renderStockHistory();
+            }
+        };
+
+        window.nextStockPage = () => {
+            const dateFilter = document.getElementById('filterStockDate').value;
+            const supplierFilter = document.getElementById('filterStockSupplier').value.toLowerCase().trim();
+            const productFilter = document.getElementById('filterStockProduct').value.toLowerCase().trim();
+            const invoiceFilter = document.getElementById('filterStockInvoice').value.toLowerCase().trim();
+
+            const filtered = state.stockLogs.filter(l => {
+                const matchDate = !dateFilter || l.timestamp.startsWith(dateFilter);
+                const matchSupplier = !supplierFilter || (l.supplier && l.supplier.toLowerCase().includes(supplierFilter));
+                const matchProduct = !productFilter || (l.productName && l.productName.toLowerCase().includes(productFilter));
+                const matchInvoice = !invoiceFilter || (l.noFaktur && l.noFaktur.toLowerCase().includes(invoiceFilter));
+                return matchDate && matchSupplier && matchProduct && matchInvoice;
+            });
+
+            const totalPages = Math.ceil(filtered.length / state.stockPageSize) || 1;
+            if (state.stockPage < totalPages) {
+                state.stockPage++;
+                renderStockHistory();
+            }
         };
 
         window.openPosItemModal = () => { 
@@ -2185,8 +2259,25 @@
                 state.products.forEach(p => { contentHtml += `<tr><td>${p.name}</td><td>${p.category}</td><td>${formatRupiah(p.buyPrice)}</td><td>${formatRupiah(p.sellPrice)}</td><td>${p.stock}</td></tr>`; });
                 contentHtml += `</tbody></table>`;
             } else if (type === 'barang-masuk') {
+                const dateFilter = document.getElementById('filterStockDate').value;
+                const supplierFilter = document.getElementById('filterStockSupplier').value.toLowerCase().trim();
+                const productFilter = document.getElementById('filterStockProduct').value.toLowerCase().trim();
+                const invoiceFilter = document.getElementById('filterStockInvoice').value.toLowerCase().trim();
+
+                const filtered = state.stockLogs.filter(l => {
+                    const matchDate = !dateFilter || l.timestamp.startsWith(dateFilter);
+                    const matchSupplier = !supplierFilter || (l.supplier && l.supplier.toLowerCase().includes(supplierFilter));
+                    const matchProduct = !productFilter || (l.productName && l.productName.toLowerCase().includes(productFilter));
+                    const matchInvoice = !invoiceFilter || (l.noFaktur && l.noFaktur.toLowerCase().includes(invoiceFilter));
+                    return matchDate && matchSupplier && matchProduct && matchInvoice;
+                });
+
+                const start = (state.stockPage - 1) * state.stockPageSize;
+                const end = start + state.stockPageSize;
+                const activeOnScreen = filtered.slice(start, end);
+
                 contentHtml += `<table class="print-table"><thead><tr><th>Waktu</th><th>Produk</th><th>Supplier</th><th>No. Faktur</th><th>Batch</th><th>Qty</th><th>Admin</th></tr></thead><tbody>`;
-                state.stockLogs.forEach(l => { 
+                activeOnScreen.forEach(l => { 
                     contentHtml += `<tr><td>${new Date(l.timestamp).toLocaleString()}</td><td>${l.productName}</td><td>${l.supplier || '-'}</td><td>${l.noFaktur || '-'}</td><td>${l.batch || '-'}</td><td>+${l.qty}</td><td>${l.admin}</td></tr>`; 
                 });
                 contentHtml += `</tbody></table>`;
