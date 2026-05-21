@@ -420,7 +420,7 @@
                                     <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Input Item Obat</h3>
                                     <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
                                         <!-- Produk (Live Search) -->
-                                        <div class="md:col-span-5 relative">
+                                        <div class="md:col-span-4 relative">
                                             <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Pilih Produk</label>
                                             <input type="text" id="bmSelectProduct" oninput="handleLiveStockSearch(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-semibold" placeholder="Ketik nama produk...">
                                             <div id="bmLiveSuggestions" class="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-48 overflow-y-auto hidden custom-scrollbar"></div>
@@ -428,7 +428,7 @@
                                         <input type="hidden" id="bmSelectSupplier">
                                         
                                         <!-- No. Batch -->
-                                        <div class="md:col-span-3">
+                                        <div class="md:col-span-2">
                                             <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">No. Batch</label>
                                             <input type="text" id="bmBatch" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-bold" placeholder="EX: B1025">
                                         </div>
@@ -436,6 +436,11 @@
                                         <div class="md:col-span-2">
                                             <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Qty Masuk</label>
                                             <input type="number" id="bmQty" min="1" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-semibold" placeholder="0">
+                                        </div>
+                                        <!-- Harga Beli -->
+                                        <div class="md:col-span-2">
+                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Beli (Rp)</label>
+                                            <input type="text" id="bmPrice" oninput="handleNominalInput(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-bold" placeholder="0">
                                         </div>
                                         <!-- Tombol Tambah Item -->
                                         <div class="md:col-span-2">
@@ -490,8 +495,11 @@
                                     <h3 class="font-bold text-slate-800 text-sm">Riwayat Stok Masuk</h3>
                                     <button onclick="generatePDF('barang-masuk')" class="text-xs bg-rose-50 text-rose-600 px-3 py-1.5 rounded-lg font-bold hover:bg-rose-100 transition"><i class="fas fa-print mr-1"></i> Cetak</button>
                                 </div>
-                                <div class="p-3 bg-slate-50 border-b border-slate-100">
-                                    <input type="date" id="filterStockDate" onchange="renderStockHistory()" class="w-full text-xs p-2.5 border border-slate-200 rounded-lg outline-none font-medium">
+                                <div class="p-3 bg-slate-50 border-b border-slate-100 space-y-2">
+                                    <input type="date" id="filterStockDate" onchange="renderStockHistory()" class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none font-medium bg-white focus:border-indigo-500">
+                                    <input type="text" id="filterStockSupplier" onkeyup="renderStockHistory()" placeholder="Cari Nama Supplier..." class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none font-medium bg-white focus:border-indigo-500">
+                                    <input type="text" id="filterStockProduct" onkeyup="renderStockHistory()" placeholder="Cari Nama Produk..." class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none font-medium bg-white focus:border-indigo-500">
+                                    <input type="text" id="filterStockInvoice" onkeyup="renderStockHistory()" placeholder="Cari No. Faktur..." class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none font-medium bg-white focus:border-indigo-500">
                                 </div>
                                 <div class="overflow-y-auto max-h-[500px] custom-scrollbar flex-1">
                                     <table class="w-full text-left text-[11px]">
@@ -536,13 +544,13 @@
                                 
                                 <!-- Requirement 3: Diskon Tipe & Nilai Input -->
                                 <div class="w-full md:w-52">
-                                    <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Diskon Transaksi</label>
-                                    <div class="flex border-2 border-slate-900 overflow-hidden rounded-none">
-                                        <select id="posDiscountType" onchange="calculateChange()" class="p-2 bg-white text-xs font-bold outline-none border-r border-slate-900">
+                                    <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Diskon Transaksi</label>
+                                    <div class="flex border border-slate-200 overflow-hidden rounded-xl bg-white focus-within:ring-2 focus-within:ring-indigo-500 shadow-sm">
+                                        <select id="posDiscountType" onchange="calculateChange()" class="p-2.5 bg-slate-50 text-xs font-bold outline-none border-r border-slate-200 text-slate-700 cursor-pointer">
                                             <option value="nominal">Rp</option>
                                             <option value="percentage">%</option>
                                         </select>
-                                        <input type="text" id="posDiscountVal" oninput="handleDiscountInput(this); calculateChange()" placeholder="0" class="w-full p-2 bg-white outline-none font-bold text-sm text-indigo-600">
+                                        <input type="text" id="posDiscountVal" oninput="handleDiscountInput(this); calculateChange()" placeholder="0" class="w-full p-2.5 bg-transparent outline-none font-bold text-sm text-indigo-600">
                                     </div>
                                 </div>
 
@@ -1404,6 +1412,10 @@
             document.getElementById('bmSelectProduct').value = name;
             document.getElementById('bmSelectSupplier').value = supplier;
             document.getElementById('bmLiveSuggestions').classList.add('hidden');
+            const p = state.products.find(x => x.name.toUpperCase() === name.toUpperCase());
+            if (p) {
+                document.getElementById('bmPrice').value = new Intl.NumberFormat('id-ID').format(p.buyPrice);
+            }
             document.getElementById('bmQty').focus();
         };
 
@@ -1623,6 +1635,8 @@
             const productName = document.getElementById('bmSelectProduct').value;
             const batch = document.getElementById('bmBatch').value.trim();
             const qty = parseInt(document.getElementById('bmQty').value) || 0;
+            const priceRaw = document.getElementById('bmPrice').value;
+            const price = parseNominal(priceRaw) || 0;
             
             if (!productName) {
                 alert("Silakan pilih produk terlebih dahulu!");
@@ -1632,6 +1646,10 @@
                 alert("Qty masuk harus lebih besar dari 0!");
                 return;
             }
+            if (price < 0) {
+                alert("Harga beli tidak boleh negatif!");
+                return;
+            }
 
             const p = state.products.find(x => x.name.toUpperCase() === productName.toUpperCase());
             if (!p) {
@@ -1639,14 +1657,14 @@
                 return;
             }
 
-            const subtotal = p.buyPrice * qty;
+            const subtotal = price * qty;
             
             // Push to temporary faktur item queue
             state.fakturItems.push({
                 id: p.id,
                 name: p.name,
                 batch: batch || '-',
-                buyPrice: p.buyPrice,
+                buyPrice: price,
                 qty: qty,
                 subtotal: subtotal,
                 supplierKey: p.supplierKey,
@@ -1657,6 +1675,7 @@
             document.getElementById('bmSelectProduct').value = '';
             document.getElementById('bmBatch').value = '';
             document.getElementById('bmQty').value = '';
+            document.getElementById('bmPrice').value = '';
             document.getElementById('bmSelectSupplier').value = '';
 
             renderFakturQueue();
@@ -1744,7 +1763,7 @@
                     const docRef = doc(colProducts, item.id);
                     const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
-                        await updateDoc(docRef, { stock: finalStock });
+                        await updateDoc(docRef, { stock: finalStock, buyPrice: item.buyPrice });
                     } else {
                         await setDoc(docRef, {
                             name: item.name,
@@ -1763,6 +1782,7 @@
                         qty: item.qty,
                         noFaktur: noFaktur,
                         batch: item.batch,
+                        buyPrice: item.buyPrice,
                         paymentType: jenisBayar,
                         dueDate: jenisBayar === 'Tempo' ? dueDate : '-',
                         timestamp: timestampStr,
@@ -1802,12 +1822,25 @@
 
         window.renderStockHistory = () => {
             const tbody = document.getElementById('stockHistoryBody');
+            if (!tbody) return;
+            
             const dateFilter = document.getElementById('filterStockDate').value;
-            const filtered = state.stockLogs.filter(l => !dateFilter || l.timestamp.startsWith(dateFilter));
+            const supplierFilter = document.getElementById('filterStockSupplier').value.toLowerCase().trim();
+            const productFilter = document.getElementById('filterStockProduct').value.toLowerCase().trim();
+            const invoiceFilter = document.getElementById('filterStockInvoice').value.toLowerCase().trim();
+
+            const filtered = state.stockLogs.filter(l => {
+                const matchDate = !dateFilter || l.timestamp.startsWith(dateFilter);
+                const matchSupplier = !supplierFilter || (l.supplier && l.supplier.toLowerCase().includes(supplierFilter));
+                const matchProduct = !productFilter || (l.productName && l.productName.toLowerCase().includes(productFilter));
+                const matchInvoice = !invoiceFilter || (l.noFaktur && l.noFaktur.toLowerCase().includes(invoiceFilter));
+                return matchDate && matchSupplier && matchProduct && matchInvoice;
+            });
+
             tbody.innerHTML = filtered.map(l => `
                 <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
                     <td class="px-4 py-2 text-slate-500">
-                        <div class="font-bold text-slate-800 text-[10px]">${l.productName}</div>
+                        <div class="font-bold text-slate-800 text-[10px]">${l.productName} ${l.supplier ? '<span class="text-slate-400 font-normal">(' + l.supplier + ')</span>' : ''}</div>
                         <div class="text-[9px] text-slate-400 font-normal mt-0.5">${new Date(l.timestamp).toLocaleString()}</div>
                         <div class="text-[9px] text-indigo-500 font-bold uppercase mt-0.5">${l.noFaktur ? 'FAKTUR: ' + l.noFaktur : 'Lokal'}</div>
                     </td>
