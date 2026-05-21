@@ -420,18 +420,13 @@
                                     <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Input Item Obat</h3>
                                     <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
                                         <!-- Produk (Live Search) -->
-                                        <div class="md:col-span-4 relative">
+                                        <div class="md:col-span-6 relative">
                                             <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Pilih Produk</label>
                                             <input type="text" id="bmSelectProduct" oninput="handleLiveStockSearch(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-semibold" placeholder="Ketik nama produk...">
                                             <div id="bmLiveSuggestions" class="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-48 overflow-y-auto hidden custom-scrollbar"></div>
                                         </div>
                                         <input type="hidden" id="bmSelectSupplier">
                                         
-                                        <!-- No. Batch -->
-                                        <div class="md:col-span-2">
-                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">No. Batch</label>
-                                            <input type="text" id="bmBatch" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-bold" placeholder="EX: B1025">
-                                        </div>
                                         <!-- Qty Masuk -->
                                         <div class="md:col-span-2">
                                             <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Qty Masuk</label>
@@ -439,8 +434,8 @@
                                         </div>
                                         <!-- Harga Beli -->
                                         <div class="md:col-span-2">
-                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Beli (Rp)</label>
-                                            <input type="text" id="bmPrice" oninput="handleNominalInput(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-bold" placeholder="0">
+                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Beli Satuan (Rp)</label>
+                                            <input type="text" id="bmPrice" oninput="handleNominalInput(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-bold" placeholder="Harga Beli Satuan (Rp)">
                                         </div>
                                         <!-- Tombol Tambah Item -->
                                         <div class="md:col-span-2">
@@ -459,7 +454,6 @@
                                             <thead class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-100">
                                                 <tr>
                                                     <th class="p-3">Produk</th>
-                                                    <th class="p-3 text-center">Batch</th>
                                                     <th class="p-3 text-right">Modal</th>
                                                     <th class="p-3 text-center">Qty</th>
                                                     <th class="p-3 text-right">Subtotal</th>
@@ -468,7 +462,7 @@
                                             </thead>
                                             <tbody id="bmFakturTableBody" class="divide-y divide-slate-100">
                                                 <tr>
-                                                    <td colspan="6" class="p-6 text-center text-slate-400 italic font-medium">Belum ada item obat disisipkan.</td>
+                                                    <td colspan="5" class="p-6 text-center text-slate-400 italic font-medium">Belum ada item obat disisipkan.</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -1170,8 +1164,17 @@
                 tStok += p.stock;
             });
             let tPendapatan = 0;
-            state.transactions.forEach(trx => { tPendapatan += trx.total; });
-            let tLaba = tPendapatan - tModal;
+            let tCOGS = 0; // Total HPP dari seluruh barang terjual
+            state.transactions.forEach(trx => { 
+                tPendapatan += trx.total; 
+                if (trx.items) {
+                    trx.items.forEach(item => {
+                        const itemBuyPrice = typeof item.buyPrice === 'number' ? item.buyPrice : 0;
+                        tCOGS += (itemBuyPrice * item.qty);
+                    });
+                }
+            });
+            let tLaba = tPendapatan - tCOGS;
             document.getElementById('stat-modal').innerText = formatRupiah(tModal);
             document.getElementById('stat-jual').innerText = formatRupiah(tPendapatan);
             document.getElementById('stat-laba').innerText = formatRupiah(tLaba);
@@ -1660,7 +1663,6 @@
 
         window.insertFakturItem = () => {
             const productName = document.getElementById('bmSelectProduct').value;
-            const batch = document.getElementById('bmBatch').value.trim();
             const qty = parseInt(document.getElementById('bmQty').value) || 0;
             const priceRaw = document.getElementById('bmPrice').value;
             const price = parseNominal(priceRaw) || 0;
@@ -1690,7 +1692,6 @@
             state.fakturItems.push({
                 id: p.id,
                 name: p.name,
-                batch: batch || '-',
                 buyPrice: price,
                 qty: qty,
                 subtotal: subtotal,
@@ -1700,7 +1701,6 @@
 
             // Reset item inputs
             document.getElementById('bmSelectProduct').value = '';
-            document.getElementById('bmBatch').value = '';
             document.getElementById('bmQty').value = '';
             document.getElementById('bmPrice').value = '';
             document.getElementById('bmSelectSupplier').value = '';
@@ -1718,7 +1718,7 @@
             if (!tbody) return;
 
             if (state.fakturItems.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 italic font-medium">Belum ada item obat disisipkan.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 italic font-medium">Belum ada item obat disisipkan.</td></tr>`;
                 document.getElementById('bmFakturTotalText').innerText = formatRupiah(0);
                 return;
             }
@@ -1729,7 +1729,6 @@
                 return `
                     <tr class="hover:bg-slate-50 transition text-xs">
                         <td class="p-3 font-semibold text-slate-800">${item.name}</td>
-                        <td class="p-3 text-center font-mono text-slate-600 font-bold">${item.batch}</td>
                         <td class="p-3 text-right text-slate-500">${formatRupiah(item.buyPrice)}</td>
                         <td class="p-3 text-center font-bold text-slate-800">${item.qty}</td>
                         <td class="p-3 text-right font-bold text-indigo-600">${formatRupiah(item.subtotal)}</td>
@@ -1808,7 +1807,6 @@
                         supplier: actualSupplierName,
                         qty: item.qty,
                         noFaktur: noFaktur,
-                        batch: item.batch,
                         buyPrice: item.buyPrice,
                         paymentType: jenisBayar,
                         dueDate: jenisBayar === 'Tempo' ? dueDate : '-',
@@ -1872,16 +1870,23 @@
             const end = start + state.stockPageSize;
             const paginated = filtered.slice(start, end);
 
-            tbody.innerHTML = paginated.map(l => `
+            tbody.innerHTML = paginated.map(l => {
+                const paymentInfo = l.paymentType === 'Tempo' 
+                    ? `<div class="text-[9px] text-rose-600 font-bold mt-0.5"><i class="fas fa-exclamation-circle mr-1"></i>Tempo (Jatuh Tempo: ${l.dueDate || '-'})</div>`
+                    : (l.paymentType === 'Cash' ? `<div class="text-[9px] text-slate-500 font-semibold mt-0.5"><i class="fas fa-check-circle mr-1"></i>Cash</div>` : '');
+
+                return `
                 <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
                     <td class="px-4 py-2 text-slate-500">
                         <div class="font-bold text-slate-800 text-[10px]">${l.productName} ${l.supplier ? '<span class="text-slate-400 font-normal">(' + l.supplier + ')</span>' : ''}</div>
+                        ${paymentInfo}
                         <div class="text-[9px] text-slate-400 font-normal mt-0.5">${new Date(l.timestamp).toLocaleString()}</div>
                         <div class="text-[9px] text-indigo-500 font-bold uppercase mt-0.5">${l.noFaktur ? 'FAKTUR: ' + l.noFaktur : 'Lokal'}</div>
                     </td>
                     <td class="px-3 py-2 text-center text-emerald-600 font-bold">+${l.qty}</td>
                     <td class="px-4 py-2 font-medium text-slate-600 text-[10px]">${l.admin}</td>
-                </tr>`).join('');
+                </tr>`;
+            }).join('');
 
             const startIdx = totalItems === 0 ? 0 : start + 1;
             const endIdx = Math.min(end, totalItems);
@@ -2188,7 +2193,16 @@
             try {
                 const trxId = `TRX-${Date.now()}`;
                 const trxData = { 
-                    items: state.cart.map(i => ({ name: i.name, qty: i.qty, price: i.sellPrice, buyPrice: i.buyPrice })), 
+                    items: state.cart.map(i => {
+                        const p = state.products.find(x => x.id === i.id);
+                        const historicalBuyPrice = p ? p.buyPrice : (i.buyPrice || 0);
+                        return {
+                            name: i.name,
+                            qty: i.qty,
+                            price: i.sellPrice,
+                            buyPrice: historicalBuyPrice // Menyimpan data historis HPP dari produk
+                        };
+                    }), 
                     total: grandTotal, 
                     subtotal: total,
                     discount: calculatedDiscount, 
@@ -2276,9 +2290,23 @@
                 const end = start + state.stockPageSize;
                 const activeOnScreen = filtered.slice(start, end);
 
-                contentHtml += `<table class="print-table"><thead><tr><th>Waktu</th><th>Produk</th><th>Supplier</th><th>No. Faktur</th><th>Batch</th><th>Qty</th><th>Admin</th></tr></thead><tbody>`;
+                contentHtml += `<table class="print-table"><thead><tr><th>Waktu</th><th>Produk / Pembayaran</th><th>Supplier</th><th>No. Faktur</th><th>Qty</th><th>Admin</th></tr></thead><tbody>`;
                 activeOnScreen.forEach(l => { 
-                    contentHtml += `<tr><td>${new Date(l.timestamp).toLocaleString()}</td><td>${l.productName}</td><td>${l.supplier || '-'}</td><td>${l.noFaktur || '-'}</td><td>${l.batch || '-'}</td><td>+${l.qty}</td><td>${l.admin}</td></tr>`; 
+                    const paymentInfoPdf = l.paymentType === 'Tempo' 
+                        ? `<div style="color: #e11d48; font-weight: bold; font-size: 9px; margin-top: 2px;">Tempo (Jatuh Tempo: ${l.dueDate || '-'})</div>`
+                        : (l.paymentType === 'Cash' ? `<div style="color: #475569; font-weight: normal; font-size: 9px; margin-top: 2px;">Cash</div>` : '');
+
+                    contentHtml += `<tr>
+                        <td>${new Date(l.timestamp).toLocaleString()}</td>
+                        <td>
+                            <strong>${l.productName}</strong>
+                            ${paymentInfoPdf}
+                        </td>
+                        <td>${l.supplier || '-'}</td>
+                        <td>${l.noFaktur || '-'}</td>
+                        <td>+${l.qty}</td>
+                        <td>${l.admin}</td>
+                    </tr>`; 
                 });
                 contentHtml += `</tbody></table>`;
             } else if (type === 'transaksi') {
