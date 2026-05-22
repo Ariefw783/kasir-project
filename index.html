@@ -394,7 +394,8 @@
                                     </div>
                                     <div>
                                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilihan Supplier</label>
-                                        <select id="bmFakturSupplier" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:border-indigo-500">
+                                        <!-- INSTRUKSI 3: Menambahkan onchange untuk reset kolom produk saat supplier diubah -->
+                                        <select id="bmFakturSupplier" onchange="document.getElementById('bmSelectProduct').value = ''; document.getElementById('bmLiveSuggestions').classList.add('hidden');" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:border-indigo-500">
                                             <option value="">Pilih Supplier...</option>
                                             <option value="supplier1">Supplier 1</option>
                                             <option value="supplier2">Supplier 2</option>
@@ -1397,8 +1398,19 @@
         };
 
         window.handleLiveStockSearch = (el) => {
-            const s = el.value.toLowerCase().trim();
+            const supplierSelect = document.getElementById('bmFakturSupplier');
+            const selectedSupplier = supplierSelect ? supplierSelect.value : '';
             const box = document.getElementById('bmLiveSuggestions');
+
+            // UJI COBA 17 - Instruksi 1: Validasi Sebelum Mencari Produk
+            if (!selectedSupplier) {
+                alert("Silakan pilih Supplier di header terlebih dahulu sebelum mencari produk!");
+                el.value = '';
+                if (box) box.classList.add('hidden');
+                return;
+            }
+
+            const s = el.value.toLowerCase().trim();
             const suppInput = document.getElementById('bmSelectSupplier');
             
             if(!s) {
@@ -1408,13 +1420,16 @@
                 return;
             }
 
+            // UJI COBA 17 - Instruksi 2: Pembatasan Hasil Pencarian Berdasarkan Supplier Terpilih (p.supplierKey === selectedSupplier)
             let matches = state.products.filter(p => {
+                if (p.supplierKey !== selectedSupplier) return false;
                 const words = p.name.toLowerCase().split(/\s+/);
                 return words[0] && words[0].startsWith(s);
             });
 
             if(matches.length === 0) {
                 matches = state.products.filter(p => {
+                    if (p.supplierKey !== selectedSupplier) return false;
                     const words = p.name.toLowerCase().split(/\s+/);
                     return words.slice(1).some(w => w.startsWith(s));
                 });
@@ -1721,7 +1736,21 @@
 
         window.renderFakturQueue = () => {
             const tbody = document.getElementById('bmFakturTableBody');
+            const supplierSelect = document.getElementById('bmFakturSupplier');
             if (!tbody) return;
+
+            // UJI COBA 17 - Instruksi 4: Penguncian Dropdown Supplier Selama Antrean Berjalan
+            if (state.fakturItems.length > 0) {
+                if (supplierSelect) {
+                    supplierSelect.setAttribute('disabled', 'true');
+                    supplierSelect.classList.add('bg-slate-100', 'cursor-not-allowed');
+                }
+            } else {
+                if (supplierSelect) {
+                    supplierSelect.removeAttribute('disabled');
+                    supplierSelect.classList.remove('bg-slate-100', 'cursor-not-allowed');
+                }
+            }
 
             if (state.fakturItems.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 italic font-medium">Belum ada item obat disisipkan.</td></tr>`;
@@ -1789,17 +1818,14 @@
                 
                 for (const item of state.fakturItems) {
                     const currentProd = state.products.find(x => x.id === item.id);
+                    const currentStock = currentProd ? currentProd.stock : 0;
+                    const finalStock = currentStock + item.qty;
+
                     const docRef = doc(colProducts, item.id);
                     const docSnap = await getDoc(docRef);
-                    
-                    let dbStock = 0;
                     if (docSnap.exists()) {
-                        const snapData = docSnap.data();
-                        dbStock = typeof snapData.stock === 'number' ? snapData.stock : 0;
-                        const finalStock = dbStock + item.qty;
                         await updateDoc(docRef, { stock: finalStock, buyPrice: item.buyPrice });
                     } else {
-                        const finalStock = 0 + item.qty;
                         await setDoc(docRef, {
                             name: item.name,
                             category: currentProd ? currentProd.category : "Obat Bebas",
@@ -1840,7 +1866,7 @@
                 document.getElementById('bmDueDate').value = '';
                 document.getElementById('bmDueDateContainer').classList.add('hidden');
                 state.fakturItems = [];
-                renderFakturQueue();
+                renderFakturQueue(); // Dropdown bmfaktursupplier otomatis terbuka kuncinya di sini
 
             } catch (e) {
                 window.hideLoading();
@@ -1854,42 +1880,25 @@
             if (e) e.preventDefault();
         };
 
-        window.handleStockFilterTypeChange = () => {
-            const type = document.getElementById('filterStockType').value;
-            const keywordInput = document.getElementById('filterStockKeyword');
-            if (['supplier', 'product', 'invoice'].includes(type)) {
-                keywordInput.classList.remove('hidden');
-            } else {
-                keywordInput.classList.add('hidden');
-                keywordInput.value = '';
-            }
-        };
-
         window.renderStockHistory = () => {
             const tbody = document.getElementById('stockHistoryBody');
             if (!tbody) return;
             
             const dateFilter = document.getElementById('filterStockDate').value;
-            const stockType = document.getElementById('filterStockType') ? document.getElementById('filterStockType').value : 'all';
-            const keyword = document.getElementById('filterStockKeyword') ? document.getElementById('filterStockKeyword').value.toLowerCase().trim() : '';
+            const filterType = document.getElementById('filterStockType').value;
+            const keyword = document.getElementById('filterStockKeyword').value.toLowerCase().trim();
 
             const filtered = state.stockLogs.filter(l => {
                 const matchDate = !dateFilter || l.timestamp.startsWith(dateFilter);
-                
-                let matchType = true;
-                if (stockType === 'supplier') {
-                    matchType = !keyword || (l.supplier && l.supplier.toLowerCase().includes(keyword));
-                } else if (stockType === 'product') {
-                    matchType = !keyword || (l.productName && l.productName.toLowerCase().includes(keyword));
-                } else if (stockType === 'invoice') {
-                    matchType = !keyword || (l.noFaktur && l.noFaktur.toLowerCase().includes(keyword));
-                } else if (stockType === 'cash') {
-                    matchType = (l.paymentType === 'Cash');
-                } else if (stockType === 'tempo') {
-                    matchType = (l.paymentType === 'Tempo');
-                }
-                
-                return matchDate && matchType;
+                if (!matchDate) return false;
+
+                if (filterType === 'all') return true;
+                if (filterType === 'supplier') return l.supplier && l.supplier.toLowerCase().includes(keyword);
+                if (filterType === 'product') return l.productName && l.productName.toLowerCase().includes(keyword);
+                if (filterType === 'invoice') return l.noFaktur && l.noFaktur.toLowerCase().includes(keyword);
+                if (filterType === 'cash') return l.paymentType === 'Cash';
+                if (filterType === 'tempo') return l.paymentType === 'Tempo';
+                return true;
             });
 
             const totalItems = filtered.length;
@@ -1901,22 +1910,23 @@
             const paginated = filtered.slice(start, end);
 
             tbody.innerHTML = paginated.map(l => {
-                const paymentInfo = l.paymentType === 'Tempo' 
-                    ? `<div class="text-[9px] text-rose-600 font-bold mt-0.5"><i class="fas fa-exclamation-circle mr-1"></i>Tempo (Jatuh Tempo: ${l.dueDate || '-'})</div>`
-                    : (l.paymentType === 'Cash' ? `<div class="text-[9px] text-slate-500 font-semibold mt-0.5"><i class="fas fa-check-circle mr-1"></i>Cash</div>` : '');
+                const payBadge = l.paymentType === 'Tempo' 
+                    ? `<span class="bg-amber-100 text-amber-800 text-[8px] px-1.5 py-0.5 rounded font-bold uppercase ml-1">TEMPO (JATUH TEMPO: ${l.dueDate || '-'})</span>`
+                    : `<span class="bg-emerald-100 text-emerald-800 text-[8px] px-1.5 py-0.5 rounded font-bold uppercase ml-1">CASH</span>`;
 
                 return `
                 <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
                     <td class="px-4 py-2 text-slate-500">
                         <div class="font-bold text-slate-800 text-[10px]">${l.productName} ${l.supplier ? '<span class="text-slate-400 font-normal">(' + l.supplier + ')</span>' : ''}</div>
-                        ${paymentInfo}
                         <div class="text-[9px] text-slate-400 font-normal mt-0.5">${new Date(l.timestamp).toLocaleString()}</div>
-                        <div class="text-[9px] text-indigo-500 font-bold uppercase mt-0.5">${l.noFaktur ? 'FAKTUR: ' + l.noFaktur : 'Lokal'}</div>
+                        <div class="text-[9px] text-indigo-500 font-bold uppercase mt-0.5 flex items-center gap-1">
+                            <span>${l.noFaktur ? 'FAKTUR: ' + l.noFaktur : 'Lokal'}</span>
+                            ${payBadge}
+                        </div>
                     </td>
                     <td class="px-3 py-2 text-center text-emerald-600 font-bold">+${l.qty}</td>
                     <td class="px-4 py-2 font-medium text-slate-600 text-[10px]">${l.admin}</td>
-                </tr>`;
-            }).join('');
+                </tr>`}).join('');
 
             const startIdx = totalItems === 0 ? 0 : start + 1;
             const endIdx = Math.min(end, totalItems);
@@ -1930,6 +1940,19 @@
             document.getElementById('btn-next-stock-page').disabled = (state.stockPage === totalPages);
         };
 
+        window.handleStockFilterTypeChange = () => {
+            const type = document.getElementById('filterStockType').value;
+            const input = document.getElementById('filterStockKeyword');
+            if (type === 'supplier' || type === 'product' || type === 'invoice') {
+                input.classList.remove('hidden');
+                input.value = '';
+                input.focus();
+            } else {
+                input.classList.add('hidden');
+                input.value = '';
+            }
+        };
+
         window.prevStockPage = () => {
             if (state.stockPage > 1) {
                 state.stockPage--;
@@ -1939,26 +1962,20 @@
 
         window.nextStockPage = () => {
             const dateFilter = document.getElementById('filterStockDate').value;
-            const stockType = document.getElementById('filterStockType') ? document.getElementById('filterStockType').value : 'all';
-            const keyword = document.getElementById('filterStockKeyword') ? document.getElementById('filterStockKeyword').value.toLowerCase().trim() : '';
+            const filterType = document.getElementById('filterStockType').value;
+            const keyword = document.getElementById('filterStockKeyword').value.toLowerCase().trim();
 
             const filtered = state.stockLogs.filter(l => {
                 const matchDate = !dateFilter || l.timestamp.startsWith(dateFilter);
-                
-                let matchType = true;
-                if (stockType === 'supplier') {
-                    matchType = !keyword || (l.supplier && l.supplier.toLowerCase().includes(keyword));
-                } else if (stockType === 'product') {
-                    matchType = !keyword || (l.productName && l.productName.toLowerCase().includes(keyword));
-                } else if (stockType === 'invoice') {
-                    matchType = !keyword || (l.noFaktur && l.noFaktur.toLowerCase().includes(keyword));
-                } else if (stockType === 'cash') {
-                    matchType = (l.paymentType === 'Cash');
-                } else if (stockType === 'tempo') {
-                    matchType = (l.paymentType === 'Tempo');
-                }
-                
-                return matchDate && matchType;
+                if (!matchDate) return false;
+
+                if (filterType === 'all') return true;
+                if (filterType === 'supplier') return l.supplier && l.supplier.toLowerCase().includes(keyword);
+                if (filterType === 'product') return l.productName && l.productName.toLowerCase().includes(keyword);
+                if (filterType === 'invoice') return l.noFaktur && l.noFaktur.toLowerCase().includes(keyword);
+                if (filterType === 'cash') return l.paymentType === 'Cash';
+                if (filterType === 'tempo') return l.paymentType === 'Tempo';
+                return true;
             });
 
             const totalPages = Math.ceil(filtered.length / state.stockPageSize) || 1;
@@ -2233,16 +2250,7 @@
             try {
                 const trxId = `TRX-${Date.now()}`;
                 const trxData = { 
-                    items: state.cart.map(i => {
-                        const p = state.products.find(x => x.id === i.id);
-                        const historicalBuyPrice = p ? p.buyPrice : (i.buyPrice || 0);
-                        return {
-                            name: i.name,
-                            qty: i.qty,
-                            price: i.sellPrice,
-                            buyPrice: historicalBuyPrice // Menyimpan data historis HPP dari produk
-                        };
-                    }), 
+                    items: state.cart.map(i => ({ name: i.name, qty: i.qty, price: i.sellPrice, buyPrice: i.buyPrice })), 
                     total: grandTotal, 
                     subtotal: total,
                     discount: calculatedDiscount, 
@@ -2256,20 +2264,15 @@
                     const p = state.products.find(x => x.id === item.id);
                     const docRef = doc(colProducts, item.id);
                     const docSnap = await getDoc(docRef);
-                    
                     if (docSnap.exists()) {
-                        const snapData = docSnap.data();
-                        const dbStock = typeof snapData.stock === 'number' ? snapData.stock : 0;
-                        const finalStock = dbStock - item.qty;
-                        await updateDoc(docRef, { stock: finalStock });
+                        await updateDoc(docRef, { stock: p.stock - item.qty });
                     } else {
-                        const finalStock = 0 - item.qty;
                         await setDoc(docRef, {
                             name: p.name,
                             category: p.category,
                             buyPrice: p.buyPrice,
                             sellPrice: p.sellPrice,
-                            stock: finalStock,
+                            stock: p.stock - item.qty,
                             supplierKey: p.supplierKey
                         });
                     }
@@ -2319,49 +2322,25 @@
                 contentHtml += `</tbody></table>`;
             } else if (type === 'barang-masuk') {
                 const dateFilter = document.getElementById('filterStockDate').value;
-                const stockType = document.getElementById('filterStockType') ? document.getElementById('filterStockType').value : 'all';
-                const keyword = document.getElementById('filterStockKeyword') ? document.getElementById('filterStockKeyword').value.toLowerCase().trim() : '';
+                const filterType = document.getElementById('filterStockType').value;
+                const keyword = document.getElementById('filterStockKeyword').value.toLowerCase().trim();
 
                 const filtered = state.stockLogs.filter(l => {
                     const matchDate = !dateFilter || l.timestamp.startsWith(dateFilter);
-                    
-                    let matchType = true;
-                    if (stockType === 'supplier') {
-                        matchType = !keyword || (l.supplier && l.supplier.toLowerCase().includes(keyword));
-                    } else if (stockType === 'product') {
-                        matchType = !keyword || (l.productName && l.productName.toLowerCase().includes(keyword));
-                    } else if (stockType === 'invoice') {
-                        matchType = !keyword || (l.noFaktur && l.noFaktur.toLowerCase().includes(keyword));
-                    } else if (stockType === 'cash') {
-                        matchType = (l.paymentType === 'Cash');
-                    } else if (stockType === 'tempo') {
-                        matchType = (l.paymentType === 'Tempo');
-                    }
-                    
-                    return matchDate && matchType;
+                    if (!matchDate) return false;
+
+                    if (filterType === 'all') return true;
+                    if (filterType === 'supplier') return l.supplier && l.supplier.toLowerCase().includes(keyword);
+                    if (filterType === 'product') return l.productName && l.productName.toLowerCase().includes(keyword);
+                    if (filterType === 'invoice') return l.noFaktur && l.noFaktur.toLowerCase().includes(keyword);
+                    if (filterType === 'cash') return l.paymentType === 'Cash';
+                    if (filterType === 'tempo') return l.paymentType === 'Tempo';
+                    return true;
                 });
 
-                const start = (state.stockPage - 1) * state.stockPageSize;
-                const end = start + state.stockPageSize;
-                const activeOnScreen = filtered.slice(start, end);
-
-                contentHtml += `<table class="print-table"><thead><tr><th>Waktu</th><th>Produk / Pembayaran</th><th>Supplier</th><th>No. Faktur</th><th>Qty</th><th>Admin</th></tr></thead><tbody>`;
-                activeOnScreen.forEach(l => { 
-                    const paymentInfoPdf = l.paymentType === 'Tempo' 
-                        ? `<div style="color: #e11d48; font-weight: bold; font-size: 9px; margin-top: 2px;">Tempo (Jatuh Tempo: ${l.dueDate || '-'})</div>`
-                        : (l.paymentType === 'Cash' ? `<div style="color: #475569; font-weight: normal; font-size: 9px; margin-top: 2px;">Cash</div>` : '');
-
-                    contentHtml += `<tr>
-                        <td>${new Date(l.timestamp).toLocaleString()}</td>
-                        <td>
-                            <strong>${l.productName}</strong>
-                            ${paymentInfoPdf}
-                        </td>
-                        <td>${l.supplier || '-'}</td>
-                        <td>${l.noFaktur || '-'}</td>
-                        <td>+${l.qty}</td>
-                        <td>${l.admin}</td>
-                    </tr>`; 
+                contentHtml += `<table class="print-table"><thead><tr><th>Waktu</th><th>Produk</th><th>Supplier</th><th>No. Faktur</th><th>Jenis Bayar</th><th>Jatuh Tempo</th><th>Qty</th><th>Admin</th></tr></thead><tbody>`;
+                filtered.forEach(l => { 
+                    contentHtml += `<tr><td>${new Date(l.timestamp).toLocaleString()}</td><td>${l.productName}</td><td>${l.supplier || '-'}</td><td>${l.noFaktur || '-'}</td><td>${l.paymentType || 'Cash'}</td><td>${l.dueDate || '-'}</td><td>+${l.qty}</td><td>${l.admin}</td></tr>`; 
                 });
                 contentHtml += `</tbody></table>`;
             } else if (type === 'transaksi') {
