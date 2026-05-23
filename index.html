@@ -250,11 +250,11 @@
                 <button id="menu-transaksi" onclick="switchView('view-transaksi', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition text-left text-slate-400">
                     <i class="fas fa-receipt w-5 text-center text-rose-400"></i> Daftar Transaksi
                 </button>
-                
                 <div id="admin-extras" class="hidden">
                     <p class="px-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-6 mb-3">Sistem</p>
-                    <button id="menu-stock-opname" onclick="switchView('view-stock-opname', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition text-left text-slate-400">
-                        <i class="fas fa-clipboard-list w-5 text-center text-cyan-400"></i> Stock Opname
+                    <!-- Navigasi Baru khusus Admin: Stock Opname -->
+                    <button id="menu-stock-opname" onclick="switchView('view-stock-opname', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition text-left text-slate-400 mb-2">
+                        <i class="fas fa-clipboard-check w-5 text-center text-amber-400"></i> Stock Opname
                     </button>
                     <button onclick="window.open('kalkulator.html', '_blank')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition text-left text-slate-400 mb-2">
                         <i class="fas fa-calculator w-5 text-center text-indigo-400"></i> Kalkulator Harga Jual
@@ -276,6 +276,7 @@
             </div>
         </aside>
 
+        <!-- Main Wrapper -->
         <div class="flex-1 flex flex-col h-full w-full lg:ml-64 relative">
             <header class="bg-white/80 backdrop-blur-md border-b border-slate-200/60 z-30 px-6 py-3 flex justify-between items-center shrink-0 sticky top-0">
                 <div class="flex items-center gap-4">
@@ -399,6 +400,84 @@
                                     <option value="50">50 / Halaman</option>
                                 </select>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View Stock Opname -->
+                <div id="view-stock-opname" class="view-section hidden animate-[fadeIn_0.3s_ease-out]">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mb-10">
+                        <div class="p-4 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-white/50">
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2"><i class="fas fa-clipboard-check text-amber-500"></i> Stock Opname / Penyesuaian Audit</h2>
+                                <p class="text-xs text-slate-400">Verifikasi dan sesuaikan sisa stok fisik obat di toko secara berkala</p>
+                            </div>
+                            <div class="flex gap-2 w-full md:w-auto">
+                                <button onclick="generatePDF('stock-opname')" class="flex-1 md:flex-none bg-rose-600 text-white px-4 py-2 rounded-xl font-bold flex items-center justify-center gap-2">
+                                    <i class="fas fa-file-pdf"></i> PDF / Cetak Laporan
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 border-b border-slate-100 flex flex-col md:flex-row gap-4 bg-slate-50/50">
+                            <div class="relative flex-1">
+                                <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400"><i class="fas fa-search"></i></span>
+                                <input type="text" id="opnameSearchInput" onkeyup="if(window.state) { window.state.opnamePage = 1; } renderStockOpnameTable()" placeholder="Cari obat di form opname..." class="pl-11 pr-4 py-2 bg-white border border-slate-200 rounded-xl w-full outline-none">
+                            </div>
+                            <select id="opnameSupplierFilter" onchange="if(window.state) { window.state.opnamePage = 1; } renderStockOpnameTable()" class="bg-white border border-slate-200 px-4 py-2 rounded-xl text-xs outline-none font-bold min-w-[150px]">
+                                <option value="all">Semua Supplier</option>
+                                <option value="supplier1">Supplier 1</option>
+                                <option value="supplier2">Supplier 2</option>
+                                <option value="supplier3">Supplier 3</option>
+                                <option value="supplier4">Supplier 4</option>
+                            </select>
+                        </div>
+                        <div class="overflow-x-auto min-h-[350px]">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-100">
+                                        <th class="px-5 py-3">Nama Produk</th>
+                                        <th class="px-5 py-3 text-right">Harga Jual</th>
+                                        <th class="px-5 py-3 text-center">Stok Sistem</th>
+                                        <th class="px-5 py-3 text-center" style="width: 130px;">Stok Fisik</th>
+                                        <th class="px-5 py-3 text-center">Selisih</th>
+                                        <th class="px-5 py-3 text-right">Total Nilai Minus</th>
+                                        <th class="px-5 py-3" style="width: 260px;">Keterangan / Alasan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="stockOpnameTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
+                            </table>
+                        </div>
+                        <!-- Kontrol Paginasi Stock Opname -->
+                        <div class="p-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50/50">
+                            <div class="text-xs text-slate-500 font-medium">
+                                Menampilkan <span id="opname-paginated-start" class="font-bold">0</span> - <span id="opname-paginated-end" class="font-bold">0</span> dari <span id="opname-paginated-total" class="font-bold">0</span> produk
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <button onclick="prevOpnamePage()" id="btn-prev-opname-page" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition">
+                                    <i class="fas fa-chevron-left mr-1"></i> Prev
+                                </button>
+                                <span class="text-xs font-bold text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg">
+                                    Halaman <span id="opname-current-page-num">1</span>
+                                </span>
+                                <button onclick="nextOpnamePage()" id="btn-next-opname-page" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition">
+                                    Next <i class="fas fa-chevron-right ml-1"></i>
+                                </button>
+                                <select id="opnamePageSizeSelect" onchange="changeOpnamePageSize()" class="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold outline-none ml-2">
+                                    <option value="10">10 / Halaman</option>
+                                    <option value="25">25 / Halaman</option>
+                                    <option value="50">50 / Halaman</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Summary and Finalize Block -->
+                        <div class="p-6 border-t border-slate-100 bg-slate-50 flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <div>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase">Ringkasan Total Kerugian (Minus)</p>
+                                <p id="opnameGrandTotal" class="text-2xl font-black text-rose-600">Rp 0,00</p>
+                            </div>
+                            <button type="button" onclick="finalizeStockOpname()" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-white font-bold px-8 py-4 rounded-xl shadow-lg shadow-amber-100 transition-all flex items-center justify-center gap-2">
+                                <i class="fas fa-check-double"></i> Finalisasi Opname / Selesai Opname
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -642,58 +721,6 @@
                                 </thead>
                                 <tbody id="transactionTableBody" class="divide-y divide-slate-100"></tbody>
                             </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- View Stock Opname -->
-                <div id="view-stock-opname" class="view-section hidden h-full flex flex-col animate-[fadeIn_0.3s_ease-out]">
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 mb-6 overflow-hidden flex flex-col flex-1">
-                        <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white/50 shrink-0">
-                            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto flex-1 max-w-xl">
-                                <div class="relative flex-1">
-                                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400"><i class="fas fa-search"></i></span>
-                                    <input type="text" id="opnameSearchInput" onkeyup="renderOpnameTable()" placeholder="Cari obat untuk opname..." class="pl-11 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl w-full outline-none">
-                                </div>
-                                <select id="opnameSupplierFilter" onchange="renderOpnameTable()" class="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-xs outline-none font-bold min-w-[150px]">
-                                    <option value="all">Semua Supplier</option>
-                                    <option value="supplier1">Supplier 1</option>
-                                    <option value="supplier2">Supplier 2</option>
-                                    <option value="supplier3">Supplier 3</option>
-                                    <option value="supplier4">Supplier 4</option>
-                                </select>
-                            </div>
-                            <div class="flex gap-2 w-full md:w-auto">
-                                <button onclick="resetOpnameInputs()" class="flex-1 md:flex-none bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-xs"><i class="fas fa-redo mr-1"></i> Reset Input</button>
-                                <button onclick="generatePDF('opname')" class="flex-1 md:flex-none bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs"><i class="fas fa-file-pdf mr-1"></i> Cetak PDF</button>
-                                <button onclick="finalizeOpname()" class="flex-1 md:flex-none bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs"><i class="fas fa-check-double mr-1"></i> Finalisasi Opname</button>
-                            </div>
-                        </div>
-                        <div class="overflow-x-auto flex-1 custom-scrollbar min-h-[400px]">
-                            <table class="w-full text-left text-xs">
-                                <thead>
-                                    <tr class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-100 sticky top-0 z-10">
-                                        <th class="px-5 py-3">Produk / Supplier</th>
-                                        <th class="px-5 py-3 text-right">Harga Jual</th>
-                                        <th class="px-5 py-3 text-center">Stok Sistem</th>
-                                        <th class="px-5 py-3 text-center" style="width: 120px;">Stok Fisik</th>
-                                        <th class="px-5 py-3 text-center" style="width: 100px;">Selisih</th>
-                                        <th class="px-5 py-3 text-right" style="width: 150px;">Total Nilai Minus</th>
-                                        <th class="px-5 py-3 text-center" style="width: 180px;">Keterangan / Alasan</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="opnameTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
-                            </table>
-                        </div>
-                        <!-- Summary / Grand Total Kerugian Panel -->
-                        <div class="p-5 border-t border-slate-200 bg-slate-50 flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0">
-                            <div>
-                                <p class="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">Ringkasan Nilai Kerugian (Selisih Minus)</p>
-                                <p id="opnameGrandLossText" class="text-xl font-black text-rose-600">Rp 0,00</p>
-                            </div>
-                            <div class="text-right text-xs text-slate-500 font-semibold">
-                                <span id="opnameSummaryCount" class="font-bold text-slate-700">0</span> produk akan disesuaikan | <span id="opnameSummaryMinusCount" class="font-bold text-rose-600">0</span> produk berselisih minus
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -982,31 +1009,12 @@
 
     <div id="receiptModal" class="fixed inset-0 bg-slate-900/60 hidden z-[80] flex justify-center items-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm modal-enter text-center p-8">
-            <div class="mx-auto w-16 h-16 bg-emerald-100 text-emerald-50 rounded-full flex items-center justify-center text-2xl mb-4"><i class="fas fa-check"></i></div>
+            <div class="mx-auto w-16 h-16 bg-emerald-100 text-emerald rounded-full flex items-center justify-center text-2xl mb-4"><i class="fas fa-check"></i></div>
             <h3 class="text-xl font-bold mb-2">Transaksi Sukses!</h3>
             <p class="text-slate-500 mb-6 text-xs leading-relaxed font-bold">Invoice telah dicatat secara otomatis.</p>
             <div class="flex flex-col gap-2">
                 <button onclick="printLastReceipt()" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100">Cetak Struk Transaksi</button>
                 <button onclick="closeReceiptModal()" class="w-full py-3 border border-slate-200 text-slate-600 rounded-xl">Tutup</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Konfirmasi Stock Opname -->
-    <div id="confirmOpnameModal" class="fixed inset-0 bg-slate-900/60 hidden z-[2100] flex justify-center items-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm modal-enter p-8 text-center border-4 border-indigo-600">
-            <div class="mx-auto w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-3xl mb-4">
-                <i class="fas fa-clipboard-check"></i>
-            </div>
-            <h3 class="text-xl font-bold text-slate-800 mb-2">Finalisasi Opname?</h3>
-            <p class="text-slate-500 mb-2 text-xs">Aksi ini akan menyelaraskan seluruh stok sistem dengan stok fisik yang Anda input secara permanen.</p>
-            <div class="bg-slate-50 p-4 rounded-2xl mb-6">
-                <p class="text-[10px] text-slate-400 font-bold uppercase">Estimasi Akumulasi Kerugian</p>
-                <p id="confirmOpnameTotalText" class="text-xl font-black text-rose-600">Rp 0,00</p>
-            </div>
-            <div class="flex gap-3">
-                <button onclick="document.getElementById('confirmOpnameModal').classList.add('hidden')" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold">Batal</button>
-                <button onclick="executeFinalizeOpname()" class="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100">Ya, Selaraskan</button>
             </div>
         </div>
     </div>
@@ -1062,10 +1070,12 @@
             posPage: 1,
             posPageSize: 10,
             stockPage: 1,
-            stockPageSize: 10, 
+            stockPageSize: 10, // Menghitung per lembar faktur, agar lebih pas dikurangi default sizenya
+            opnamePage: 1,
+            opnamePageSize: 10,
             deleteTrxId: null,
-            fakturItems: [], 
-            opnameInputs: {} // To store opname inputs: { productId: { stockFisik: number, alasan: string } }
+            fakturItems: [], // Temporary array to hold added products before saving the purchase invoice
+            opname: {} // Menyimpan data input sementara stock opname agar tidak terhapus saat filter/search
         };
 
         window.state = state;
@@ -1247,9 +1257,10 @@
             btn.classList.remove('text-slate-400');
             document.getElementById('header-title').innerText = btn.innerText.trim();
             if (window.innerWidth < 1024) toggleSidebar();
-
+            
+            // Re-render Stock Opname Table jika menu Stock Opname dibuka
             if (id === 'view-stock-opname') {
-                renderOpnameTable();
+                renderStockOpnameTable();
             }
         };
 
@@ -1278,7 +1289,7 @@
                 tStok += p.stock;
             });
             let tPendapatan = 0;
-            let tCOGS = 0; 
+            let tCOGS = 0; // Total HPP dari seluruh barang terjual
             state.transactions.forEach(trx => { 
                 tPendapatan += trx.total; 
                 if (trx.items) {
@@ -1380,12 +1391,15 @@
             updateCategoryFilter();
             handlePOSSearch();
             updateHeaderStats();
-            renderOpnameTable();
+            
+            // Re-render Stock Opname Table jika sedang aktif dibuka
+            if (!document.getElementById('view-stock-opname').classList.contains('hidden')) {
+                renderStockOpnameTable();
+            }
         };
 
         const updateSupplierFilterOptions = () => {
             const filter = document.getElementById('supplierFilter');
-            const opnameFilter = document.getElementById('opnameSupplierFilter');
             if (!filter) return;
             const s1 = state.settings.supp1 || "Supplier 1";
             const s2 = state.settings.supp2 || "Supplier 2";
@@ -1393,19 +1407,25 @@
             const s4 = state.settings.supp4 || "Supplier 4";
             
             const currentVal = filter.value;
-            const optionsHtml = `
+            filter.innerHTML = `
                 <option value="all">Semua Supplier</option>
                 <option value="supplier1">${s1}</option>
                 <option value="supplier2">${s2}</option>
                 <option value="supplier3">${s3}</option>
                 <option value="supplier4">${s4}</option>
             `;
-            filter.innerHTML = optionsHtml;
             filter.value = currentVal;
 
+            const opnameFilter = document.getElementById('opnameSupplierFilter');
             if (opnameFilter) {
                 const currentOpnameVal = opnameFilter.value;
-                opnameFilter.innerHTML = optionsHtml;
+                opnameFilter.innerHTML = `
+                    <option value="all">Semua Supplier</option>
+                    <option value="supplier1">${s1}</option>
+                    <option value="supplier2">${s2}</option>
+                    <option value="supplier3">${s3}</option>
+                    <option value="supplier4">${s4}</option>
+                `;
                 opnameFilter.value = currentOpnameVal;
             }
         };
@@ -1514,7 +1534,7 @@
             const box = document.getElementById('bmLiveSuggestions');
 
             if (!selectedSupplier) {
-                alert("Silakan pilih Supplier di header terlebih dahulu sebelum mencari produk!");
+                window.showFeedback('Ditolak', 'Silakan pilih Supplier di header terlebih dahulu sebelum mencari produk!', 'error');
                 el.value = '';
                 if (box) box.classList.add('hidden');
                 return;
@@ -1802,25 +1822,25 @@
             const sellPrice = parseNominal(sellPriceRaw) || 0;
             
             if (!productName) {
-                alert("Silakan pilih produk terlebih dahulu!");
+                window.showFeedback('Ditolak', 'Silakan pilih produk terlebih dahulu!', 'error');
                 return;
             }
             if (qty <= 0) {
-                alert("Qty masuk harus lebih besar dari 0!");
+                window.showFeedback('Ditolak', 'Qty masuk harus lebih besar dari 0!', 'error');
                 return;
             }
             if (price < 0) {
-                alert("Harga beli tidak boleh negatif!");
+                window.showFeedback('Ditolak', 'Harga beli tidak boleh negatif!', 'error');
                 return;
             }
             if (sellPrice < 0) {
-                window.showFeedback ? window.showFeedback('Salah', 'Harga jual tidak boleh negatif!', 'error') : console.error("Harga jual tidak boleh negatif");
+                window.showFeedback('Salah', 'Harga jual tidak boleh negatif!', 'error');
                 return;
             }
 
             const p = state.products.find(x => x.name.toUpperCase() === productName.toUpperCase());
             if (!p) {
-                alert("Produk tidak ditemukan dalam database sistem!");
+                window.showFeedback('Ditolak', 'Produk tidak ditemukan dalam database sistem!', 'error');
                 return;
             }
 
@@ -1902,19 +1922,19 @@
             const dueDate = document.getElementById('bmDueDate').value;
 
             if (!noFaktur) {
-                alert("Silakan isi Nomor Faktur terlebih dahulu!");
+                window.showFeedback('Ditolak', 'Silakan isi Nomor Faktur terlebih dahulu!', 'error');
                 return;
             }
             if (!supplierKey) {
-                alert("Silakan pilih Supplier terlebih dahulu!");
+                window.showFeedback('Ditolak', 'Silakan pilih Supplier terlebih dahulu!', 'error');
                 return;
             }
             if (jenisBayar === 'Tempo' && !dueDate) {
-                alert("Silakan pilih Tanggal Jatuh Tempo untuk pembayaran jenis Tempo!");
+                window.showFeedback('Ditolak', 'Silakan pilih Tanggal Jatuh Tempo untuk pembayaran jenis Tempo!', 'error');
                 return;
             }
             if (state.fakturItems.length === 0) {
-                alert("Belum ada item obat yang dimasukkan ke dalam daftar faktur!");
+                window.showFeedback('Ditolak', 'Belum ada item obat yang dimasukkan ke dalam daftar faktur!', 'error');
                 return;
             }
 
@@ -2031,7 +2051,7 @@
 
             const targetStock = currentStock - log.qty;
             if (targetStock < 0) {
-                window.showFeedback('Ditolak', `Aksi ditolak! Sisa stok obat ${log.productName} di toko tidak mencukupi untuk pengurangan ini (stok saat ini: ${currentStock}, akan menjadi: ${targetStock}).`, 'error');
+                window.showFeedback('Ditolak', `Aksi ditolak! Sisa sedia ${log.productName} di toko tidak mencukupi (stok saat ini: ${currentStock}, target: ${targetStock}).`, 'error');
                 return;
             }
 
@@ -2095,7 +2115,7 @@
 
             const targetStock = currentStock - log.qty + newQty;
             if (targetStock < 0) {
-                window.showFeedback('Ditolak', `Aksi ditolak! Sisa stok obat ${log.productName} di toko tidak mencukupi untuk penyesuaian ini (stok saat ini: ${currentStock}, akan menjadi: ${targetStock}).`, 'error');
+                window.showFeedback('Ditolak', `Aksi ditolak! Stok sisa obat ${log.productName} di toko tidak mencukupi (stok saat ini: ${currentStock}, target: ${targetStock}).`, 'error');
                 return;
             }
 
@@ -2625,6 +2645,342 @@
             } catch (e) { window.showFeedback('Gagal', 'Cloud error', 'error'); }
         };
 
+        window.updateOpnamePhysicalStock = (productId, val) => {
+            if (!state.opname) state.opname = {};
+            if (!state.opname[productId]) {
+                state.opname[productId] = { fisik: '', reason: 'Obat Rusak', reasonOther: '' };
+            }
+            state.opname[productId].fisik = val;
+            
+            const product = state.products.find(p => p.id === productId);
+            if (product) {
+                const stockSistem = product.stock;
+                const selisihEl = document.getElementById(`opname-selisih-${productId}`);
+                const minusEl = document.getElementById(`opname-minus-${productId}`);
+                
+                if (val === '') {
+                    if (selisihEl) selisihEl.innerText = '-';
+                    if (minusEl) minusEl.innerText = '-';
+                } else {
+                    const fisikNum = parseInt(val) || 0;
+                    const selisih = fisikNum - stockSistem;
+                    if (selisihEl) {
+                        selisihEl.innerText = (selisih > 0 ? '+' : '') + selisih;
+                        selisihEl.className = selisih < 0 ? 'text-rose-600 font-bold' : (selisih > 0 ? 'text-emerald-600 font-bold' : 'text-slate-500 font-bold');
+                    }
+                    
+                    let minusVal = 0;
+                    if (selisih < 0) {
+                        minusVal = product.sellPrice * Math.abs(selisih);
+                    }
+                    if (minusEl) {
+                        minusEl.innerText = minusVal > 0 ? formatRupiah(minusVal) : '0';
+                        minusEl.className = minusVal > 0 ? 'text-rose-600 font-bold' : 'text-slate-400';
+                    }
+                }
+            }
+            calculateOpnameGrandTotal();
+        };
+
+        window.updateOpnameReason = (productId, val) => {
+            if (!state.opname) state.opname = {};
+            if (!state.opname[productId]) {
+                state.opname[productId] = { fisik: '', reason: 'Obat Rusak', reasonOther: '' };
+            }
+            state.opname[productId].reason = val;
+            
+            const otherInputEl = document.getElementById(`opname-reason-other-${productId}`);
+            if (otherInputEl) {
+                if (val === 'Lainnya') {
+                    otherInputEl.classList.remove('hidden');
+                } else {
+                    otherInputEl.classList.add('hidden');
+                }
+            }
+        };
+
+        window.updateOpnameReasonOther = (productId, val) => {
+            if (!state.opname) state.opname = {};
+            if (!state.opname[productId]) {
+                state.opname[productId] = { fisik: '', reason: 'Obat Rusak', reasonOther: '' };
+            }
+            state.opname[productId].reasonOther = val;
+        };
+
+        window.calculateOpnameGrandTotal = () => {
+            let totalLoss = 0;
+            if (state.opname) {
+                Object.keys(state.opname).forEach(productId => {
+                    const opObj = state.opname[productId];
+                    if (opObj.fisik !== '') {
+                        const product = state.products.find(p => p.id === productId);
+                        if (product) {
+                            const fisikNum = parseInt(opObj.fisik) || 0;
+                            const selisih = fisikNum - product.stock;
+                            if (selisih < 0) {
+                                totalLoss += product.sellPrice * Math.abs(selisih);
+                            }
+                        }
+                    }
+                });
+            }
+            const el = document.getElementById('opnameGrandTotal');
+            if (el) {
+                el.innerText = formatRupiah(totalLoss);
+            }
+            return totalLoss;
+        };
+
+        window.renderStockOpnameTable = () => {
+            const tbody = document.getElementById('stockOpnameTableBody');
+            if (!tbody) return;
+            
+            const search = document.getElementById('opnameSearchInput').value.toLowerCase().trim();
+            const supplierFilter = document.getElementById('opnameSupplierFilter').value;
+            
+            tbody.innerHTML = '';
+            
+            let filtered = state.products;
+            if (supplierFilter !== 'all') {
+                filtered = filtered.filter(p => p.supplierKey === supplierFilter);
+            }
+            
+            if (search !== '') {
+                filtered = filtered.filter(p => p.name.toLowerCase().includes(search));
+            }
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 font-bold"><i class="fas fa-search-minus mr-2"></i> Produk tidak ditemukan</td></tr>`;
+                document.getElementById('opname-paginated-start').innerText = '0';
+                document.getElementById('opname-paginated-end').innerText = '0';
+                document.getElementById('opname-paginated-total').innerText = '0';
+                document.getElementById('opname-current-page-num').innerText = '1';
+                document.getElementById('btn-prev-opname-page').disabled = true;
+                document.getElementById('btn-next-opname-page').disabled = true;
+                return;
+            }
+            
+            const totalPages = Math.ceil(filtered.length / state.opnamePageSize) || 1;
+            if (state.opnamePage > totalPages) state.opnamePage = totalPages;
+            
+            const start = (state.opnamePage - 1) * state.opnamePageSize;
+            const end = start + state.opnamePageSize;
+            const paginated = filtered.slice(start, end);
+            
+            if (!state.opname) state.opname = {};
+            
+            paginated.forEach(p => {
+                if (!state.opname[p.id]) {
+                    state.opname[p.id] = { fisik: '', reason: 'Obat Rusak', reasonOther: '' };
+                }
+                
+                const op = state.opname[p.id];
+                const fisikValue = op.fisik;
+                
+                let selisihText = '-';
+                let selisihClass = 'text-slate-400';
+                let lossText = '-';
+                let lossClass = 'text-slate-400';
+                
+                if (fisikValue !== '') {
+                    const fisikNum = parseInt(fisikValue) || 0;
+                    const selisih = fisikNum - p.stock;
+                    selisihText = (selisih > 0 ? '+' : '') + selisih;
+                    selisihClass = selisih < 0 ? 'text-rose-600 font-bold' : (selisih > 0 ? 'text-emerald-600 font-bold' : 'text-slate-500 font-bold');
+                    
+                    let lossVal = 0;
+                    if (selisih < 0) {
+                        lossVal = p.sellPrice * Math.abs(selisih);
+                    }
+                    lossText = lossVal > 0 ? formatRupiah(lossVal) : '0';
+                    lossClass = lossVal > 0 ? 'text-rose-600 font-bold' : 'text-slate-400';
+                }
+                
+                const showOther = op.reason === 'Lainnya' ? '' : 'hidden';
+                
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="px-5 py-3 font-bold text-slate-800">
+                            ${p.name}
+                            <div class="text-[10px] text-slate-400 font-normal mt-0.5">${p.supplier}</div>
+                        </td>
+                        <td class="px-5 py-3 text-right text-indigo-600 font-semibold">${formatRupiah(p.sellPrice)}</td>
+                        <td class="px-5 py-3 text-center font-bold text-slate-500">${p.stock}</td>
+                        <td class="px-5 py-3 text-center">
+                            <input type="number" min="0" value="${fisikValue}" oninput="updateOpnamePhysicalStock('${p.id}', this.value)" placeholder="Input..." class="w-24 p-2 border border-slate-200 rounded-lg text-center font-bold text-xs bg-white outline-none focus:border-amber-500">
+                        </td>
+                        <td id="opname-selisih-${p.id}" class="px-5 py-3 text-center ${selisihClass}">${selisihText}</td>
+                        <td id="opname-minus-${p.id}" class="px-5 py-3 text-right ${lossClass}">${lossText}</td>
+                        <td class="px-5 py-3">
+                            <div class="flex flex-col gap-1">
+                                <select onchange="updateOpnameReason('${p.id}', this.value)" class="p-2 border border-slate-200 rounded-lg text-xs bg-white font-medium outline-none text-slate-700">
+                                    <option value="Obat Rusak" ${op.reason === 'Obat Rusak' ? 'selected' : ''}>Obat Rusak</option>
+                                    <option value="Kedaluwarsa" ${op.reason === 'Kedaluwarsa' ? 'selected' : ''}>Kedaluwarsa</option>
+                                    <option value="Selisih Hitung" ${op.reason === 'Selisih Hitung' ? 'selected' : ''}>Selisih Hitung</option>
+                                    <option value="Hilang" ${op.reason === 'Hilang' ? 'selected' : ''}>Hilang</option>
+                                    <option value="Lainnya" ${op.reason === 'Lainnya' ? 'selected' : ''}>Lainnya</option>
+                                </select>
+                                <input id="opname-reason-other-${p.id}" type="text" value="${op.reasonOther}" oninput="updateOpnameReasonOther('${p.id}', this.value)" placeholder="Tulis alasan bebas..." class="p-2 border border-slate-200 rounded-lg text-xs outline-none bg-white ${showOther}">
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            calculateOpnameGrandTotal();
+
+            const startIdx = filtered.length === 0 ? 0 : start + 1;
+            const endIdx = Math.min(end, filtered.length);
+            
+            document.getElementById('opname-paginated-start').innerText = startIdx;
+            document.getElementById('opname-paginated-end').innerText = endIdx;
+            document.getElementById('opname-paginated-total').innerText = filtered.length;
+            document.getElementById('opname-current-page-num').innerText = state.opnamePage;
+            
+            document.getElementById('btn-prev-opname-page').disabled = (state.opnamePage === 1);
+            document.getElementById('btn-next-opname-page').disabled = (state.opnamePage === totalPages);
+        };
+
+        window.prevOpnamePage = () => {
+            if (state.opnamePage > 1) {
+                state.opnamePage--;
+                renderStockOpnameTable();
+            }
+        };
+
+        window.nextOpnamePage = () => {
+            const search = document.getElementById('opnameSearchInput').value.toLowerCase().trim();
+            const supplierFilter = document.getElementById('opnameSupplierFilter').value;
+            
+            let filtered = state.products;
+            if (supplierFilter !== 'all') {
+                filtered = filtered.filter(p => p.supplierKey === supplierFilter);
+            }
+            if (search !== '') {
+                filtered = filtered.filter(p => p.name.toLowerCase().includes(search));
+            }
+            
+            const totalPages = Math.ceil(filtered.length / state.opnamePageSize) || 1;
+            if (state.opnamePage < totalPages) {
+                state.opnamePage++;
+                renderStockOpnameTable();
+            }
+        };
+
+        window.changeOpnamePageSize = () => {
+            state.opnamePageSize = parseInt(document.getElementById('opnamePageSizeSelect').value);
+            state.opnamePage = 1;
+            renderStockOpnameTable();
+        };
+
+        window.finalizeStockOpname = async () => {
+            if (!state.opname) {
+                window.showFeedback('Ditolak', 'Tidak ada data opname yang dimasukkan!', 'error');
+                return;
+            }
+
+            const activeEntries = [];
+            Object.keys(state.opname).forEach(productId => {
+                const op = state.opname[productId];
+                if (op.fisik !== '') {
+                    activeEntries.push({
+                        productId,
+                        fisik: parseInt(op.fisik) || 0,
+                        reason: op.reason === 'Lainnya' ? op.reasonOther : op.reason
+                    });
+                }
+            });
+
+            if (activeEntries.length === 0) {
+                window.showFeedback('Ditolak', 'Wajib mengisi minimal satu kolom Stok Fisik produk sebelum finalisasi!', 'error');
+                return;
+            }
+
+            try {
+                window.showLoading();
+                const timestampStr = new Date().toISOString();
+                let adjustedCount = 0;
+                let minusCount = 0;
+                let totalLoss = 0;
+                const adjustedItemsList = [];
+
+                for (const entry of activeEntries) {
+                    const product = state.products.find(p => p.id === entry.productId);
+                    if (!product) continue;
+
+                    const sistem = product.stock;
+                    const fisik = entry.fisik;
+                    const selisih = fisik - sistem;
+                    let loss = 0;
+                    if (selisih < 0) {
+                        loss = product.sellPrice * Math.abs(selisih);
+                        minusCount++;
+                        totalLoss += loss;
+                    }
+
+                    // Perbarui field stok pada koleksi produk (products) di Firebase
+                    const docRef = doc(colProducts, entry.productId);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        await updateDoc(docRef, { stock: fisik });
+                    } else {
+                        // Fallback aman jika doc produk di cloud belum terbuat
+                        await setDoc(docRef, {
+                            name: product.name,
+                            category: product.category || 'Obat Bebas',
+                            buyPrice: product.buyPrice,
+                            sellPrice: product.sellPrice,
+                            stock: fisik,
+                            supplierKey: product.supplierKey || 'supplier1'
+                        });
+                    }
+
+                    adjustedCount++;
+                    adjustedItemsList.push({
+                        productId: entry.productId,
+                        name: product.name,
+                        systemStock: sistem,
+                        physicalStock: fisik,
+                        difference: selisih,
+                        loss: loss,
+                        reason: entry.reason || '-'
+                    });
+                }
+
+                // Kirim data aktivitas audit secara detail ke database Firebase (sub stock_opname)
+                await addDoc(colStockOpname, {
+                    timestamp: timestampStr,
+                    admin: state.currentUser.name,
+                    adjustedCount,
+                    minusCount,
+                    totalLoss,
+                    items: adjustedItemsList
+                });
+
+                // Deskripsi manusiawi yang mencantumkan detail opname
+                const humanizedDescription = `Stock Opname diselesaikan. Mengoreksi ${adjustedCount} produk, total item minus: ${minusCount}, akumulasi nilai kerugian: ${formatRupiah(totalLoss)}`;
+
+                // Hubungkan data logs yang terintegrasi ke logs.html (koleksi system_logs)
+                await addDoc(colSystemLogs, {
+                    action: 'PENYESUAIAN_STOK',
+                    details: humanizedDescription,
+                    timestamp: timestampStr
+                });
+
+                window.hideLoading();
+                
+                // Kosongkan form stock opname setelah selesai sukses
+                state.opname = {};
+                renderStockOpnameTable();
+                
+                window.showFeedback('Opname Berhasil', humanizedDescription, 'success');
+
+            } catch (err) {
+                window.hideLoading();
+                console.error(err);
+                window.showFeedback('Gagal', 'Terjadi kegagalan sinkronisasi cloud Firebase saat memfinalisasi.', 'error');
+            }
+        };
+
         window.generatePDF = (type) => {
             const container = document.getElementById('printContainer');
             container.innerHTML = ''; 
@@ -2637,6 +2993,51 @@
                 contentHtml += `<table class="print-table"><thead><tr><th>Produk</th><th>Kategori</th><th>Modal</th><th>Jual</th><th>Stok</th></tr></thead><tbody>`;
                 state.products.forEach(p => { contentHtml += `<tr><td>${p.name}</td><td>${p.category}</td><td>${formatRupiah(p.buyPrice)}</td><td>${formatRupiah(p.sellPrice)}</td><td>${p.stock}</td></tr>`; });
                 contentHtml += `</tbody></table>`;
+            } else if (type === 'stock-opname') {
+                contentHtml += `<table class="print-table"><thead><tr><th>Nama Obat</th><th>Harga Jual</th><th style="text-align:center;">Stok Sistem</th><th style="text-align:center;">Stok Fisik</th><th style="text-align:center;">Selisih</th><th style="text-align:right;">Total Nilai Minus</th><th>Alasan</th></tr></thead><tbody>`;
+                let totalLoss = 0;
+                let countMinus = 0;
+                let countAdjusted = 0;
+                
+                state.products.forEach(p => {
+                    const op = state.opname && state.opname[p.id];
+                    if (op && op.fisik !== '') {
+                        const fisikNum = parseInt(op.fisik) || 0;
+                        const selisih = fisikNum - p.stock;
+                        let loss = 0;
+                        if (selisih < 0) {
+                            loss = p.sellPrice * Math.abs(selisih);
+                            totalLoss += loss;
+                            countMinus++;
+                        }
+                        countAdjusted++;
+                        
+                        const reasonStr = op.reason === 'Lainnya' ? op.reasonOther : op.reason;
+                        const selisihText = (selisih > 0 ? '+' : '') + selisih;
+                        const lossText = loss > 0 ? formatRupiah(loss) : '0';
+                        
+                        contentHtml += `<tr>
+                            <td><strong>${p.name}</strong><br><small style="color:#666">${p.supplier}</small></td>
+                            <td>${formatRupiah(p.sellPrice)}</td>
+                            <td style="text-align:center;">${p.stock}</td>
+                            <td style="text-align:center; font-weight:bold;">${fisikNum}</td>
+                            <td style="text-align:center; font-weight:bold; color:${selisih < 0 ? '#e11d48' : (selisih > 0 ? '#10b981' : '#334155')}">${selisihText}</td>
+                            <td style="text-align:right; font-weight:bold; color:${loss > 0 ? '#e11d48' : '#334155'}">${lossText}</td>
+                            <td>${reasonStr || '-'}</td>
+                        </tr>`;
+                    }
+                });
+                
+                if (countAdjusted === 0) {
+                    contentHtml += `<tr><td colspan="7" style="text-align:center; font-style:italic; padding: 20px;">Belum ada obat yang dimasukkan ke form stock opname.</td></tr>`;
+                }
+                
+                contentHtml += `</tbody></table>`;
+                contentHtml += `<div style="margin-top: 25px; text-align: right; font-weight: bold; font-size:12px;">
+                    <p style="margin: 4px 0;">Total Produk Disesuaikan: ${countAdjusted}</p>
+                    <p style="margin: 4px 0;">Total Item Minus: ${countMinus}</p>
+                    <p style="margin: 4px 0; color: #e11d48; font-size: 15px;">Grand Total Nilai Kerugian: ${formatRupiah(totalLoss)}</p>
+                </div>`;
             } else if (type === 'barang-masuk') {
                 const dateFilter = document.getElementById('filterStockDate').value;
                 const filterType = document.getElementById('filterStockType').value;
@@ -2821,7 +3222,7 @@
                 return `<tr class="hover:bg-slate-50">
                     <td class="px-5 py-4 text-slate-500">${new Date(t.timestamp).toLocaleString()}</td>
                     <td class="px-5 py-4 font-bold text-indigo-600">${t.id}</td>
-                    <td class="px-5 py-4">${t.text || t.cashier}</td>
+                    <td class="px-5 py-4">${t.cashier}</td>
                     <td class="px-5 py-4 text-[10px] text-slate-400 truncate max-w-[200px]">${itemNames}</td>
                     <td class="px-5 py-4 text-right font-bold text-slate-800">${formatRupiah(t.total)}</td>
                     <td class="px-5 py-4 text-center flex justify-center items-center gap-2">
@@ -2829,264 +3230,6 @@
                         <button onclick="deleteTransaction('${t.id}')" class="bg-rose-50 text-rose-600 px-3 py-1.5 rounded-lg text-[10px] font-bold"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>`}).join('');
-        };
-
-        window.renderOpnameTable = () => {
-            const tbody = document.getElementById('opnameTableBody');
-            if (!tbody) return;
-            const search = document.getElementById('opnameSearchInput').value.toLowerCase().trim();
-            const supplierFilter = document.getElementById('opnameSupplierFilter') ? document.getElementById('opnameSupplierFilter').value : 'all';
-            tbody.innerHTML = '';
-
-            let filtered = state.products;
-            if (supplierFilter !== 'all') {
-                filtered = filtered.filter(p => p.supplierKey === supplierFilter);
-            }
-
-            if (search !== '') {
-                filtered = filtered.filter(p => p.name.toLowerCase().includes(search));
-            }
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 font-bold"><i class="fas fa-search-minus mr-2"></i> Produk tidak ditemukan</td></tr>`;
-                calculateOpnameGrandTotals();
-                return;
-            }
-
-            filtered.forEach(p => {
-                const inputData = state.opnameInputs[p.id] || { stockFisik: null, alasan: 'Obat Rusak', alasanLainnya: '' };
-                const stockFisikVal = inputData.stockFisik !== null ? inputData.stockFisik : '';
-                
-                let selisihText = '-';
-                let totalMinusVal = 0;
-                let totalMinusText = 'Rp 0,00';
-                
-                if (inputData.stockFisik !== null && inputData.stockFisik !== '') {
-                    const diff = inputData.stockFisik - p.stock;
-                    selisihText = diff > 0 ? `+${diff}` : `${diff}`;
-                    
-                    if (diff < 0) {
-                        totalMinusVal = p.sellPrice * Math.abs(diff);
-                        totalMinusText = formatRupiah(totalMinusVal);
-                    }
-                }
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition text-xs">
-                        <td class="px-5 py-3 font-bold text-slate-800">
-                            ${p.name}
-                            <div class="text-[10px] text-slate-400 font-normal mt-0.5">${p.supplier}</div>
-                        </td>
-                        <td class="px-5 py-3 text-right text-slate-600 font-medium">${formatRupiah(p.sellPrice)}</td>
-                        <td class="px-5 py-3 text-center text-slate-700 font-bold bg-slate-50">${p.stock}</td>
-                        <td class="px-5 py-3 text-center">
-                            <input type="number" min="0" value="${stockFisikVal}" oninput="updateOpnameInput('${p.id}', this.value, null)" placeholder="Stok Fisik" class="w-24 text-center p-1.5 border border-slate-300 rounded-lg outline-none font-bold text-indigo-600 focus:border-indigo-500 bg-white">
-                        </td>
-                        <td class="px-5 py-3 text-center font-bold text-xs" id="selisih-${p.id}">${selisihText}</td>
-                        <td class="px-5 py-3 text-right font-bold text-rose-600" id="minus-val-${p.id}">${totalMinusText}</td>
-                        <td class="px-5 py-3 text-center flex flex-col items-center justify-center gap-1.5">
-                            <select onchange="updateOpnameInput('${p.id}', null, this.value); renderOpnameTable();" class="w-full max-w-[160px] p-1.5 bg-slate-50 border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:border-indigo-500">
-                                <option value="Obat Rusak" ${inputData.alasan === 'Obat Rusak' ? 'selected' : ''}>Obat Rusak</option>
-                                <option value="Kedaluwarsa" ${inputData.alasan === 'Kedaluwarsa' ? 'selected' : ''}>Kedaluwarsa</option>
-                                <option value="Hilang" ${inputData.alasan === 'Hilang' ? 'selected' : ''}>Hilang</option>
-                                <option value="Salah Pencatatan" ${inputData.alasan === 'Salah Pencatatan' ? 'selected' : ''}>Salah Pencatatan</option>
-                                <option value="Lainnya" ${inputData.alasan === 'Lainnya' ? 'selected' : ''}>Lainnya</option>
-                            </select>
-                            <input type="text" id="alasan-lainnya-${p.id}" value="${inputData.alasanLainnya || ''}" oninput="updateOpnameInput('${p.id}', null, null, this.value)" placeholder="Ketik alasan..." class="w-full max-w-[160px] p-1.5 border border-slate-300 rounded-lg outline-none text-xs ${inputData.alasan === 'Lainnya' ? '' : 'hidden'}">
-                        </td>
-                    </tr>
-                `;
-            });
-
-            calculateOpnameGrandTotals();
-        };
-
-        window.updateOpnameInput = (id, stockFisik, alasan, alasanLainnya) => {
-            if (!state.opnameInputs[id]) {
-                state.opnameInputs[id] = { stockFisik: null, alasan: 'Obat Rusak', alasanLainnya: '' };
-            }
-            if (stockFisik !== null) {
-                state.opnameInputs[id].stockFisik = stockFisik !== '' ? parseInt(stockFisik) : null;
-            }
-            if (alasan !== null) {
-                state.opnameInputs[id].alasan = alasan;
-                if (alasan !== 'Lainnya') {
-                    state.opnameInputs[id].alasanLainnya = '';
-                }
-            }
-            if (alasanLainnya !== null && alasanLainnya !== undefined) {
-                state.opnameInputs[id].alasanLainnya = alasanLainnya;
-            }
-
-            const p = state.products.find(x => x.id === id);
-            if (p) {
-                const data = state.opnameInputs[id];
-                const selisihEl = document.getElementById(`selisih-${id}`);
-                const minusValEl = document.getElementById(`minus-val-${id}`);
-                
-                if (selisihEl && minusValEl) {
-                    if (data.stockFisik !== null) {
-                        const diff = data.stockFisik - p.stock;
-                        selisihEl.innerText = diff > 0 ? `+${diff}` : `${diff}`;
-                        
-                        if (diff < 0) {
-                            minusValEl.innerText = formatRupiah(p.sellPrice * Math.abs(diff));
-                        } else {
-                            minusValEl.innerText = 'Rp 0,00';
-                        }
-                    } else {
-                        selisihEl.innerText = '-';
-                        minusValEl.innerText = 'Rp 0,00';
-                    }
-                }
-            }
-
-            calculateOpnameGrandTotals();
-        };
-
-        window.calculateOpnameGrandTotals = () => {
-            let grandTotalMinus = 0;
-            let adjustedCount = 0;
-            let minusCount = 0;
-
-            Object.keys(state.opnameInputs).forEach(id => {
-                const input = state.opnameInputs[id];
-                const p = state.products.find(x => x.id === id);
-                if (p && input.stockFisik !== null && input.stockFisik !== '') {
-                    adjustedCount++;
-                    const diff = input.stockFisik - p.stock;
-                    if (diff < 0) {
-                        minusCount++;
-                        grandTotalMinus += p.sellPrice * Math.abs(diff);
-                    }
-                }
-            });
-
-            const grandLossTextEl = document.getElementById('opnameGrandLossText');
-            const summaryCountEl = document.getElementById('opnameSummaryCount');
-            const summaryMinusCountEl = document.getElementById('opnameSummaryMinusCount');
-
-            if (grandLossTextEl) grandLossTextEl.innerText = formatRupiah(grandTotalMinus);
-            if (summaryCountEl) summaryCountEl.innerText = adjustedCount;
-            if (summaryMinusCountEl) summaryMinusCountEl.innerText = minusCount;
-        };
-
-        window.resetOpnameInputs = () => {
-            state.opnameInputs = {};
-            renderOpnameTable();
-            window.showFeedback('Reset Selesai', 'Semua input stock opname telah dikosongkan.');
-        };
-
-        window.finalizeOpname = () => {
-            const keys = Object.keys(state.opnameInputs).filter(id => state.opnameInputs[id].stockFisik !== null && state.opnameInputs[id].stockFisik !== '');
-            if (keys.length === 0) {
-                window.showFeedback('Peringatan', 'Harap isi minimal satu input Stok Fisik sebelum melakukan finalisasi opname.', 'error');
-                return;
-            }
-
-            let grandTotalMinus = 0;
-            keys.forEach(id => {
-                const input = state.opnameInputs[id];
-                const p = state.products.find(x => x.id === id);
-                if (p) {
-                    const diff = input.stockFisik - p.stock;
-                    if (diff < 0) {
-                        grandTotalMinus += p.sellPrice * Math.abs(diff);
-                    }
-                }
-            });
-
-            document.getElementById('confirmOpnameTotalText').innerText = formatRupiah(grandTotalMinus);
-            document.getElementById('confirmOpnameModal').classList.remove('hidden');
-        };
-
-        window.executeFinalizeOpname = async () => {
-            document.getElementById('confirmOpnameModal').classList.add('hidden');
-            const keys = Object.keys(state.opnameInputs).filter(id => state.opnameInputs[id].stockFisik !== null && state.opnameInputs[id].stockFisik !== '');
-            if (keys.length === 0) return;
-
-            try {
-                window.showLoading();
-                const timestampStr = new Date().toISOString();
-                let adjustedCount = 0;
-                let minusCount = 0;
-                let grandTotalMinus = 0;
-
-                const auditDetails = [];
-
-                for (const id of keys) {
-                    const input = state.opnameInputs[id];
-                    const p = state.products.find(x => x.id === id);
-                    if (p) {
-                        adjustedCount++;
-                        const diff = input.stockFisik - p.stock;
-                        let lossValue = 0;
-                        if (diff < 0) {
-                            minusCount++;
-                            lossValue = p.sellPrice * Math.abs(diff);
-                            grandTotalMinus += lossValue;
-                        }
-
-                        // Determine standard dropdown reason vs custom free text input
-                        const finalReason = input.alasan === 'Lainnya' ? (input.alasanLainnya || 'Lainnya') : input.alasan;
-
-                        auditDetails.push({
-                            id: id,
-                            name: p.name,
-                            supplier: p.supplier,
-                            systemStock: p.stock,
-                            physicalStock: input.stockFisik,
-                            difference: diff,
-                            lossValue: lossValue,
-                            reason: finalReason
-                        });
-
-                        const docRef = doc(colProducts, id);
-                        const docSnap = await getDoc(docRef);
-                        if (docSnap.exists()) {
-                            await updateDoc(docRef, { stock: input.stockFisik });
-                        } else {
-                            await setDoc(docRef, {
-                                name: p.name,
-                                category: p.category,
-                                buyPrice: p.buyPrice,
-                                sellPrice: p.sellPrice,
-                                stock: input.stockFisik,
-                                supplierKey: p.supplierKey
-                            });
-                        }
-                    }
-                }
-
-                const descString = `Stock Opname berhasil diselaraskan oleh ${state.currentUser.name}. Menyesuaikan ${adjustedCount} produk, terdeteksi ${minusCount} item berkurang (minus), dengan total estimasi nilai kerugian sebesar ${formatRupiah(grandTotalMinus)}.`;
-                
-                await addDoc(colStockOpname, {
-                    action: 'PENYESUAIAN_STOK',
-                    description: descString,
-                    adjustedProductsCount: adjustedCount,
-                    totalMinusItems: minusCount,
-                    grandTotalLoss: grandTotalMinus,
-                    details: auditDetails,
-                    timestamp: timestampStr,
-                    admin: state.currentUser.name
-                });
-
-                await addDoc(colSystemLogs, {
-                    action: 'PENYESUAIAN_STOK',
-                    details: descString,
-                    timestamp: timestampStr
-                });
-
-                state.opnameInputs = {};
-                window.hideLoading();
-                window.showFeedback('Opname Berhasil', 'Data stok fisik telah berhasil diselaraskan ke database cloud.');
-                renderOpnameTable();
-
-            } catch (error) {
-                window.hideLoading();
-                console.error(error);
-                window.showFeedback('Gagal', 'Terjadi kesalahan sistem saat memproses finalisasi opname.', 'error');
-            }
         };
 
         window.addEventListener('keydown', (e) => {
@@ -3100,7 +3243,6 @@
             }
             if (e.key === 'Escape') { 
                 document.getElementById('confirmTrxModal').classList.add('hidden');
-                document.getElementById('confirmOpnameModal').classList.add('hidden');
                 document.getElementById('cashierSelectModal').classList.add('hidden');
                 document.getElementById('logoutConfirmModal').classList.add('hidden');
                 document.getElementById('deleteTrxModal').classList.add('hidden');
