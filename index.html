@@ -68,6 +68,7 @@
                 color: #666;
             }
 
+            /* Custom print style rules to output invoice cards without half-broken divisions */
             .print-card { 
                 page-break-inside: avoid !important; 
                 break-inside: avoid !important; 
@@ -271,7 +272,7 @@
                         <p id="userRoleDisplay" class="text-[8px] text-slate-400 uppercase">Administrator</p>
                     </div>
                 </div>
-                <button onclick="logout()" class="w-full py-2 bg-rose-500/10 text-rose-500 text-[10px] font-bold uppercase rounded-lg hover:bg-rose-500 hover:text-white transition">Logout</button>
+                <button onclick="logout()" class="w-full py-2 bg-rose-500/10 text-rose-500 text-[10px] font-bold uppercase rounded-lg hover:bg-rose-50 hover:text-white transition">Logout</button>
             </div>
         </aside>
 
@@ -390,7 +391,7 @@
                                     Halaman <span id="current-page-num">1</span>
                                 </span>
                                 <button onclick="nextProductPage()" id="btn-next-page" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition">
-                                    Next <i class="fas fa-chevron-right ml-1"></i>
+                                    Next <i class="fas fa-chevron-right mr-1"></i>
                                 </button>
                                 <select id="pageSizeSelect" onchange="changeProductPageSize()" class="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold outline-none ml-2">
                                     <option value="10">10 / Halaman</option>
@@ -531,7 +532,10 @@
                                     <input type="text" id="filterStockKeyword" onkeyup="if(window.state) { window.state.stockPage = 1; } renderStockHistory()" placeholder="Masukkan kata kunci..." class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none font-medium bg-white focus:border-indigo-500 hidden">
                                 </div>
                                 
-                                <div class="overflow-y-auto max-h-[500px] custom-scrollbar flex-1 p-3 space-y-4" id="stockHistoryContainer"></div>
+                                <!-- Container Khusus Berbasis Card untuk Riwayat Stok per Faktur -->
+                                <div class="overflow-y-auto max-h-[500px] custom-scrollbar flex-1 p-3 space-y-4" id="stockHistoryContainer">
+                                    <!-- Dynamic Grouped Invoice Cards will go here -->
+                                </div>
 
                                 <!-- Stock Pagination Controls -->
                                 <div class="p-3 bg-slate-50 border-t border-slate-100 flex flex-col gap-2 shrink-0">
@@ -546,7 +550,7 @@
                                             Hal <span id="stock-current-page-num">1</span>
                                         </span>
                                         <button onclick="nextStockPage()" id="btn-next-stock-page" class="px-2.5 py-1 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-[10px] disabled:opacity-50 disabled:cursor-not-allowed transition">
-                                            Next <i class="fas fa-chevron-right ml-1"></i>
+                                            Next <i class="fas fa-chevron-right mr-1"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -660,8 +664,8 @@
                                 </select>
                             </div>
                             <div class="flex gap-2 w-full md:w-auto">
-                                <button onclick="resetOpnameInputs()" class="flex-1 md:flex-none bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-xs"><i class="fas fa-redo mr-1"></i> Reset Input</button>
                                 <button onclick="generatePDF('opname')" class="flex-1 md:flex-none bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs"><i class="fas fa-file-pdf mr-1"></i> Cetak PDF</button>
+                                <button onclick="resetOpnameInputs()" class="flex-1 md:flex-none bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-xs"><i class="fas fa-redo mr-1"></i> Reset Input</button>
                                 <button onclick="finalizeOpname()" class="flex-1 md:flex-none bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs"><i class="fas fa-check-double mr-1"></i> Finalisasi Opname</button>
                             </div>
                         </div>
@@ -675,7 +679,7 @@
                                         <th class="px-5 py-3 text-center" style="width: 120px;">Stok Fisik</th>
                                         <th class="px-5 py-3 text-center" style="width: 100px;">Selisih</th>
                                         <th class="px-5 py-3 text-right" style="width: 150px;">Total Nilai Minus</th>
-                                        <th class="px-5 py-3 text-center" style="width: 180px;">Keterangan / Alasan</th>
+                                        <th class="px-5 py-3 text-center" style="width: 200px;">Keterangan / Alasan</th>
                                     </tr>
                                 </thead>
                                 <tbody id="opnameTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
@@ -801,7 +805,7 @@
                         Halaman <span id="pos-current-page-num">1</span>
                     </span>
                     <button onclick="nextPosPage()" id="btn-next-page" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition">
-                        Next <i class="fas fa-chevron-right ml-1"></i>
+                        Next <i class="fas fa-chevron-right mr-1"></i>
                     </button>
                     <select id="posPageSizeSelect" onchange="changePosPageSize()" class="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold outline-none ml-2">
                         <option value="10">10 / Halaman</option>
@@ -978,7 +982,7 @@
 
     <div id="receiptModal" class="fixed inset-0 bg-slate-900/60 hidden z-[80] flex justify-center items-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm modal-enter text-center p-8">
-            <div class="mx-auto w-16 h-16 bg-emerald-100 text-emerald-50 rounded-full flex items-center justify-center text-2xl mb-4"><i class="fas fa-check"></i></div>
+            <div class="mx-auto w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl mb-4"><i class="fas fa-check"></i></div>
             <h3 class="text-xl font-bold mb-2">Transaksi Sukses!</h3>
             <p class="text-slate-500 mb-6 text-xs leading-relaxed font-bold">Invoice telah dicatat secara otomatis.</p>
             <div class="flex flex-col gap-2">
@@ -1061,7 +1065,7 @@
             stockPageSize: 10, 
             deleteTrxId: null,
             fakturItems: [], 
-            opnameInputs: {} // To store opname inputs: { productId: { stockFisik: number, alasan: string, alasanLainnya: string } }
+            opnameInputs: {} // To store opname inputs: { productId: { stockFisik: number, alasan: string, customAlasan: string } }
         };
 
         window.state = state;
@@ -2728,17 +2732,6 @@
                 });
                 contentHtml += `</tbody></table>`;
             } else if (type === 'opname') {
-                const search = document.getElementById('opnameSearchInput').value.toLowerCase().trim();
-                const supplierFilter = document.getElementById('opnameSupplierFilter') ? document.getElementById('opnameSupplierFilter').value : 'all';
-                
-                let filtered = state.products;
-                if (supplierFilter !== 'all') {
-                    filtered = filtered.filter(p => p.supplierKey === supplierFilter);
-                }
-                if (search !== '') {
-                    filtered = filtered.filter(p => p.name.toLowerCase().includes(search));
-                }
-
                 contentHtml += `<table class="print-table">
                     <thead>
                         <tr>
@@ -2748,58 +2741,62 @@
                             <th style="text-align: center;">Stok Fisik</th>
                             <th style="text-align: center;">Selisih</th>
                             <th style="text-align: right;">Total Nilai Minus</th>
-                            <th>Keterangan / Alasan</th>
+                            <th>Alasan / Keterangan</th>
                         </tr>
                     </thead>
                     <tbody>`;
 
-                let grandTotalLoss = 0;
+                let grandTotalMinus = 0;
                 let adjustedCount = 0;
                 let minusCount = 0;
 
-                filtered.forEach(p => {
-                    const input = state.opnameInputs[p.id] || { stockFisik: null, alasan: 'Obat Rusak', alasanLainnya: '' };
-                    const stockFisikVal = input.stockFisik !== null ? input.stockFisik : '-';
-                    let selisihText = '-';
-                    let totalMinusText = 'Rp 0,00';
-                    let lossValue = 0;
-
-                    if (input.stockFisik !== null) {
+                state.products.forEach(p => {
+                    const inputData = state.opnameInputs[p.id];
+                    if (inputData && inputData.stockFisik !== null && inputData.stockFisik !== '') {
                         adjustedCount++;
-                        const diff = input.stockFisik - p.stock;
-                        selisihText = diff > 0 ? `+${diff}` : `${diff}`;
+                        const diff = inputData.stockFisik - p.stock;
+                        let totalMinusVal = 0;
+                        let totalMinusText = 'Rp 0,00';
+                        let selisihText = diff > 0 ? `+${diff}` : `${diff}`;
+
                         if (diff < 0) {
                             minusCount++;
-                            lossValue = p.sellPrice * Math.abs(diff);
-                            grandTotalLoss += lossValue;
-                            totalMinusText = formatRupiah(lossValue);
+                            totalMinusVal = p.sellPrice * Math.abs(diff);
+                            grandTotalMinus += totalMinusVal;
+                            totalMinusText = formatRupiah(totalMinusVal);
                         }
+
+                        let reasonText = inputData.alasan;
+                        if (reasonText === 'Lainnya') {
+                            reasonText = inputData.customAlasan ? inputData.customAlasan.trim() : 'Lainnya';
+                        }
+
+                        contentHtml += `<tr>
+                            <td><strong>${p.name}</strong><br><small style="color: #666;">${p.supplier}</small></td>
+                            <td style="text-align: right;">${formatRupiah(p.sellPrice)}</td>
+                            <td style="text-align: center;">${p.stock}</td>
+                            <td style="text-align: center;">${inputData.stockFisik}</td>
+                            <td style="text-align: center; font-weight: bold;">${selisihText}</td>
+                            <td style="text-align: right; color: #dc2626; font-weight: bold;">${totalMinusText}</td>
+                            <td>${reasonText}</td>
+                        </tr>`;
                     }
-
-                    const finalReason = input.alasan === 'Lainnya' ? (input.alasanLainnya || 'Lainnya') : input.alasan;
-                    const reasonDisplay = input.stockFisik !== null ? finalReason : '-';
-
-                    contentHtml += `<tr>
-                        <td><strong>${p.name}</strong><br><small style="color: #64748b;">${p.supplier}</small></td>
-                        <td style="text-align: right;">${formatRupiah(p.sellPrice)}</td>
-                        <td style="text-align: center; font-weight: bold;">${p.stock}</td>
-                        <td style="text-align: center; font-weight: bold; color: #4f46e5;">${stockFisikVal}</td>
-                        <td style="text-align: center; font-weight: bold;">${selisihText}</td>
-                        <td style="text-align: right; font-weight: bold; color: #e11d48;">${totalMinusText}</td>
-                        <td>${reasonDisplay}</td>
-                    </tr>`;
                 });
 
+                if (adjustedCount === 0) {
+                    contentHtml += `<tr><td colspan="7" style="text-align: center; font-style: italic; color: #888; padding: 20px;">Tidak ada obat yang sedang di-opname (Stok Fisik kosong)</td></tr>`;
+                }
+
                 contentHtml += `</tbody></table>`;
+
                 contentHtml += `
-                    <div style="margin-top: 25px; padding: 20px; background-color: #fef2f2; border: 2px solid #fee2e2; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                    <div style="margin-top: 20px; padding: 15px; background: #fff5f5; border: 1px solid #fecaca; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; page-break-inside: avoid;">
                         <div>
-                            <p style="margin: 0; font-size: 10px; color: #991b1b; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">Ringkasan Nilai Kerugian (Selisih Minus)</p>
-                            <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 900; color: #b91c1c;">${formatRupiah(grandTotalLoss)}</p>
+                            <p style="margin: 0; font-size: 10px; text-transform: uppercase; color: #7f1d1d; font-weight: bold; letter-spacing: 0.5px;">Ringkasan Nilai Kerugian (Selisih Minus)</p>
+                            <h2 style="margin: 5px 0 0 0; color: #dc2626; font-size: 20px; font-weight: 900;">${formatRupiah(grandTotalMinus)}</h2>
                         </div>
-                        <div style="text-align: right; font-size: 11px; color: #475569; font-weight: bold;">
-                            <p style="margin: 0;">Diselaraskan: ${adjustedCount} Produk | Minus: ${minusCount} Produk</p>
-                            <p style="margin: 4px 0 0 0; font-size: 10px; color: #64748b;">Oleh: ${state.currentUser ? state.currentUser.name : 'System'}</p>
+                        <div style="text-align: right; font-size: 11px; color: #4b5563; font-weight: 600;">
+                            <span>${adjustedCount} produk disesuaikan</span> | <span style="color: #dc2626; font-weight: bold;">${minusCount} produk berselisih minus</span>
                         </div>
                     </div>
                 `;
@@ -2893,7 +2890,7 @@
                 return `<tr class="hover:bg-slate-50">
                     <td class="px-5 py-4 text-slate-500">${new Date(t.timestamp).toLocaleString()}</td>
                     <td class="px-5 py-4 font-bold text-indigo-600">${t.id}</td>
-                    <td class="px-5 py-4">${t.text || t.cashier}</td>
+                    <td class="px-5 py-4">${t.cashier}</td>
                     <td class="px-5 py-4 text-[10px] text-slate-400 truncate max-w-[200px]">${itemNames}</td>
                     <td class="px-5 py-4 text-right font-bold text-slate-800">${formatRupiah(t.total)}</td>
                     <td class="px-5 py-4 text-center flex justify-center items-center gap-2">
@@ -2926,7 +2923,7 @@
             }
 
             filtered.forEach(p => {
-                const inputData = state.opnameInputs[p.id] || { stockFisik: null, alasan: 'Obat Rusak', alasanLainnya: '' };
+                const inputData = state.opnameInputs[p.id] || { stockFisik: null, alasan: 'Obat Rusak', customAlasan: '' };
                 const stockFisikVal = inputData.stockFisik !== null ? inputData.stockFisik : '';
                 
                 let selisihText = '-';
@@ -2956,15 +2953,17 @@
                         </td>
                         <td class="px-5 py-3 text-center font-bold text-xs" id="selisih-${p.id}">${selisihText}</td>
                         <td class="px-5 py-3 text-right font-bold text-rose-600" id="minus-val-${p.id}">${totalMinusText}</td>
-                        <td class="px-5 py-3 text-center flex flex-col items-center justify-center gap-1.5">
-                            <select onchange="updateOpnameInput('${p.id}', null, this.value)" class="w-full max-w-[160px] p-1.5 bg-slate-50 border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:border-indigo-500">
-                                <option value="Obat Rusak" ${inputData.alasan === 'Obat Rusak' ? 'selected' : ''}>Obat Rusak</option>
-                                <option value="Kedaluwarsa" ${inputData.alasan === 'Kedaluwarsa' ? 'selected' : ''}>Kedaluwarsa</option>
-                                <option value="Hilang" ${inputData.alasan === 'Hilang' ? 'selected' : ''}>Hilang</option>
-                                <option value="Salah Pencatatan" ${inputData.alasan === 'Salah Pencatatan' ? 'selected' : ''}>Salah Pencatatan</option>
-                                <option value="Lainnya" ${inputData.alasan === 'Lainnya' ? 'selected' : ''}>Lainnya</option>
-                            </select>
-                            <input type="text" id="alasan-lainnya-${p.id}" value="${inputData.alasanLainnya || ''}" oninput="updateOpnameInput('${p.id}', null, null, this.value)" placeholder="Ketik alasan..." class="w-full max-w-[160px] p-1.5 border border-slate-300 rounded-lg outline-none text-xs ${inputData.alasan === 'Lainnya' ? '' : 'hidden'}">
+                        <td class="px-5 py-3 text-center">
+                            <div class="flex flex-col items-center gap-1.5 w-full">
+                                <select id="alasan-select-${p.id}" onchange="toggleAlasanCustomInput('${p.id}', this.value)" class="w-full max-w-[160px] p-1.5 bg-slate-50 border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:border-indigo-500">
+                                    <option value="Obat Rusak" ${inputData.alasan === 'Obat Rusak' ? 'selected' : ''}>Obat Rusak</option>
+                                    <option value="Kedaluwarsa" ${inputData.alasan === 'Kedaluwarsa' ? 'selected' : ''}>Kedaluwarsa</option>
+                                    <option value="Hilang" ${inputData.alasan === 'Hilang' ? 'selected' : ''}>Hilang</option>
+                                    <option value="Salah Pencatatan" ${inputData.alasan === 'Salah Pencatatan' ? 'selected' : ''}>Salah Pencatatan</option>
+                                    <option value="Lainnya" ${inputData.alasan === 'Lainnya' ? 'selected' : ''}>Lainnya</option>
+                                </select>
+                                <input type="text" id="custom-alasan-${p.id}" value="${inputData.customAlasan || ''}" oninput="updateCustomAlasan('${p.id}', this.value)" placeholder="Tulis alasan khusus..." class="w-full max-w-[160px] p-1.5 border border-slate-300 rounded-lg outline-none text-xs ${inputData.alasan === 'Lainnya' ? '' : 'hidden'}" />
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -2973,30 +2972,47 @@
             calculateOpnameGrandTotals();
         };
 
-        window.updateOpnameInput = (id, stockFisik, alasan, alasanLainnya) => {
+        window.toggleAlasanCustomInput = (id, val) => {
             if (!state.opnameInputs[id]) {
-                state.opnameInputs[id] = { stockFisik: null, alasan: 'Obat Rusak', alasanLainnya: '' };
+                state.opnameInputs[id] = { stockFisik: null, alasan: 'Obat Rusak', customAlasan: '' };
+            }
+            state.opnameInputs[id].alasan = val;
+
+            const customInput = document.getElementById(`custom-alasan-${id}`);
+            if (val === 'Lainnya') {
+                if (customInput) {
+                    customInput.classList.remove('hidden');
+                    customInput.value = state.opnameInputs[id].customAlasan || '';
+                }
+            } else {
+                if (customInput) {
+                    customInput.classList.add('hidden');
+                    customInput.value = '';
+                }
+                state.opnameInputs[id].customAlasan = '';
+            }
+            updateOpnameInput(id, null, val);
+        };
+
+        window.updateCustomAlasan = (id, text) => {
+            if (!state.opnameInputs[id]) {
+                state.opnameInputs[id] = { stockFisik: null, alasan: 'Obat Rusak', customAlasan: '' };
+            }
+            state.opnameInputs[id].customAlasan = text;
+        };
+
+        window.updateOpnameInput = (id, stockFisik, alasan) => {
+            if (!state.opnameInputs[id]) {
+                state.opnameInputs[id] = { stockFisik: null, alasan: 'Obat Rusak', customAlasan: '' };
             }
             if (stockFisik !== null) {
                 state.opnameInputs[id].stockFisik = stockFisik !== '' ? parseInt(stockFisik) : null;
             }
             if (alasan !== null) {
                 state.opnameInputs[id].alasan = alasan;
-                const otherInputEl = document.getElementById(`alasan-lainnya-${id}`);
-                if (alasan === 'Lainnya') {
-                    if (otherInputEl) {
-                        otherInputEl.classList.remove('hidden');
-                    }
-                } else {
-                    state.opnameInputs[id].alasanLainnya = '';
-                    if (otherInputEl) {
-                        otherInputEl.classList.add('hidden');
-                        otherInputEl.value = '';
-                    }
+                if (alasan !== 'Lainnya') {
+                    state.opnameInputs[id].customAlasan = '';
                 }
-            }
-            if (alasanLainnya !== null && alasanLainnya !== undefined) {
-                state.opnameInputs[id].alasanLainnya = alasanLainnya;
             }
 
             const p = state.products.find(x => x.id === id);
@@ -3108,7 +3124,10 @@
                             grandTotalMinus += lossValue;
                         }
 
-                        const finalReason = input.alasan === 'Lainnya' ? (input.alasanLainnya || 'Lainnya') : input.alasan;
+                        let finalReason = input.alasan;
+                        if (input.alasan === 'Lainnya') {
+                            finalReason = input.customAlasan ? input.customAlasan.trim() : 'Lainnya';
+                        }
 
                         auditDetails.push({
                             id: id,
