@@ -441,7 +441,7 @@
                                     <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Input Item Obat</h3>
                                     <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
                                         <!-- Produk (Live Search) -->
-                                        <div class="md:col-span-6 relative">
+                                        <div class="md:col-span-4 relative">
                                             <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Pilih Produk</label>
                                             <input type="text" id="bmSelectProduct" oninput="handleLiveStockSearch(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-semibold" placeholder="Ketik nama produk...">
                                             <div id="bmLiveSuggestions" class="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-48 overflow-y-auto hidden custom-scrollbar"></div>
@@ -457,6 +457,11 @@
                                         <div class="md:col-span-2">
                                             <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Beli Satuan (Rp)</label>
                                             <input type="text" id="bmPrice" oninput="handleNominalInput(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-bold" placeholder="Harga Beli Satuan (Rp)">
+                                        </div>
+                                        <!-- Harga Jual -->
+                                        <div class="md:col-span-2">
+                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Jual Satuan (Rp)</label>
+                                            <input type="text" id="bmSellPrice" oninput="handleNominalInput(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-bold" placeholder="Harga Jual Satuan (Rp)">
                                         </div>
                                         <!-- Tombol Tambah Item -->
                                         <div class="md:col-span-2">
@@ -1471,7 +1476,9 @@
             document.getElementById('bmLiveSuggestions').classList.add('hidden');
             const p = state.products.find(x => x.name.toUpperCase() === name.toUpperCase());
             if (p) {
+                // Auto-Populate Default Prices (Requirement 2)
                 document.getElementById('bmPrice').value = new Intl.NumberFormat('id-ID').format(p.buyPrice);
+                document.getElementById('bmSellPrice').value = new Intl.NumberFormat('id-ID').format(p.sellPrice);
             }
             document.getElementById('bmQty').focus();
         };
@@ -1536,11 +1543,9 @@
                     
                     const localBadge = p.isLocalProduct ? '<br><span class="bg-amber-100 text-amber-700 text-[9px] px-1.5 py-0.5 rounded font-bold inline-block mt-1">LOKAL</span>' : '';
                     
-                    // Requirement 2: Disable & permanently hide the delete button from static products loaded from JS files
-                    // Only manual products added to Firebase have an active delete button.
                     const deleteBtnHtml = p.isLocalProduct 
                         ? `<button onclick="deleteProduct('${p.id}')" class="text-rose-600 p-2 hover:bg-rose-50 rounded-lg"><i class="fas fa-trash"></i></button>`
-                        : ``; // Empty for static JS products to protect from manipulation
+                        : ``; 
 
                     tbody.innerHTML += `
                         <tr class="hover:bg-slate-50 transition">
@@ -1704,6 +1709,8 @@
             const qty = parseInt(document.getElementById('bmQty').value) || 0;
             const priceRaw = document.getElementById('bmPrice').value;
             const price = parseNominal(priceRaw) || 0;
+            const sellPriceRaw = document.getElementById('bmSellPrice').value;
+            const sellPrice = parseNominal(sellPriceRaw) || 0;
             
             if (!productName) {
                 alert("Silakan pilih produk terlebih dahulu!");
@@ -1717,6 +1724,10 @@
                 alert("Harga beli tidak boleh negatif!");
                 return;
             }
+            if (sellPrice < 0) {
+                window.showFeedback ? window.showFeedback('Salah', 'Harga jual tidak boleh negatif!', 'error') : console.error("Harga jual tidak boleh negatif");
+                return;
+            }
 
             const p = state.products.find(x => x.name.toUpperCase() === productName.toUpperCase());
             if (!p) {
@@ -1726,21 +1737,23 @@
 
             const subtotal = price * qty;
             
-            // Push to temporary faktur item queue
+            // Push to temporary faktur item queue (Requirement 1 & 3: Save sellPrice input)
             state.fakturItems.push({
                 id: p.id,
                 name: p.name,
                 buyPrice: price,
+                sellPrice: sellPrice,
                 qty: qty,
                 subtotal: subtotal,
                 supplierKey: p.supplierKey,
                 supplier: p.supplier
             });
 
-            // Reset item inputs
+            // Reset item inputs (Requirement 1: Include bmSellPrice)
             document.getElementById('bmSelectProduct').value = '';
             document.getElementById('bmQty').value = '';
             document.getElementById('bmPrice').value = '';
+            document.getElementById('bmSellPrice').value = '';
             document.getElementById('bmSelectSupplier').value = '';
 
             renderFakturQueue();
@@ -1840,13 +1853,18 @@
                     const docRef = doc(colProducts, item.id);
                     const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
-                        await updateDoc(docRef, { stock: finalStock, buyPrice: item.buyPrice });
+                        // Requirement 3: Automatically update both buyPrice and sellPrice on product collection
+                        await updateDoc(docRef, { 
+                            stock: finalStock, 
+                            buyPrice: item.buyPrice,
+                            sellPrice: item.sellPrice 
+                        });
                     } else {
                         await setDoc(docRef, {
                             name: item.name,
                             category: currentProd ? currentProd.category : "Obat Bebas",
                             buyPrice: item.buyPrice,
-                            sellPrice: currentProd ? currentProd.sellPrice : 0,
+                            sellPrice: item.sellPrice,
                             stock: finalStock,
                             supplierKey: supplierKey
                         });
@@ -1927,7 +1945,6 @@
                 return;
             }
 
-            // Validasi kalkulasi matematika yang ketat agar tidak minus
             const targetStock = currentStock - log.qty;
             if (targetStock < 0) {
                 window.showFeedback('Ditolak', `Aksi ditolak! Sisa stok obat ${log.productName} di toko tidak mencukupi untuk pengurangan ini (stok saat ini: ${currentStock}, akan menjadi: ${targetStock}).`, 'error');
@@ -1994,7 +2011,6 @@
                 return;
             }
 
-            // Hitung sisa stok dengan mengurangkan qty lama dan menambahkan qty baru
             const targetStock = currentStock - log.qty + newQty;
             if (targetStock < 0) {
                 window.showFeedback('Ditolak', `Aksi ditolak! Sisa stok obat ${log.productName} di toko tidak mencukupi untuk penyesuaian ini (stok saat ini: ${currentStock}, akan menjadi: ${targetStock}).`, 'error');
@@ -2545,8 +2561,6 @@
                 state.products.forEach(p => { contentHtml += `<tr><td>${p.name}</td><td>${p.category}</td><td>${formatRupiah(p.buyPrice)}</td><td>${formatRupiah(p.sellPrice)}</td><td>${p.stock}</td></tr>`; });
                 contentHtml += `</tbody></table>`;
             } else if (type === 'barang-masuk') {
-                // Requirement 1: Customize print layout for Stock History/Purchase Invoices to match screen cards.
-                // It renders 1 invoice = 1 table inside a visual card layout, with avoid-breaks enabled.
                 const dateFilter = document.getElementById('filterStockDate').value;
                 const filterType = document.getElementById('filterStockType').value;
                 const keyword = document.getElementById('filterStockKeyword').value.toLowerCase().trim();
@@ -2564,7 +2578,6 @@
                     return true;
                 });
 
-                // Group dynamic stock history entries per Invoice Number
                 const groupedInvoices = {};
                 filtered.forEach(log => {
                     const key = log.noFaktur && log.noFaktur !== '-' ? log.noFaktur : 'LOKAL-' + log.timestamp.substring(0,10);
