@@ -68,7 +68,6 @@
                 color: #666;
             }
 
-            /* Custom print style rules to output invoice cards without half-broken divisions */
             .print-card { 
                 page-break-inside: avoid !important; 
                 break-inside: avoid !important; 
@@ -532,10 +531,7 @@
                                     <input type="text" id="filterStockKeyword" onkeyup="if(window.state) { window.state.stockPage = 1; } renderStockHistory()" placeholder="Masukkan kata kunci..." class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none font-medium bg-white focus:border-indigo-500 hidden">
                                 </div>
                                 
-                                <!-- Container Khusus Berbasis Card untuk Riwayat Stok per Faktur -->
-                                <div class="overflow-y-auto max-h-[500px] custom-scrollbar flex-1 p-3 space-y-4" id="stockHistoryContainer">
-                                    <!-- Dynamic Grouped Invoice Cards will go here -->
-                                </div>
+                                <div class="overflow-y-auto max-h-[500px] custom-scrollbar flex-1 p-3 space-y-4" id="stockHistoryContainer"></div>
 
                                 <!-- Stock Pagination Controls -->
                                 <div class="p-3 bg-slate-50 border-t border-slate-100 flex flex-col gap-2 shrink-0">
@@ -1065,7 +1061,7 @@
             stockPageSize: 10, 
             deleteTrxId: null,
             fakturItems: [], 
-            opnameInputs: {} // To store opname inputs: { productId: { stockFisik: number, alasan: string } }
+            opnameInputs: {} // To store opname inputs: { productId: { stockFisik: number, alasan: string, alasanLainnya: string } }
         };
 
         window.state = state;
@@ -2630,7 +2626,7 @@
             container.innerHTML = ''; 
             let contentHtml = `<div style="padding: 20mm; font-family: sans-serif; background: white; position: relative; min-height: 250mm;">`;
             contentHtml += `<div style="text-align:center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px;">
-                                <h1 style="margin:0; font-size: 24px;">LAPORAN ${type.toUpperCase()}</h1>
+                                <h1 style="margin:0; font-size: 24px;">LAPORAN ${type.toUpperCase() === 'OPNAME' ? 'STOCK OPNAME' : type.toUpperCase()}</h1>
                                 <p style="margin:5px 0;">${state.settings.storeName} | Dicetak: ${new Date().toLocaleString()}</p>
                             </div>`;
             if (type === 'produk') {
@@ -2731,6 +2727,82 @@
                     contentHtml += `<tr><td>${new Date(t.timestamp).toLocaleString()}</td><td>${t.id}</td><td>${t.cashier}</td><td>${formatRupiah(t.discount || 0)}</td><td>${formatRupiah(t.total)}</td></tr>`; 
                 });
                 contentHtml += `</tbody></table>`;
+            } else if (type === 'opname') {
+                const search = document.getElementById('opnameSearchInput').value.toLowerCase().trim();
+                const supplierFilter = document.getElementById('opnameSupplierFilter') ? document.getElementById('opnameSupplierFilter').value : 'all';
+                
+                let filtered = state.products;
+                if (supplierFilter !== 'all') {
+                    filtered = filtered.filter(p => p.supplierKey === supplierFilter);
+                }
+                if (search !== '') {
+                    filtered = filtered.filter(p => p.name.toLowerCase().includes(search));
+                }
+
+                contentHtml += `<table class="print-table">
+                    <thead>
+                        <tr>
+                            <th>Produk / Supplier</th>
+                            <th style="text-align: right;">Harga Jual</th>
+                            <th style="text-align: center;">Stok Sistem</th>
+                            <th style="text-align: center;">Stok Fisik</th>
+                            <th style="text-align: center;">Selisih</th>
+                            <th style="text-align: right;">Total Nilai Minus</th>
+                            <th>Keterangan / Alasan</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+                let grandTotalLoss = 0;
+                let adjustedCount = 0;
+                let minusCount = 0;
+
+                filtered.forEach(p => {
+                    const input = state.opnameInputs[p.id] || { stockFisik: null, alasan: 'Obat Rusak', alasanLainnya: '' };
+                    const stockFisikVal = input.stockFisik !== null ? input.stockFisik : '-';
+                    let selisihText = '-';
+                    let totalMinusText = 'Rp 0,00';
+                    let lossValue = 0;
+
+                    if (input.stockFisik !== null) {
+                        adjustedCount++;
+                        const diff = input.stockFisik - p.stock;
+                        selisihText = diff > 0 ? `+${diff}` : `${diff}`;
+                        if (diff < 0) {
+                            minusCount++;
+                            lossValue = p.sellPrice * Math.abs(diff);
+                            grandTotalLoss += lossValue;
+                            totalMinusText = formatRupiah(lossValue);
+                        }
+                    }
+
+                    const finalReason = input.alasan === 'Lainnya' ? (input.alasanLainnya || 'Lainnya') : input.alasan;
+                    const reasonDisplay = input.stockFisik !== null ? finalReason : '-';
+
+                    contentHtml += `<tr>
+                        <td><strong>${p.name}</strong><br><small style="color: #64748b;">${p.supplier}</small></td>
+                        <td style="text-align: right;">${formatRupiah(p.sellPrice)}</td>
+                        <td style="text-align: center; font-weight: bold;">${p.stock}</td>
+                        <td style="text-align: center; font-weight: bold; color: #4f46e5;">${stockFisikVal}</td>
+                        <td style="text-align: center; font-weight: bold;">${selisihText}</td>
+                        <td style="text-align: right; font-weight: bold; color: #e11d48;">${totalMinusText}</td>
+                        <td>${reasonDisplay}</td>
+                    </tr>`;
+                });
+
+                contentHtml += `</tbody></table>`;
+                contentHtml += `
+                    <div style="margin-top: 25px; padding: 20px; background-color: #fef2f2; border: 2px solid #fee2e2; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div>
+                            <p style="margin: 0; font-size: 10px; color: #991b1b; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">Ringkasan Nilai Kerugian (Selisih Minus)</p>
+                            <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 900; color: #b91c1c;">${formatRupiah(grandTotalLoss)}</p>
+                        </div>
+                        <div style="text-align: right; font-size: 11px; color: #475569; font-weight: bold;">
+                            <p style="margin: 0;">Diselaraskan: ${adjustedCount} Produk | Minus: ${minusCount} Produk</p>
+                            <p style="margin: 4px 0 0 0; font-size: 10px; color: #64748b;">Oleh: ${state.currentUser ? state.currentUser.name : 'System'}</p>
+                        </div>
+                    </div>
+                `;
             }
             contentHtml += `<div class="pdf-footer" style="position: absolute; bottom: 0; left: 0; font-size: 8px; font-weight: bold; color: #555;">Document Exported by: ${state.currentUser ? state.currentUser.name : 'Unknown System'}</div>`;
             contentHtml += `</div>`;
@@ -2885,7 +2957,7 @@
                         <td class="px-5 py-3 text-center font-bold text-xs" id="selisih-${p.id}">${selisihText}</td>
                         <td class="px-5 py-3 text-right font-bold text-rose-600" id="minus-val-${p.id}">${totalMinusText}</td>
                         <td class="px-5 py-3 text-center flex flex-col items-center justify-center gap-1.5">
-                            <select onchange="updateOpnameInput('${p.id}', null, this.value); renderOpnameTable();" class="w-full max-w-[160px] p-1.5 bg-slate-50 border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:border-indigo-500">
+                            <select onchange="updateOpnameInput('${p.id}', null, this.value)" class="w-full max-w-[160px] p-1.5 bg-slate-50 border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:border-indigo-500">
                                 <option value="Obat Rusak" ${inputData.alasan === 'Obat Rusak' ? 'selected' : ''}>Obat Rusak</option>
                                 <option value="Kedaluwarsa" ${inputData.alasan === 'Kedaluwarsa' ? 'selected' : ''}>Kedaluwarsa</option>
                                 <option value="Hilang" ${inputData.alasan === 'Hilang' ? 'selected' : ''}>Hilang</option>
@@ -2910,8 +2982,17 @@
             }
             if (alasan !== null) {
                 state.opnameInputs[id].alasan = alasan;
-                if (alasan !== 'Lainnya') {
+                const otherInputEl = document.getElementById(`alasan-lainnya-${id}`);
+                if (alasan === 'Lainnya') {
+                    if (otherInputEl) {
+                        otherInputEl.classList.remove('hidden');
+                    }
+                } else {
                     state.opnameInputs[id].alasanLainnya = '';
+                    if (otherInputEl) {
+                        otherInputEl.classList.add('hidden');
+                        otherInputEl.value = '';
+                    }
                 }
             }
             if (alasanLainnya !== null && alasanLainnya !== undefined) {
@@ -3027,7 +3108,6 @@
                             grandTotalMinus += lossValue;
                         }
 
-                        // Determine standard dropdown reason vs custom free text input
                         const finalReason = input.alasan === 'Lainnya' ? (input.alasanLainnya || 'Lainnya') : input.alasan;
 
                         auditDetails.push({
