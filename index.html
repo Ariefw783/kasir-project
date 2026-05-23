@@ -250,8 +250,12 @@
                 <button id="menu-transaksi" onclick="switchView('view-transaksi', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition text-left text-slate-400">
                     <i class="fas fa-receipt w-5 text-center text-rose-400"></i> Daftar Transaksi
                 </button>
+                
                 <div id="admin-extras" class="hidden">
                     <p class="px-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-6 mb-3">Sistem</p>
+                    <button id="menu-stock-opname" onclick="switchView('view-stock-opname', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition text-left text-slate-400">
+                        <i class="fas fa-clipboard-list w-5 text-center text-cyan-400"></i> Stock Opname
+                    </button>
                     <button onclick="window.open('kalkulator.html', '_blank')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition text-left text-slate-400 mb-2">
                         <i class="fas fa-calculator w-5 text-center text-indigo-400"></i> Kalkulator Harga Jual
                     </button>
@@ -642,6 +646,58 @@
                     </div>
                 </div>
 
+                <!-- View Stock Opname -->
+                <div id="view-stock-opname" class="view-section hidden h-full flex flex-col animate-[fadeIn_0.3s_ease-out]">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 mb-6 overflow-hidden flex flex-col flex-1">
+                        <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white/50 shrink-0">
+                            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto flex-1 max-w-xl">
+                                <div class="relative flex-1">
+                                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400"><i class="fas fa-search"></i></span>
+                                    <input type="text" id="opnameSearchInput" onkeyup="renderOpnameTable()" placeholder="Cari obat untuk opname..." class="pl-11 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl w-full outline-none">
+                                </div>
+                                <select id="opnameSupplierFilter" onchange="renderOpnameTable()" class="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-xs outline-none font-bold min-w-[150px]">
+                                    <option value="all">Semua Supplier</option>
+                                    <option value="supplier1">Supplier 1</option>
+                                    <option value="supplier2">Supplier 2</option>
+                                    <option value="supplier3">Supplier 3</option>
+                                    <option value="supplier4">Supplier 4</option>
+                                </select>
+                            </div>
+                            <div class="flex gap-2 w-full md:w-auto">
+                                <button onclick="resetOpnameInputs()" class="flex-1 md:flex-none bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-xs"><i class="fas fa-redo mr-1"></i> Reset Input</button>
+                                <button onclick="generatePDF('opname')" class="flex-1 md:flex-none bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs"><i class="fas fa-file-pdf mr-1"></i> Cetak PDF</button>
+                                <button onclick="finalizeOpname()" class="flex-1 md:flex-none bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs"><i class="fas fa-check-double mr-1"></i> Finalisasi Opname</button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto flex-1 custom-scrollbar min-h-[400px]">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-100 sticky top-0 z-10">
+                                        <th class="px-5 py-3">Produk / Supplier</th>
+                                        <th class="px-5 py-3 text-right">Harga Jual</th>
+                                        <th class="px-5 py-3 text-center">Stok Sistem</th>
+                                        <th class="px-5 py-3 text-center" style="width: 120px;">Stok Fisik</th>
+                                        <th class="px-5 py-3 text-center" style="width: 100px;">Selisih</th>
+                                        <th class="px-5 py-3 text-right" style="width: 150px;">Total Nilai Minus</th>
+                                        <th class="px-5 py-3 text-center" style="width: 180px;">Keterangan / Alasan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="opnameTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
+                            </table>
+                        </div>
+                        <!-- Summary / Grand Total Kerugian Panel -->
+                        <div class="p-5 border-t border-slate-200 bg-slate-50 flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0">
+                            <div>
+                                <p class="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">Ringkasan Nilai Kerugian (Selisih Minus)</p>
+                                <p id="opnameGrandLossText" class="text-xl font-black text-rose-600">Rp 0,00</p>
+                            </div>
+                            <div class="text-right text-xs text-slate-500 font-semibold">
+                                <span id="opnameSummaryCount" class="font-bold text-slate-700">0</span> produk akan disesuaikan | <span id="opnameSummaryMinusCount" class="font-bold text-rose-600">0</span> produk berselisih minus
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- View Pengaturan -->
                 <div id="view-pengaturan" class="view-section hidden h-full overflow-y-auto animate-[fadeIn_0.3s_ease-out]">
                     <div class="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
@@ -936,6 +992,25 @@
         </div>
     </div>
 
+    <!-- Modal Konfirmasi Stock Opname -->
+    <div id="confirmOpnameModal" class="fixed inset-0 bg-slate-900/60 hidden z-[2100] flex justify-center items-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm modal-enter p-8 text-center border-4 border-indigo-600">
+            <div class="mx-auto w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-3xl mb-4">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">Finalisasi Opname?</h3>
+            <p class="text-slate-500 mb-2 text-xs">Aksi ini akan menyelaraskan seluruh stok sistem dengan stok fisik yang Anda input secara permanen.</p>
+            <div class="bg-slate-50 p-4 rounded-2xl mb-6">
+                <p class="text-[10px] text-slate-400 font-bold uppercase">Estimasi Akumulasi Kerugian</p>
+                <p id="confirmOpnameTotalText" class="text-xl font-black text-rose-600">Rp 0,00</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="document.getElementById('confirmOpnameModal').classList.add('hidden')" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold">Batal</button>
+                <button onclick="executeFinalizeOpname()" class="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100">Ya, Selaraskan</button>
+            </div>
+        </div>
+    </div>
+
     <div id="printContainer" class="hidden"></div>
     <div id="toast-container" class="fixed top-5 right-5 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
@@ -987,9 +1062,10 @@
             posPage: 1,
             posPageSize: 10,
             stockPage: 1,
-            stockPageSize: 10, // Menghitung per lembar faktur, agar lebih pas dikurangi default sizenya
+            stockPageSize: 10, 
             deleteTrxId: null,
-            fakturItems: [] // Temporary array to hold added products before saving the purchase invoice
+            fakturItems: [], 
+            opnameInputs: {} // To store opname inputs: { productId: { stockFisik: number, alasan: string } }
         };
 
         window.state = state;
@@ -1041,6 +1117,7 @@
         const colTransactions = collection(db, 'artifacts', appId, 'public', 'data', 'transactions');
         const colStockLogs = collection(db, 'artifacts', appId, 'public', 'data', 'stock_logs');
         const colSystemLogs = collection(db, 'artifacts', appId, 'public', 'data', 'system_logs');
+        const colStockOpname = collection(db, 'artifacts', appId, 'public', 'data', 'stock_opname');
 
         window.showLoading = () => {
             const modal = document.getElementById('loadingModal');
@@ -1170,6 +1247,10 @@
             btn.classList.remove('text-slate-400');
             document.getElementById('header-title').innerText = btn.innerText.trim();
             if (window.innerWidth < 1024) toggleSidebar();
+
+            if (id === 'view-stock-opname') {
+                renderOpnameTable();
+            }
         };
 
         onAuthStateChanged(auth, async (user) => {
@@ -1197,7 +1278,7 @@
                 tStok += p.stock;
             });
             let tPendapatan = 0;
-            let tCOGS = 0; // Total HPP dari seluruh barang terjual
+            let tCOGS = 0; 
             state.transactions.forEach(trx => { 
                 tPendapatan += trx.total; 
                 if (trx.items) {
@@ -1299,10 +1380,12 @@
             updateCategoryFilter();
             handlePOSSearch();
             updateHeaderStats();
+            renderOpnameTable();
         };
 
         const updateSupplierFilterOptions = () => {
             const filter = document.getElementById('supplierFilter');
+            const opnameFilter = document.getElementById('opnameSupplierFilter');
             if (!filter) return;
             const s1 = state.settings.supp1 || "Supplier 1";
             const s2 = state.settings.supp2 || "Supplier 2";
@@ -1310,14 +1393,21 @@
             const s4 = state.settings.supp4 || "Supplier 4";
             
             const currentVal = filter.value;
-            filter.innerHTML = `
+            const optionsHtml = `
                 <option value="all">Semua Supplier</option>
                 <option value="supplier1">${s1}</option>
                 <option value="supplier2">${s2}</option>
                 <option value="supplier3">${s3}</option>
                 <option value="supplier4">${s4}</option>
             `;
+            filter.innerHTML = optionsHtml;
             filter.value = currentVal;
+
+            if (opnameFilter) {
+                const currentOpnameVal = opnameFilter.value;
+                opnameFilter.innerHTML = optionsHtml;
+                opnameFilter.value = currentOpnameVal;
+            }
         };
 
         const initSync = () => {
@@ -1476,7 +1566,6 @@
             document.getElementById('bmLiveSuggestions').classList.add('hidden');
             const p = state.products.find(x => x.name.toUpperCase() === name.toUpperCase());
             if (p) {
-                // Auto-Populate Default Prices (Requirement 2)
                 document.getElementById('bmPrice').value = new Intl.NumberFormat('id-ID').format(p.buyPrice);
                 document.getElementById('bmSellPrice').value = new Intl.NumberFormat('id-ID').format(p.sellPrice);
             }
@@ -1737,7 +1826,6 @@
 
             const subtotal = price * qty;
             
-            // Push to temporary faktur item queue (Requirement 1 & 3: Save sellPrice input)
             state.fakturItems.push({
                 id: p.id,
                 name: p.name,
@@ -1749,7 +1837,6 @@
                 supplier: p.supplier
             });
 
-            // Reset item inputs (Requirement 1: Include bmSellPrice)
             document.getElementById('bmSelectProduct').value = '';
             document.getElementById('bmQty').value = '';
             document.getElementById('bmPrice').value = '';
@@ -1853,7 +1940,6 @@
                     const docRef = doc(colProducts, item.id);
                     const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
-                        // Requirement 3: Automatically update both buyPrice and sellPrice on product collection
                         await updateDoc(docRef, { 
                             stock: finalStock, 
                             buyPrice: item.buyPrice,
@@ -1870,7 +1956,6 @@
                         });
                     }
 
-                    // Menambahkan log ke sub-koleksi stock_logs dengan id yang unik
                     await addDoc(colStockLogs, {
                         productId: item.id,
                         productName: item.name,
@@ -1894,7 +1979,6 @@
                 window.hideLoading();
                 window.showFeedback('Faktur Tersimpan', `Faktur ${noFaktur} berhasil disimpan ke database. Stok diperbarui.`);
                 
-                // Reset form
                 document.getElementById('bmNoFaktur').value = '';
                 document.getElementById('bmFakturSupplier').value = '';
                 document.getElementById('bmJenisBayar').value = 'Cash';
@@ -1953,9 +2037,7 @@
 
             try {
                 window.showLoading();
-                // Mengurangi stok produk terkait
                 await updateDoc(prodDocRef, { stock: targetStock });
-                // Menghapus baris log riwayat stok
                 await deleteDoc(doc(colStockLogs, logId));
                 
                 await addDoc(colSystemLogs, {
@@ -2019,9 +2101,7 @@
 
             try {
                 window.showLoading();
-                // Update sisa stok produk & harga beli saat ini
                 await updateDoc(prodDocRef, { stock: targetStock, buyPrice: newPrice });
-                // Update data log
                 await updateDoc(doc(colStockLogs, logId), { qty: newQty, buyPrice: newPrice });
 
                 await addDoc(colSystemLogs, {
@@ -2059,7 +2139,6 @@
                 return true;
             });
 
-            // Pengelompokan data log stok per Nomor Faktur
             const groupedInvoices = {};
             filtered.forEach(log => {
                 const key = log.noFaktur && log.noFaktur !== '-' ? log.noFaktur : 'LOKAL-' + log.timestamp.substring(0,10);
@@ -2078,7 +2157,6 @@
                 groupedInvoices[key].totalFakturValue += (log.buyPrice || 0) * (log.qty || 0);
             });
 
-            // Ubah objek pengelompokan menjadi array dan urutkan berdasarkan waktu transaksi terbaru
             const invoicesArray = Object.values(groupedInvoices).sort((a, b) => b.timestamp.localeCompare(a.timestamp));
 
             const totalItems = invoicesArray.length;
@@ -2097,7 +2175,6 @@
                         ? `<span class="bg-amber-100 text-amber-800 text-[8px] px-1.5 py-0.5 rounded font-extrabold uppercase">TEMPO (JATUH TEMPO: ${faktur.dueDate || '-'})</span>`
                         : `<span class="bg-emerald-100 text-emerald-800 text-[8px] px-1.5 py-0.5 rounded font-extrabold uppercase">CASH</span>`;
 
-                    // Generate baris item obat di dalam faktur ini
                     const itemsRows = faktur.items.map(item => `
                         <tr class="border-b border-slate-100 hover:bg-slate-50 transition text-[10px]">
                             <td class="px-3 py-2 font-bold text-slate-800">
@@ -2744,7 +2821,7 @@
                 return `<tr class="hover:bg-slate-50">
                     <td class="px-5 py-4 text-slate-500">${new Date(t.timestamp).toLocaleString()}</td>
                     <td class="px-5 py-4 font-bold text-indigo-600">${t.id}</td>
-                    <td class="px-5 py-4">${t.cashier}</td>
+                    <td class="px-5 py-4">${t.text || t.cashier}</td>
                     <td class="px-5 py-4 text-[10px] text-slate-400 truncate max-w-[200px]">${itemNames}</td>
                     <td class="px-5 py-4 text-right font-bold text-slate-800">${formatRupiah(t.total)}</td>
                     <td class="px-5 py-4 text-center flex justify-center items-center gap-2">
@@ -2752,6 +2829,264 @@
                         <button onclick="deleteTransaction('${t.id}')" class="bg-rose-50 text-rose-600 px-3 py-1.5 rounded-lg text-[10px] font-bold"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>`}).join('');
+        };
+
+        window.renderOpnameTable = () => {
+            const tbody = document.getElementById('opnameTableBody');
+            if (!tbody) return;
+            const search = document.getElementById('opnameSearchInput').value.toLowerCase().trim();
+            const supplierFilter = document.getElementById('opnameSupplierFilter') ? document.getElementById('opnameSupplierFilter').value : 'all';
+            tbody.innerHTML = '';
+
+            let filtered = state.products;
+            if (supplierFilter !== 'all') {
+                filtered = filtered.filter(p => p.supplierKey === supplierFilter);
+            }
+
+            if (search !== '') {
+                filtered = filtered.filter(p => p.name.toLowerCase().includes(search));
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 font-bold"><i class="fas fa-search-minus mr-2"></i> Produk tidak ditemukan</td></tr>`;
+                calculateOpnameGrandTotals();
+                return;
+            }
+
+            filtered.forEach(p => {
+                const inputData = state.opnameInputs[p.id] || { stockFisik: null, alasan: 'Obat Rusak', alasanLainnya: '' };
+                const stockFisikVal = inputData.stockFisik !== null ? inputData.stockFisik : '';
+                
+                let selisihText = '-';
+                let totalMinusVal = 0;
+                let totalMinusText = 'Rp 0,00';
+                
+                if (inputData.stockFisik !== null && inputData.stockFisik !== '') {
+                    const diff = inputData.stockFisik - p.stock;
+                    selisihText = diff > 0 ? `+${diff}` : `${diff}`;
+                    
+                    if (diff < 0) {
+                        totalMinusVal = p.sellPrice * Math.abs(diff);
+                        totalMinusText = formatRupiah(totalMinusVal);
+                    }
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition text-xs">
+                        <td class="px-5 py-3 font-bold text-slate-800">
+                            ${p.name}
+                            <div class="text-[10px] text-slate-400 font-normal mt-0.5">${p.supplier}</div>
+                        </td>
+                        <td class="px-5 py-3 text-right text-slate-600 font-medium">${formatRupiah(p.sellPrice)}</td>
+                        <td class="px-5 py-3 text-center text-slate-700 font-bold bg-slate-50">${p.stock}</td>
+                        <td class="px-5 py-3 text-center">
+                            <input type="number" min="0" value="${stockFisikVal}" oninput="updateOpnameInput('${p.id}', this.value, null)" placeholder="Stok Fisik" class="w-24 text-center p-1.5 border border-slate-300 rounded-lg outline-none font-bold text-indigo-600 focus:border-indigo-500 bg-white">
+                        </td>
+                        <td class="px-5 py-3 text-center font-bold text-xs" id="selisih-${p.id}">${selisihText}</td>
+                        <td class="px-5 py-3 text-right font-bold text-rose-600" id="minus-val-${p.id}">${totalMinusText}</td>
+                        <td class="px-5 py-3 text-center flex flex-col items-center justify-center gap-1.5">
+                            <select onchange="updateOpnameInput('${p.id}', null, this.value); renderOpnameTable();" class="w-full max-w-[160px] p-1.5 bg-slate-50 border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:border-indigo-500">
+                                <option value="Obat Rusak" ${inputData.alasan === 'Obat Rusak' ? 'selected' : ''}>Obat Rusak</option>
+                                <option value="Kedaluwarsa" ${inputData.alasan === 'Kedaluwarsa' ? 'selected' : ''}>Kedaluwarsa</option>
+                                <option value="Hilang" ${inputData.alasan === 'Hilang' ? 'selected' : ''}>Hilang</option>
+                                <option value="Salah Pencatatan" ${inputData.alasan === 'Salah Pencatatan' ? 'selected' : ''}>Salah Pencatatan</option>
+                                <option value="Lainnya" ${inputData.alasan === 'Lainnya' ? 'selected' : ''}>Lainnya</option>
+                            </select>
+                            <input type="text" id="alasan-lainnya-${p.id}" value="${inputData.alasanLainnya || ''}" oninput="updateOpnameInput('${p.id}', null, null, this.value)" placeholder="Ketik alasan..." class="w-full max-w-[160px] p-1.5 border border-slate-300 rounded-lg outline-none text-xs ${inputData.alasan === 'Lainnya' ? '' : 'hidden'}">
+                        </td>
+                    </tr>
+                `;
+            });
+
+            calculateOpnameGrandTotals();
+        };
+
+        window.updateOpnameInput = (id, stockFisik, alasan, alasanLainnya) => {
+            if (!state.opnameInputs[id]) {
+                state.opnameInputs[id] = { stockFisik: null, alasan: 'Obat Rusak', alasanLainnya: '' };
+            }
+            if (stockFisik !== null) {
+                state.opnameInputs[id].stockFisik = stockFisik !== '' ? parseInt(stockFisik) : null;
+            }
+            if (alasan !== null) {
+                state.opnameInputs[id].alasan = alasan;
+                if (alasan !== 'Lainnya') {
+                    state.opnameInputs[id].alasanLainnya = '';
+                }
+            }
+            if (alasanLainnya !== null && alasanLainnya !== undefined) {
+                state.opnameInputs[id].alasanLainnya = alasanLainnya;
+            }
+
+            const p = state.products.find(x => x.id === id);
+            if (p) {
+                const data = state.opnameInputs[id];
+                const selisihEl = document.getElementById(`selisih-${id}`);
+                const minusValEl = document.getElementById(`minus-val-${id}`);
+                
+                if (selisihEl && minusValEl) {
+                    if (data.stockFisik !== null) {
+                        const diff = data.stockFisik - p.stock;
+                        selisihEl.innerText = diff > 0 ? `+${diff}` : `${diff}`;
+                        
+                        if (diff < 0) {
+                            minusValEl.innerText = formatRupiah(p.sellPrice * Math.abs(diff));
+                        } else {
+                            minusValEl.innerText = 'Rp 0,00';
+                        }
+                    } else {
+                        selisihEl.innerText = '-';
+                        minusValEl.innerText = 'Rp 0,00';
+                    }
+                }
+            }
+
+            calculateOpnameGrandTotals();
+        };
+
+        window.calculateOpnameGrandTotals = () => {
+            let grandTotalMinus = 0;
+            let adjustedCount = 0;
+            let minusCount = 0;
+
+            Object.keys(state.opnameInputs).forEach(id => {
+                const input = state.opnameInputs[id];
+                const p = state.products.find(x => x.id === id);
+                if (p && input.stockFisik !== null && input.stockFisik !== '') {
+                    adjustedCount++;
+                    const diff = input.stockFisik - p.stock;
+                    if (diff < 0) {
+                        minusCount++;
+                        grandTotalMinus += p.sellPrice * Math.abs(diff);
+                    }
+                }
+            });
+
+            const grandLossTextEl = document.getElementById('opnameGrandLossText');
+            const summaryCountEl = document.getElementById('opnameSummaryCount');
+            const summaryMinusCountEl = document.getElementById('opnameSummaryMinusCount');
+
+            if (grandLossTextEl) grandLossTextEl.innerText = formatRupiah(grandTotalMinus);
+            if (summaryCountEl) summaryCountEl.innerText = adjustedCount;
+            if (summaryMinusCountEl) summaryMinusCountEl.innerText = minusCount;
+        };
+
+        window.resetOpnameInputs = () => {
+            state.opnameInputs = {};
+            renderOpnameTable();
+            window.showFeedback('Reset Selesai', 'Semua input stock opname telah dikosongkan.');
+        };
+
+        window.finalizeOpname = () => {
+            const keys = Object.keys(state.opnameInputs).filter(id => state.opnameInputs[id].stockFisik !== null && state.opnameInputs[id].stockFisik !== '');
+            if (keys.length === 0) {
+                window.showFeedback('Peringatan', 'Harap isi minimal satu input Stok Fisik sebelum melakukan finalisasi opname.', 'error');
+                return;
+            }
+
+            let grandTotalMinus = 0;
+            keys.forEach(id => {
+                const input = state.opnameInputs[id];
+                const p = state.products.find(x => x.id === id);
+                if (p) {
+                    const diff = input.stockFisik - p.stock;
+                    if (diff < 0) {
+                        grandTotalMinus += p.sellPrice * Math.abs(diff);
+                    }
+                }
+            });
+
+            document.getElementById('confirmOpnameTotalText').innerText = formatRupiah(grandTotalMinus);
+            document.getElementById('confirmOpnameModal').classList.remove('hidden');
+        };
+
+        window.executeFinalizeOpname = async () => {
+            document.getElementById('confirmOpnameModal').classList.add('hidden');
+            const keys = Object.keys(state.opnameInputs).filter(id => state.opnameInputs[id].stockFisik !== null && state.opnameInputs[id].stockFisik !== '');
+            if (keys.length === 0) return;
+
+            try {
+                window.showLoading();
+                const timestampStr = new Date().toISOString();
+                let adjustedCount = 0;
+                let minusCount = 0;
+                let grandTotalMinus = 0;
+
+                const auditDetails = [];
+
+                for (const id of keys) {
+                    const input = state.opnameInputs[id];
+                    const p = state.products.find(x => x.id === id);
+                    if (p) {
+                        adjustedCount++;
+                        const diff = input.stockFisik - p.stock;
+                        let lossValue = 0;
+                        if (diff < 0) {
+                            minusCount++;
+                            lossValue = p.sellPrice * Math.abs(diff);
+                            grandTotalMinus += lossValue;
+                        }
+
+                        // Determine standard dropdown reason vs custom free text input
+                        const finalReason = input.alasan === 'Lainnya' ? (input.alasanLainnya || 'Lainnya') : input.alasan;
+
+                        auditDetails.push({
+                            id: id,
+                            name: p.name,
+                            supplier: p.supplier,
+                            systemStock: p.stock,
+                            physicalStock: input.stockFisik,
+                            difference: diff,
+                            lossValue: lossValue,
+                            reason: finalReason
+                        });
+
+                        const docRef = doc(colProducts, id);
+                        const docSnap = await getDoc(docRef);
+                        if (docSnap.exists()) {
+                            await updateDoc(docRef, { stock: input.stockFisik });
+                        } else {
+                            await setDoc(docRef, {
+                                name: p.name,
+                                category: p.category,
+                                buyPrice: p.buyPrice,
+                                sellPrice: p.sellPrice,
+                                stock: input.stockFisik,
+                                supplierKey: p.supplierKey
+                            });
+                        }
+                    }
+                }
+
+                const descString = `Stock Opname berhasil diselaraskan oleh ${state.currentUser.name}. Menyesuaikan ${adjustedCount} produk, terdeteksi ${minusCount} item berkurang (minus), dengan total estimasi nilai kerugian sebesar ${formatRupiah(grandTotalMinus)}.`;
+                
+                await addDoc(colStockOpname, {
+                    action: 'PENYESUAIAN_STOK',
+                    description: descString,
+                    adjustedProductsCount: adjustedCount,
+                    totalMinusItems: minusCount,
+                    grandTotalLoss: grandTotalMinus,
+                    details: auditDetails,
+                    timestamp: timestampStr,
+                    admin: state.currentUser.name
+                });
+
+                await addDoc(colSystemLogs, {
+                    action: 'PENYESUAIAN_STOK',
+                    details: descString,
+                    timestamp: timestampStr
+                });
+
+                state.opnameInputs = {};
+                window.hideLoading();
+                window.showFeedback('Opname Berhasil', 'Data stok fisik telah berhasil diselaraskan ke database cloud.');
+                renderOpnameTable();
+
+            } catch (error) {
+                window.hideLoading();
+                console.error(error);
+                window.showFeedback('Gagal', 'Terjadi kesalahan sistem saat memproses finalisasi opname.', 'error');
+            }
         };
 
         window.addEventListener('keydown', (e) => {
@@ -2765,6 +3100,7 @@
             }
             if (e.key === 'Escape') { 
                 document.getElementById('confirmTrxModal').classList.add('hidden');
+                document.getElementById('confirmOpnameModal').classList.add('hidden');
                 document.getElementById('cashierSelectModal').classList.add('hidden');
                 document.getElementById('logoutConfirmModal').classList.add('hidden');
                 document.getElementById('deleteTrxModal').classList.add('hidden');
