@@ -1,3 +1,4 @@
+
 // supplier2.js
 // PT. MONDY INTI PERSADA
 
@@ -35,6 +36,10 @@ window.supplier2Products = [
   "pimtracol cherry syr",
   "bye-bye fever baby",
   "hansaplast kain",
+  "primadex forte",
+  "pyrexin syr 60ml",
+  "Rapet wangi pili",
+  "obh combi plus anak 60ml straw",
   
   "Acifar 400mg tablet 30s",
   "Acifar cream 5gr",
