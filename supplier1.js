@@ -1,8 +1,9 @@
 // supplier1.js
-// Auto-generated from Supplier 1.pdf
+// PT. ROSA NUGRAHA ABADI
 
 window.supplier1Products = [
   "ACARBOSE TABLET 100 MG (DEXA)",
+  "PARACE",
   "NEO NAPACIN 4 @25",
   "ACARBOSE TABLET 50 MG (DEXA)",
   "ACEPRESS TAB 25MG",
