@@ -41,7 +41,6 @@ window.supplier2Products = [
   "Rapet wangi pili",
   "obh combi plus anak 60ml straw",
   "DACTARIN 2% 5MG",
-  "DANASON 0.5MG",
   "DAPIRIN SYR 60ML",
   
   "Acifar 400mg tablet 30s",
