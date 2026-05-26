@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KasirPro-V.1 | ByArf</title>
+    <title>KasirPro-V.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="supplier1.js" onerror="console.warn('File supplier1.js tidak ditemukan, menggunakan fallback lokal')"></script>
@@ -19,6 +19,14 @@
             background-color: #f8fafc;
             background-image: radial-gradient(#cbd5e1 0.8px, transparent 0.8px);
             background-size: 24px 24px;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        #app-wrapper { min-height: 100vh; }
+        @media (max-width: 768px) {
+            #app-wrapper { min-height: 100vh; }
+            body { font-size: 0.95rem; }
         }
         
         .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
@@ -108,6 +116,46 @@
         .modal-enter { animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
         @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
+        /* Modern double-arc spinner */
+        .loading-ring {
+            width: 4rem;
+            height: 4rem;
+            position: relative;
+            display: inline-block;
+        }
+        .loading-ring::before,
+        .loading-ring::after {
+            content: '';
+            box-sizing: border-box;
+            position: absolute;
+            inset: 0;
+            border-radius: 9999px;
+            border: 4px solid transparent;
+        }
+        .loading-ring::before {
+            border-top-color: #6366f1;
+            border-left-color: rgba(99,102,241,0.12);
+            transform: rotate(0deg);
+            animation: spin-1 1.1s linear infinite;
+        }
+        .loading-ring::after {
+            border-bottom-color: #06b6d4;
+            border-right-color: rgba(6,182,212,0.12);
+            transform: rotate(180deg);
+            animation: spin-2 1.4s linear infinite;
+        }
+        .loading-ring > i {
+            position: absolute;
+            inset: 0;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size: 0.9rem;
+            color: rgba(0,0,0,0.45);
+        }
+        @keyframes spin-1 { to { transform: rotate(360deg); } }
+        @keyframes spin-2 { to { transform: rotate(0deg); } }
+
         #login-screen {
             background-color: rgba(15, 23, 42, 0.95);
             -webkit-backdrop-filter: blur(8px);
@@ -126,20 +174,57 @@
         .anim-online { animation: db-pulse 1.5s infinite; background: #10b981; }
         .anim-connecting { animation: db-flow 1s infinite linear; background: #f59e0b; }
         .anim-offline { background: #ef4444; }
+        
+    /* Animasi Mengambang & Berpendar Amber untuk Logo Firebase */
+        @keyframes firebase-float-glow {
+            0%, 100% { 
+                filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.4)); 
+                transform: translateY(0) scale(1); 
+            }
+            50% { 
+                filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.85)); 
+                transform: translateY(-6px) scale(1.05); 
+            }
+        }
+        .firebase-animated {
+            animation: firebase-float-glow 2.5s ease-in-out infinite;
+        }    
+
     </style>
 </head>
-<body class="text-slate-800 overflow-hidden text-sm animate-[fadeIn_0.3s_ease-out]">
+<body class="text-slate-800 text-sm animate-[fadeIn_0.3s_ease-out]">
 
+    <!-- GANTI ELEMEN #loadingModal LAMA DENGAN BLOK KODE BERIKUT -->
     <div id="loadingModal" class="fixed inset-0 bg-slate-900/80 z-[3100] flex justify-center items-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center modal-enter">
-            <div class="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+            
+            <!-- Firebase Animated Logo Container -->
+            <div class="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+                <!-- Cincin pemutar luar teknologi tinggi (High-tech outer spinning ring) -->
+                <div class="absolute inset-0 rounded-full border-4 border-amber-500/10 border-t-amber-500 animate-spin"></div>
+                
+                <!-- Logo Vektor Firebase dengan Animasi Mengambang & Berpendar -->
+                <svg class="w-12 h-12 firebase-animated relative z-10" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.44111 23.3611L14.7211 2.82111C15.1111 1.95111 16.3211 1.93111 16.7511 2.78111L20.2611 9.77111L5.44111 23.3611Z" fill="#FFC400"/>
+                    <path d="M26.4711 23.3311L21.7511 7.23111C21.4611 6.25111 20.0811 6.18111 19.6911 7.12111L16.2611 15.3511L26.4711 23.3311Z" fill="#F47C00"/>
+                    <path d="M5.44111 23.3611L14.9311 28.6911C15.5911 29.0611 16.4011 29.0611 17.0611 28.6911L26.5611 23.3611L20.2611 13.8411L16.2611 15.3511L5.44111 23.3611Z" fill="#DD2C00"/>
+                </svg>
+            </div>
+
             <h3 class="text-xl font-bold text-slate-800 mb-2">DATABASE LOADING</h3>
             <p class="text-slate-500 text-xs font-semibold tracking-wider">SINKRONISASI DATA SUPPLIER & CLOUD FIREBASE</p>
+            
+            <!-- Indikator persentase loading otomatis -->
+            <div id="loadingPercent" class="text-3xl font-black text-indigo-600 mt-4">0%</div>
         </div>
     </div>
+</div>
 
+    <!-- GANTI bagian header di dalam #login-screen dengan kode ini -->
     <div id="login-screen" class="fixed inset-0 z-[1000] flex flex-col items-center justify-center p-6">
         <div class="mb-8 text-center">
+          
+            
             <h1 class="text-3xl font-black text-white mb-2">KASIR<span class="text-indigo-500">PRO</span><span class="text-yellow-300"> V.1</span></h1>
             <h2 class="text-5xl font-black text-white mb-2">APOTEK<span class="text-indigo-400"> KELUARGA SEHAT</span></h2><br>
             <p class="text-slate-400">Pilih mode masuk untuk melanjutkan</p>
@@ -163,8 +248,14 @@
             </div>
         </div>
 
+        <div class="fixed bottom-14 right-8 text-right select-none">
+            <span class="text-[10px] font-sans font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 uppercase tracking-wider block">
+                Last Updated: Selasa, 26 Mei 2026
+            </span>
+        </div>
+
         <span class="fixed bottom-8 right-8 text-[10px] font-mono text-white/30 uppercase tracking-widest select-none">
-            Copyright 2026 &copy; All Rights Reserved
+            Design & Development By Arf | &copy; 2026
         </span>
     </div>
 
@@ -196,7 +287,7 @@
             <div id="loginIconBox" class="mx-auto w-16 h-16 rounded-full flex items-center justify-center text-3xl mb-4"></div>
             <h3 id="loginTitle" class="text-xl font-bold text-slate-800 mb-2">Login Admin</h3>
             <p id="loginSubtitle" class="text-slate-500 mb-6 text-xs">Masukkan password Anda</p>
-            <input type="password" id="loginPasswordInput" class="w-full p-4 bg-slate-100 border border-slate-200 rounded-2xl outline-none text-center font-bold text-2xl mb-4" placeholder="••••••">
+            <input type="password" id="loginPasswordInput" onkeydown="handleLoginEnter(event)" enterkeyhint="go" autocomplete="current-password" class="w-full p-4 bg-slate-100 border border-slate-200 rounded-2xl outline-none text-center font-bold text-2xl mb-4" placeholder="••••••">
             <div class="flex gap-2">
                 <button onclick="closeLoginInput()" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold">Batal</button>
                 <button onclick="processLogin()" class="flex-1 py-3 bg-indigo-600 text-white rounded-2xl font-bold">Masuk</button>
@@ -218,7 +309,7 @@
         </div>
     </div>
 
-    <div id="app-wrapper" class="flex h-screen w-full hidden">
+    <div id="app-wrapper" class="flex min-h-screen w-full hidden">
         <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/60 z-40 hidden backdrop-blur-sm transition-opacity" onclick="toggleSidebar()"></div>
         <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-slate-900 to-slate-800 text-slate-300 shadow-[4px_0_24px_rgba(0,0,0,0.1)] transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-50 flex flex-col">
             <div class="flex items-center justify-between p-5 border-b border-slate-700/50">
@@ -230,6 +321,7 @@
                 </div>
                 <button onclick="toggleSidebar()" class="text-slate-400 lg:hidden"><i class="fas fa-times text-xl"></i></button>
             </div>
+            
             <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
                 <p class="px-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Menu Utama</p>
                 <button id="menu-produk" onclick="switchView('view-produk', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-600/15 text-indigo-400 font-semibold transition">
@@ -244,17 +336,25 @@
                 <button id="menu-transaksi" onclick="switchView('view-transaksi', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition text-left text-slate-400">
                     <i class="fas fa-receipt w-5 text-center text-rose-400"></i> Daftar Transaksi
                 </button>
+                
                 <div id="admin-extras" class="hidden">
                     <p class="px-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-6 mb-3">Sistem</p>
-                    <!-- Navigasi Baru khusus Admin: Stock Opname (Kalkulator Harga Jual Berhasil DIHAPUS TOTAL) -->
+                    <!-- Navigasi khusus Admin: Riwayat Faktur Pembelian -->
+                    <button id="menu-riwayat-faktur" onclick="switchView('view-riwayat-faktur', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition text-left text-slate-400 mb-2">
+                        <i class="fas fa-file-invoice-dollar w-5 text-center text-sky-400"></i> Riwayat Faktur Stok
+                    </button>
+                    <!-- Navigasi khusus Admin: Stock Opname -->
                     <button id="menu-stock-opname" onclick="switchView('view-stock-opname', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition text-left text-slate-400 mb-2">
                         <i class="fas fa-clipboard-check w-5 text-center text-amber-400"></i> Stock Opname
                     </button>
+                    <!-- Navigasi utama Pengaturan -->
                     <button id="menu-pengaturan" onclick="switchView('view-pengaturan', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition text-left text-slate-400">
                         <i class="fas fa-cog w-5 text-center"></i> Pengaturan
                     </button>
                 </div>
-            </nav>
+            </nav> <!-- Memperbaiki penutup navigasi yang sebelumnya rusak -->
+            
+            <!-- Mengembalikan container info pengguna dan tombol logout secara rapi -->
             <div class="p-4 border-t border-slate-700/50 flex flex-col gap-2">
                 <div class="flex items-center gap-2 px-2 mb-2">
                     <div id="userBadge" class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold">A</div>
@@ -586,181 +686,229 @@
                     </div>
                 </div>
 
-                <!-- View Barang Masuk -->
-                <div id="view-barang-masuk" class="view-section hidden animate-[fadeIn_0.3s_ease-out]">
-                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                        <!-- Form Transaksi Faktur (Left - 2 Cols) -->
-                        <div class="xl:col-span-2 space-y-6">
-                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                                <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2"><i class="fas fa-file-invoice text-indigo-500"></i> Form Faktur Pembelian (Barang Masuk)</h2>
-                                
-                                <!-- 1. Header Faktur -->
-                                <div class="bg-slate-50 p-4 rounded-xl mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 border border-slate-100">
-                                    <div>
-                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nomor Faktur</label>
-                                        <input type="text" id="bmNoFaktur" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none font-semibold text-xs focus:border-indigo-500" placeholder="FK-YYYYMMDD-XXXX">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tanggal Faktur</label>
-                                        <input type="date" id="bmTglFaktur" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:border-indigo-500">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilihan Supplier</label>
-                                        <select id="bmFakturSupplier" onchange="document.getElementById('bmSelectProduct').value = ''; document.getElementById('bmLiveSuggestions').classList.add('hidden');" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:border-indigo-500">
-                                            <option value="">Pilih Supplier...</option>
-                                            <option value="supplier1">Supplier 1</option>
-                                            <option value="supplier2">Supplier 2</option>
-                                            <option value="supplier3">Supplier 3</option>
-                                            <option value="supplier4">Supplier 4</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">PPN Supplier (%)</label>
-                                        <input type="number" id="bmPpnSupplier" min="0" max="100" oninput="renderFakturQueue()" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:border-indigo-500" placeholder="0">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Jenis Pembayaran</label>
-                                        <select id="bmJenisBayar" onchange="toggleDueDateField(this.value)" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:border-indigo-500">
-                                            <option value="Cash">Cash (Tunai)</option>
-                                            <option value="Tempo">Tempo (Kredit)</option>
-                                        </select>
-                                    </div>
-                                    <div id="bmDueDateContainer" class="hidden">
-                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tgl Jatuh Tempo</label>
-                                        <input type="date" id="bmDueDate" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:border-indigo-500">
-                                    </div>
-                                </div>
+                <!-- View Barang Masuk (Tampilan Terfokus Lebar Penuh) -->
+<div id="view-barang-masuk" class="view-section hidden animate-[fadeIn_0.3s_ease-out]">
+    <div class="max-w-5xl mx-auto space-y-6">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                <i class="fas fa-file-invoice text-indigo-500"></i> Form Faktur Pembelian (Barang Masuk)
+            </h2>
+            
+            <!-- 1. Header Faktur -->
+            <div class="bg-slate-50 p-4 rounded-xl mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 border border-slate-100">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nomor Faktur</label>
+                    <input type="text" id="bmNoFaktur" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none font-semibold text-xs focus:border-indigo-500" placeholder="FK-YYYYMMDD-XXXX">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tanggal Faktur</label>
+                    <input type="date" id="bmTglFaktur" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilihan Supplier</label>
+                    <select id="bmFakturSupplier" onchange="document.getElementById('bmSelectProduct').value = ''; document.getElementById('bmLiveSuggestions').classList.add('hidden');" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:border-indigo-500">
+                        <option value="">Pilih Supplier...</option>
+                        <option value="supplier1">Supplier 1</option>
+                        <option value="supplier2">Supplier 2</option>
+                        <option value="supplier3">Supplier 3</option>
+                        <option value="supplier4">Supplier 4</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">PPN Supplier (%)</label>
+                    <input type="number" id="bmPpnSupplier" min="0" max="100" oninput="renderFakturQueue()" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:border-indigo-500" placeholder="0">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Jenis Pembayaran</label>
+                    <select id="bmJenisBayar" onchange="toggleDueDateField(this.value)" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:border-indigo-500">
+                        <option value="Cash">Cash (Tunai)</option>
+                        <option value="Tempo">Tempo (Kredit)</option>
+                    </select>
+                </div>
+                <div id="bmDueDateContainer" class="hidden">
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tgl Jatuh Tempo</label>
+                    <input type="date" id="bmDueDate" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:border-indigo-500">
+                </div>
+            </div>
 
-                                <!-- 2. Input Item Obat -->
-                                <div class="border-t border-slate-100 pt-6">
-                                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Input Item Obat</h3>
-                                    <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-                                        <!-- Produk (Live Search) -->
-                                        <div class="md:col-span-3 relative">
-                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Pilih Produk</label>
-                                            <input type="text" id="bmSelectProduct" oninput="handleLiveStockSearch(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-semibold" placeholder="Ketik nama produk...">
-                                            <div id="bmLiveSuggestions" class="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-48 overflow-y-auto hidden custom-scrollbar"></div>
-                                        </div>
-                                        <input type="hidden" id="bmSelectSupplier">
-                                        <input type="hidden" id="bmEditIndex" value="-1">
-                                        
-                                        <!-- Qty Masuk -->
-                                        <div class="md:col-span-1">
-                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Qty</label>
-                                            <input type="number" id="bmQty" min="1" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-semibold" placeholder="0">
-                                        </div>
-                                        <!-- Harga Beli -->
-                                        <div class="md:col-span-2">
-                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Beli (Rp)</label>
-                                            <input type="text" id="bmPrice" oninput="handleNominalInput(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-bold" placeholder="Harga Beli">
-                                        </div>
-                                        
-                                        <!-- Discount Supplier Dropdown & Mask Input -->
-                                        <div class="md:col-span-2">
-                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Disc Supplier</label>
-                                            <div class="flex border border-slate-200 overflow-hidden rounded-xl bg-slate-50 focus-within:ring-2 focus-within:ring-indigo-500 shadow-sm">
-                                                <select id="bmDiscSupplierType" onchange="applyDiscountMaskFormat('bmDiscSupplierVal', 'bmDiscSupplierType')" class="p-2.5 bg-white text-xs font-bold outline-none border-r border-slate-200 text-slate-700 cursor-pointer">
-                                                    <option value="percentage">%</option>
-                                                    <option value="nominal">Rp</option>
-                                                </select>
-                                                <input type="text" id="bmDiscSupplierVal" oninput="handleDiscountInputFormat(this, 'bmDiscSupplierType'); renderFakturQueue();" placeholder="0" class="w-full p-2.5 bg-transparent outline-none font-bold text-xs text-indigo-600">
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Harga Jual -->
-                                        <div class="md:col-span-2">
-                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Jual (Rp)</label>
-                                            <input type="text" id="bmSellPrice" oninput="handleNominalInput(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-bold" placeholder="Harga Jual">
-                                        </div>
-                                        <!-- Tombol Tambah Item -->
-                                        <div class="md:col-span-2">
-                                            <button type="button" onclick="insertFakturItem()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1">
-                                                <i class="fas fa-plus"></i> Tambahkan
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- 3. Tabel Antrean Sementara -->
-                                <div class="mt-6 border-t border-slate-100 pt-6">
-                                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Daftar Item Faktur (Antrean Sementara)</h3>
-                                    <div class="overflow-x-auto border border-slate-100 rounded-xl">
-                                        <table class="w-full text-left text-xs">
-                                            <thead class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-100">
-                                                <tr>
-                                                    <th class="p-3">Produk</th>
-                                                    <th class="p-3 text-right">Modal</th>
-                                                    <th class="p-3 text-center">Qty</th>
-                                                    <th class="p-3 text-right">Subtotal</th>
-                                                    <th class="p-3 text-center">Aksi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="bmFakturTableBody" class="divide-y divide-slate-100">
-                                                <tr>
-                                                    <td colspan="5" class="p-6 text-center text-slate-400 italic font-medium">Belum ada item obat disisipkan.</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-
-                                <!-- 4. Ringkasan Total Faktur & Tombol Simpan Utama -->
-                                <div class="mt-6 border-t border-slate-100 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50 p-4 rounded-xl">
-                                    <div>
-                                        <p class="text-[10px] text-slate-400 font-bold uppercase">Total Pembayaran Faktur</p>
-                                        <p id="bmFakturTotalText" class="text-2xl font-black text-slate-900">Rp 0,00</p>
-                                    </div>
-                                    <button type="button" onclick="saveFakturInvoice()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-emerald-100 transition-all flex items-center justify-center gap-2">
-                                        <i class="fas fa-save"></i> Simpan Faktur
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Riwayat Stok Masuk (Right - 1 Col) -->
-                        <div class="xl:col-span-1">
-                            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden h-full flex flex-col">
-                                <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-white/50">
-                                    <h3 class="font-bold text-slate-800 text-sm">Riwayat Stok Masuk</h3>
-                                    <button onclick="generatePDF('barang-masuk')" class="text-xs bg-rose-50 text-rose-600 px-3 py-1.5 rounded-lg font-bold hover:bg-rose-100 transition"><i class="fas fa-print mr-1"></i> Cetak</button>
-                                </div>
-                                <div class="p-3 bg-slate-50 border-b border-slate-100 space-y-2">
-                                    <input type="date" id="filterStockDate" onchange="if(window.state) { window.state.stockPage = 1; } renderStockHistory()" class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none font-medium bg-white focus:border-indigo-500">
-                                    <select id="filterStockType" onchange="window.handleStockFilterTypeChange(); if(window.state) { window.state.stockPage = 1; } renderStockHistory();" class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none font-medium bg-white focus:border-indigo-500">
-                                        <option value="all">Semua Data (Normal)</option>
-                                        <option value="supplier">Nama Supplier</option>
-                                        <option value="product">Nama Produk</option>
-                                        <option value="invoice">Nomor Faktur</option>
-                                        <option value="cash">Pembayaran Cash</option>
-                                        <option value="tempo">Pembayaran Kredit (Tempo)</option>
-                                    </select>
-                                    <input type="text" id="filterStockKeyword" onkeyup="if(window.state) { window.state.stockPage = 1; } renderStockHistory()" placeholder="Masukkan kata kunci..." class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none font-medium bg-white focus:border-indigo-500 hidden">
-                                </div>
-                                
-                                <!-- Container Khusus Berbasis Card untuk Riwayat Stok per Faktur -->
-                                <div class="overflow-y-auto max-h-[500px] custom-scrollbar flex-1 p-3 space-y-4" id="stockHistoryContainer"></div>
-
-                                <!-- Stock Pagination Controls -->
-                                <div class="p-3 bg-slate-50 border-t border-slate-100 flex flex-col gap-2 shrink-0">
-                                    <div class="text-[11px] text-slate-500 font-medium text-center">
-                                        Menampilkan <span id="stock-paginated-start" class="font-bold">0</span> - <span id="stock-paginated-end" class="font-bold">0</span> dari <span id="stock-paginated-total" class="font-bold">0</span> faktur
-                                    </div>
-                                    <div class="flex justify-center items-center gap-2">
-                                        <button onclick="prevStockPage()" id="btn-prev-stock-page" class="px-2.5 py-1 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-[10px] disabled:opacity-50 disabled:cursor-not-allowed transition">
-                                            <i class="fas fa-chevron-left mr-1"></i> Prev
-                                        </button>
-                                        <span class="text-[10px] font-bold text-slate-700 bg-white border border-slate-200 px-2 py-1 rounded-lg">
-                                            Hal <span id="stock-current-page-num">1</span>
-                                        </span>
-                                        <button onclick="nextStockPage()" id="btn-next-stock-page" class="px-2.5 py-1 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-[10px] disabled:opacity-50 disabled:cursor-not-allowed transition">
-                                            Next <i class="fas fa-chevron-right mr-1"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+            <!-- 2. Input Item Obat -->
+            <div class="border-t border-slate-100 pt-6">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Input Item Obat</h3>
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+                    <div class="md:col-span-3 relative">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Pilih Produk</label>
+                        <input type="text" id="bmSelectProduct" oninput="handleLiveStockSearch(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-semibold" placeholder="Ketik nama produk...">
+                        <div id="bmLiveSuggestions" class="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-48 overflow-y-auto hidden custom-scrollbar"></div>
+                    </div>
+                    <input type="hidden" id="bmSelectSupplier">
+                    <input type="hidden" id="bmEditIndex" value="-1">
+                    
+                    <div class="md:col-span-1">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Qty</label>
+                        <input type="number" id="bmQty" min="1" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-semibold" placeholder="0">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Beli (Rp)</label>
+                        <input type="text" id="bmPrice" oninput="handleNominalInput(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-bold" placeholder="Harga Beli">
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Disc Supplier</label>
+                        <div class="flex border border-slate-200 overflow-hidden rounded-xl bg-slate-50 focus-within:ring-2 focus-within:ring-indigo-500 shadow-sm">
+                            <select id="bmDiscSupplierType" onchange="applyDiscountMaskFormat('bmDiscSupplierVal', 'bmDiscSupplierType')" class="p-2.5 bg-white text-xs font-bold outline-none border-r border-slate-200 text-slate-700 cursor-pointer">
+                                <option value="percentage">%</option>
+                                <option value="nominal">Rp</option>
+                            </select>
+                            <input type="text" id="bmDiscSupplierVal" oninput="handleDiscountInputFormat(this, 'bmDiscSupplierType'); renderFakturQueue();" placeholder="0" class="w-full p-2.5 bg-transparent outline-none font-bold text-xs text-indigo-600">
                         </div>
                     </div>
+                    
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Jual (Rp)</label>
+                        <input type="text" id="bmSellPrice" oninput="handleNominalInput(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-bold" placeholder="Harga Jual">
+                    </div>
+                    <div class="md:col-span-2">
+                        <button type="button" onclick="insertFakturItem()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1">
+                            <i class="fas fa-plus"></i> Tambahkan
+                        </button>
+                    </div>
                 </div>
+            </div>
+
+            <!-- 3. Tabel Antrean Sementara -->
+            <div class="mt-6 border-t border-slate-100 pt-6">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Daftar Item Faktur (Antrean Sementara)</h3>
+                <div class="overflow-x-auto border border-slate-100 rounded-xl">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-100">
+                            <tr>
+                                <th class="p-3">Produk</th>
+                                <th class="p-3 text-right">Modal</th>
+                                <th class="p-3 text-center">Qty</th>
+                                <th class="p-3 text-right">Subtotal</th>
+                                <th class="p-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bmFakturTableBody" class="divide-y divide-slate-100">
+                            <tr>
+                                <td colspan="5" class="p-6 text-center text-slate-400 italic font-medium">Belum ada item obat disisipkan.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 4. Ringkasan Total Faktur & Tombol Simpan Utama -->
+            <div class="mt-6 border-t border-slate-100 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50 p-4 rounded-xl">
+                <div>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Total Pembayaran Faktur</p>
+                    <p id="bmFakturTotalText" class="text-2xl font-black text-slate-900">Rp 0,00</p>
+                </div>
+                <button type="button" onclick="saveFakturInvoice()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-emerald-100 transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-save"></i> Simpan Faktur
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Riwayat Faktur (Halaman Khusus Owner / Admin) -->
+<div id="view-riwayat-faktur" class="view-section hidden animate-[fadeIn_0.3s_ease-out] space-y-6">
+    
+    <!-- 1. Statistik Ringkasan Faktur (Khusus Analisis Owner) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+            <div class="bg-sky-50 text-sky-600 p-3 rounded-xl"><i class="fas fa-file-invoice-dollar text-base"></i></div>
+            <div>
+                <p class="text-[10px] text-slate-400 uppercase font-bold">Total Nilai Faktur</p>
+                <p class="text-base font-black text-slate-800" id="stat-faktur-total">Rp 0,00</p>
+            </div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+            <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl"><i class="fas fa-money-bill-wave text-base"></i></div>
+            <div>
+                <p class="text-[10px] text-slate-400 uppercase font-bold">Total Pembelian Cash</p>
+                <p class="text-base font-black text-emerald-600" id="stat-faktur-cash">Rp 0,00</p>
+            </div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+            <div class="bg-amber-50 text-amber-600 p-3 rounded-xl"><i class="fas fa-business-time text-base"></i></div>
+            <div>
+                <p class="text-[10px] text-slate-400 uppercase font-bold">Faktur Belum Jatuh Tempo</p>
+                <p class="text-base font-black text-amber-600" id="stat-faktur-tempo-aktif">Rp 0,00</p>
+            </div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 animate-pulse">
+            <div class="bg-rose-50 text-rose-600 p-3 rounded-xl"><i class="fas fa-exclamation-circle text-base"></i></div>
+            <div>
+                <p class="text-[10px] text-slate-400 uppercase font-bold">Faktur Lewat / Dekat Tempo</p>
+                <p class="text-base font-black text-rose-600" id="stat-faktur-tempo-dekat">Rp 0,00</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Konten Utama Riwayat Faktur -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
+        <!-- Header dan Aksi -->
+        <div class="p-4 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-white/50">
+            <div>
+                <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                    <i class="fas fa-history text-indigo-500"></i> Riwayat Pembelian Faktur & Stok Masuk
+                </h3>
+                <p class="text-xs text-slate-400">Gunakan filter untuk melacak detail sediaan faktur masuk dan metode pembayarannya.</p>
+            </div>
+            <button onclick="generatePDF('barang-masuk')" class="w-full md:w-auto text-xs bg-rose-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-rose-700 transition flex items-center justify-center gap-2 shadow-lg shadow-rose-100">
+                <i class="fas fa-file-pdf"></i> Cetak PDF Riwayat
+            </button>
+        </div>
+        
+        <!-- Filter Bar -->
+        <div class="p-4 bg-slate-50 border-b border-slate-100 grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Filter Tanggal Faktur</label>
+                <input type="date" id="filterStockDate" onchange="if(window.state) { window.state.stockPage = 1; } renderStockHistory()" class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none font-medium bg-white focus:border-indigo-500">
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tipe Filter Pencarian</label>
+                <select id="filterStockType" onchange="window.handleStockFilterTypeChange(); if(window.state) { window.state.stockPage = 1; } renderStockHistory();" class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none font-medium bg-white focus:border-indigo-500">
+                    <option value="all">Semua Data (Normal)</option>
+                    <option value="supplier">Nama Supplier</option>
+                    <option value="product">Nama Produk</option>
+                    <option value="invoice">Nomor Faktur</option>
+                    <option value="cash">Pembayaran Cash</option>
+                    <option value="tempo">Pembayaran Kredit (Tempo)</option>
+                </select>
+            </div>
+            <div id="filterStockKeywordContainer" class="hidden">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Kata Kunci</label>
+                <input type="text" id="filterStockKeyword" onkeyup="if(window.state) { window.state.stockPage = 1; } renderStockHistory()" placeholder="Masukkan kata kunci..." class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none font-medium bg-white focus:border-indigo-500">
+            </div>
+        </div>
+        
+        <!-- Layout Grid Faktur Fleksibel -->
+        <div class="p-4 bg-white">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="stockHistoryContainer"></div>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="p-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="text-xs text-slate-500 font-medium">
+                Menampilkan <span id="stock-paginated-start" class="font-bold">0</span> - <span id="stock-paginated-end" class="font-bold">0</span> dari <span id="stock-paginated-total" class="font-bold">0</span> faktur
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="prevStockPage()" id="btn-prev-stock-page" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition">
+                    <i class="fas fa-chevron-left mr-1"></i> Prev
+                </button>
+                <span class="text-xs font-bold text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg">
+                    Halaman <span id="stock-current-page-num">1</span>
+                </span>
+                <button onclick="nextStockPage()" id="btn-next-stock-page" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition">
+                    Next <i class="fas fa-chevron-right mr-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
                 <!-- View Kasir -->
                 <div id="view-kasir" class="view-section hidden h-full flex flex-col animate-[fadeIn_0.3s_ease-out]">
@@ -1153,9 +1301,79 @@
                         <input type="text" id="editStockLogPriceInput" oninput="handleNominalInput(this)" class="w-full p-3 border border-slate-200 rounded-xl outline-none text-xs font-bold">
                     </div>
                 </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Discount</label>
+                        <input type="text" id="editStockLogDiscountInput" oninput="handleDiscountInputFormat(this, 'editStockLogDiscountType');" placeholder="0" class="w-full p-3 border border-slate-200 rounded-xl outline-none text-xs font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Jual Baru (Rp)</label>
+                        <input type="text" id="editStockLogSellPriceInput" oninput="handleNominalInput(this)" class="w-full p-3 border border-slate-200 rounded-xl outline-none text-xs font-bold">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Tipe Discount</label>
+                    <select id="editStockLogDiscountType" onchange="applyDiscountMaskFormat('editStockLogDiscountInput', 'editStockLogDiscountType')" class="w-full p-3 bg-white border border-slate-200 rounded-xl outline-none text-xs font-semibold">
+                        <option value="percentage">Persen (%)</option>
+                        <option value="fixed">Nominal (Rp)</option>
+                    </select>
+                </div>
                 <div class="pt-2 flex gap-3">
                     <button onclick="document.getElementById('editStockLogModal').classList.add('hidden')" class="flex-1 py-3 border border-slate-200 rounded-xl font-bold text-xs">Batal</button>
                     <button onclick="window.executeEditStockLog()" class="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold text-xs">Simpan Perubahan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Faktur Stok Masuk -->
+    <div id="editInvoiceModal" class="fixed inset-0 bg-slate-900/60 hidden z-[2200] flex justify-center items-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg modal-enter overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-bold text-lg">Edit Faktur Stok Masuk</h3>
+                <button onclick="document.getElementById('editInvoiceModal').classList.add('hidden')" class="text-slate-400"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="editInvoiceOriginalKey">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nomor Faktur</label>
+                        <input type="text" id="editInvoiceNoFaktur" class="w-full p-3 border border-slate-200 rounded-xl outline-none text-xs font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Tanggal Faktur</label>
+                        <input type="date" id="editInvoiceTglFaktur" class="w-full p-3 border border-slate-200 rounded-xl outline-none text-xs font-semibold">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">PPN Supplier (%)</label>
+                        <input type="number" min="0" max="100" id="editInvoicePpn" class="w-full p-3 border border-slate-200 rounded-xl outline-none text-xs font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Jenis Pembayaran</label>
+                        <select id="editInvoicePaymentType" onchange="window.handleEditInvoicePaymentType()" class="w-full p-3 border border-slate-200 rounded-xl outline-none text-xs font-semibold">
+                            <option value="Cash">Cash</option>
+                            <option value="Tempo">Tempo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Pilihan Nama Supplier</label>
+                        <select id="editInvoiceSupplier" class="w-full p-3 border border-slate-200 rounded-xl outline-none text-xs font-semibold">
+                            <option value="supplier1">Supplier 1</option>
+                            <option value="supplier2">Supplier 2</option>
+                            <option value="supplier3">Supplier 3</option>
+                            <option value="supplier4">Supplier 4</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="editInvoiceDueDateContainer" class="hidden">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Tanggal Jatuh Tempo</label>
+                    <input type="date" id="editInvoiceDueDate" class="w-full p-3 border border-slate-200 rounded-xl outline-none text-xs font-semibold">
+                </div>
+                <div class="pt-2 flex gap-3">
+                    <button onclick="document.getElementById('editInvoiceModal').classList.add('hidden')" class="flex-1 py-3 border border-slate-200 rounded-xl font-bold text-xs">Batal</button>
+                    <button onclick="window.executeEditStockInvoice()" class="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold text-xs">Simpan Perubahan</button>
                 </div>
             </div>
         </div>
@@ -1253,7 +1471,7 @@
             posPage: 1,
             posPageSize: 10,
             stockPage: 1,
-            stockPageSize: 10,
+            stockPageSize: 1,
             opnamePage: 1,         // Untuk riwayat audit
             opnamePageSize: 3,     // Dibatasi maksimal 3 sesi per halaman (Instruksi 8 & 9)
             deleteTrxId: null,
@@ -1344,15 +1562,23 @@
         window.closeFeedback = () => document.getElementById('feedbackModal').classList.add('hidden');
         window.closeReceiptModal = () => document.getElementById('receiptModal').classList.add('hidden');
 
-        window.showLoading = () => {
-            const modal = document.getElementById('loadingModal');
-            if (modal) modal.classList.remove('hidden');
-        };
+        window.showLoading = (title = "DATABASE LOADING", subtitle = "SINKRONISASI DATA SUPPLIER & CLOUD FIREBASE") => {
+    const modal = document.getElementById('loadingModal');
+    if (modal) {
+        const titleEl = modal.querySelector('h3');
+        const subtitleEl = modal.querySelector('p');
+        if (titleEl) titleEl.innerText = title;
+        if (subtitleEl) subtitleEl.innerText = subtitle;
+        const percentEl = document.getElementById('loadingPercent');
+        if (percentEl) percentEl.innerText = '0%';
+        modal.classList.remove('hidden');
+    }
+};
 
-        window.hideLoading = () => {
-            const modal = document.getElementById('loadingModal');
-            if (modal) modal.classList.add('hidden');
-        };
+window.hideLoading = () => {
+    const modal = document.getElementById('loadingModal');
+    if (modal) modal.classList.add('hidden');
+};
 
         setTimeout(() => { window.hideLoading(); }, 4000);
 
@@ -1398,22 +1624,55 @@
             document.getElementById('loginPasswordInput').value = '';
         };
 
+        window.handleLoginEnter = (event) => {
+            const key = event.key || event.keyIdentifier || event.keyCode;
+            if (key === 'Enter' || key === 'OK' || key === 13 || key === '13') {
+                event.preventDefault();
+                window.processLogin();
+            }
+        };
+
+        // Robust keyboard handler registered after DOM ready to cover different environments
+        document.addEventListener('DOMContentLoaded', () => {
+            const pwd = document.getElementById('loginPasswordInput');
+            if (!pwd) return;
+            // extra listener to ensure Enter/OK from virtual keyboards triggers login
+            pwd.addEventListener('keydown', (e) => {
+                const k = e.key || e.keyIdentifier || e.keyCode;
+                if (k === 'Enter' || k === 'OK' || k === 13 || k === '13') {
+                    e.preventDefault();
+                    // small timeout to allow IME composition to finish on some devices
+                    setTimeout(() => { window.processLogin(); }, 0);
+                }
+            });
+            // Improve mobile keyboard action text
+            try { pwd.setAttribute('enterkeyhint', 'go'); } catch(e) {}
+        });
+
         window.processLogin = () => {
-            const pass = document.getElementById('loginPasswordInput').value;
+            const pwdEl = document.getElementById('loginPasswordInput');
+            const pass = pwdEl ? pwdEl.value : '';
+            if (pwdEl) pwdEl.blur();
             const role = state.targetLogin;
             
             if (role === 'Admin') {
                 if (pass === 'admin**') {
                     state.currentUser = { role: 'Admin', name: state.settings.adminName };
                     authorizeApp();
-                } else { window.showFeedback('Gagal', 'Password Admin Salah', 'error'); }
+                    // ensure feedback is shown when invoked via keyboard
+                    window.showFeedback('Berhasil Masuk', `Selamat bekerja, ${state.currentUser.name}!`);
+                } else { 
+                    window.showFeedback('Gagal', 'Password Admin Salah', 'error'); 
+                }
             } else {
                 if (state.selectedCashierIndex === 1 && pass === '123111') {
                     state.currentUser = { role: 'Kasir', name: state.settings.cashier1Name };
                     authorizeApp();
+                    window.showFeedback('Berhasil Masuk', `Selamat bekerja, ${state.currentUser.name}!`);
                 } else if (state.selectedCashierIndex === 2 && pass === '123222') {
                     state.currentUser = { role: 'Kasir', name: state.settings.cashier2Name };
                     authorizeApp();
+                    window.showFeedback('Berhasil Masuk', `Selamat bekerja, ${state.currentUser.name}!`);
                 } else { window.showFeedback('Gagal', 'Password Kasir Salah', 'error'); }
             }
         };
@@ -1456,27 +1715,31 @@
         };
 
         window.switchView = (id, btn) => {
-            if (id === 'view-kasir') {
-                if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(e => console.log(e)); }
-            } else {
-                if (document.fullscreenElement) { document.exitFullscreen().catch(e => console.log(e)); }
-            }
-            document.querySelectorAll('.view-section').forEach(v => v.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-            document.querySelectorAll('.nav-item').forEach(n => {
-                n.classList.remove('bg-indigo-600/15', 'text-indigo-400', 'font-semibold');
-                n.classList.add('text-slate-400');
-            });
-            btn.classList.add('bg-indigo-600/15', 'text-indigo-400', 'font-semibold');
-            btn.classList.remove('text-slate-400');
-            document.getElementById('header-title').innerText = btn.innerText.trim();
-            if (window.innerWidth < 1024) toggleSidebar();
-            
-            if (id === 'view-stock-opname') {
-                renderOpnameQueueTable();
-                renderOpnameHistory();
-            }
-        };
+    if (id === 'view-kasir') {
+        if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(e => console.log(e)); }
+    } else {
+        if (document.fullscreenElement) { document.exitFullscreen().catch(e => console.log(e)); }
+    }
+    document.querySelectorAll('.view-section').forEach(v => v.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+    document.querySelectorAll('.nav-item').forEach(n => {
+        n.classList.remove('bg-indigo-600/15', 'text-indigo-400', 'font-semibold');
+        n.classList.add('text-slate-400');
+    });
+    btn.classList.add('bg-indigo-600/15', 'text-indigo-400', 'font-semibold');
+    btn.classList.remove('text-slate-400');
+    document.getElementById('header-title').innerText = btn.innerText.trim();
+    if (window.innerWidth < 1024) toggleSidebar();
+    
+    if (id === 'view-stock-opname') {
+        renderOpnameQueueTable();
+        renderOpnameHistory();
+    }
+    // Tambahkan trigger render riwayat faktur saat menu di-klik
+    if (id === 'view-riwayat-faktur') {
+        renderStockHistory();
+    }
+};
 
         onAuthStateChanged(auth, async (user) => {
             const statusEl = document.getElementById('firebase-status');
@@ -1637,69 +1900,88 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
             filter.value = currentVal;
         };
 
-        const initSync = () => {
-            window.showLoading();
-            let loadedCollectionsCount = 0;
-            const targetCollections = 5;
+        // GANTI SELURUH FUNGSI initSync MENJADI SEPERTI BERIKUT:
+const initSync = () => {
+    window.showLoading();
+    
+    // Melacak pemuatan pertama dari tiap koleksi
+    const collectionsLoaded = {
+        settings: false,
+        products: false,
+        transactions: false,
+        stockLogs: false,
+        stockOpname: false
+    };
 
-            const trackLoadingProgress = () => {
-                loadedCollectionsCount++;
-                if (loadedCollectionsCount >= targetCollections) {
+    const trackLoadingProgress = (key) => {
+        if (!collectionsLoaded[key]) {
+            collectionsLoaded[key] = true;
+            const loadedCount = Object.values(collectionsLoaded).filter(Boolean).length;
+            const percent = Math.round((loadedCount / 5) * 100);
+            
+            const percentEl = document.getElementById('loadingPercent');
+            if (percentEl) percentEl.innerText = percent + '%';
+            
+            if (loadedCount >= 5) {
+                // Selesai 100%, beri sedikit jeda visual sebelum menutup modal
+                setTimeout(() => {
                     window.hideLoading();
-                }
-            };
-
-            // Load opname queue from localStorage (Instruksi 5)
-            const localQueue = localStorage.getItem('kasirpro_opname_queue');
-            if (localQueue) {
-                try {
-                    state.opnameQueue = JSON.parse(localQueue);
-                } catch(e) {
-                    state.opnameQueue = [];
-                }
+                }, 500);
             }
+        }
+    };
 
-            onSnapshot(doc(colSettings, 'config'), (snap) => {
-                if (snap.exists()) {
-                    state.settings = { ...state.settings, ...snap.data() };
-                    document.getElementById('setStoreName').value = state.settings.storeName;
-                    document.getElementById('setAdminName').value = state.settings.adminName;
-                    document.getElementById('setCashier1Name').value = state.settings.cashier1Name;
-                    document.getElementById('setCashier2Name').value = state.settings.cashier2Name;
-                    document.getElementById('setPhone').value = state.settings.phone;
-                    document.getElementById('setAddress').value = state.settings.address;
-                    document.getElementById('setSupp1').value = state.settings.supp1 || '';
-                    document.getElementById('setSupp2').value = state.settings.supp2 || '';
-                    document.getElementById('setSupp3').value = state.settings.supp3 || '';
-                    document.getElementById('setSupp4').value = state.settings.supp4 || '';
-                    renderSupplierDropdown();
-                    updateSupplierFilterOptions();
-                    reconcileProducts();
-                }
-                trackLoadingProgress();
-            });
-            onSnapshot(colProducts, (snap) => {
-                state.firestoreProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                reconcileProducts();
-                trackLoadingProgress();
-            });
-            onSnapshot(colTransactions, (snap) => {
-                state.transactions = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.timestamp.localeCompare(a.timestamp));
-                renderTransactions();
-                updateHeaderStats();
-                trackLoadingProgress();
-            });
-            onSnapshot(colStockLogs, (snap) => {
-                state.stockLogs = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.timestamp.localeCompare(a.timestamp));
-                renderStockHistory();
-                trackLoadingProgress();
-            });
-            onSnapshot(colStockOpname, (snap) => {
-                state.opnameHistory = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.timestamp.localeCompare(a.timestamp));
-                renderOpnameHistory();
-                trackLoadingProgress();
-            });
-        };
+    // Load opname queue from localStorage
+    const localQueue = localStorage.getItem('kasirpro_opname_queue');
+    if (localQueue) {
+        try {
+            state.opnameQueue = JSON.parse(localQueue);
+        } catch(e) {
+            state.opnameQueue = [];
+        }
+    }
+
+    onSnapshot(doc(colSettings, 'config'), (snap) => {
+        if (snap.exists()) {
+            state.settings = { ...state.settings, ...snap.data() };
+            document.getElementById('setStoreName').value = state.settings.storeName;
+            document.getElementById('setAdminName').value = state.settings.adminName;
+            document.getElementById('setCashier1Name').value = state.settings.cashier1Name;
+            document.getElementById('setCashier2Name').value = state.settings.cashier2Name;
+            document.getElementById('setPhone').value = state.settings.phone;
+            document.getElementById('setAddress').value = state.settings.address;
+            document.getElementById('setSupp1').value = state.settings.supp1 || '';
+            document.getElementById('setSupp2').value = state.settings.supp2 || '';
+            document.getElementById('setSupp3').value = state.settings.supp3 || '';
+            document.getElementById('setSupp4').value = state.settings.supp4 || '';
+            renderSupplierDropdown();
+            updateSupplierFilterOptions();
+            reconcileProducts();
+        }
+        trackLoadingProgress('settings');
+    });
+    onSnapshot(colProducts, (snap) => {
+        state.firestoreProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        reconcileProducts();
+        trackLoadingProgress('products');
+    });
+    onSnapshot(colTransactions, (snap) => {
+        state.transactions = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.timestamp.localeCompare(a.timestamp));
+        renderTransactions();
+        updateHeaderStats();
+        trackLoadingProgress('transactions');
+    });
+    onSnapshot(colStockLogs, (snap) => {
+        state.stockLogs = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.timestamp.localeCompare(a.timestamp));
+        renderStockHistory();
+        trackLoadingProgress('stockLogs');
+    });
+    onSnapshot(colStockOpname, (snap) => {
+        state.opnameHistory = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.timestamp.localeCompare(a.timestamp));
+        renderOpnameHistory();
+        trackLoadingProgress('stockOpname');
+    });
+};
 
         window.prevProductPage = () => {
             if (state.productPage > 1) {
@@ -2217,28 +2499,35 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
             else if (supplierKey === 'supplier3') actualSupplierName = s3Name;
             else if (supplierKey === 'supplier4') actualSupplierName = s4Name;
 
-            try {
-                window.showLoading();
+            // GANTI BLOK try { ... } DI DALAM FUNGSI window.saveFakturInvoice MENJADI:
+    try {
+                window.showLoading("MENYIMPAN FAKTUR", "MENGUNGGAH DATA BARANG MASUK KE CLOUD FIREBASE");
                 const timestampStr = new Date().toISOString();
+                const totalItems = state.fakturItems.length;
+                let itemsProcessed = 0;
                 
-                for (const item of state.fakturItems) {
+                for (let i = 0; i < totalItems; i++) {
+                    const item = state.fakturItems[i];
                     const currentProd = state.products.find(x => x.id === item.id);
                     const currentStock = currentProd ? currentProd.stock : 0;
                     const finalStock = currentStock + item.qty;
+
+                    // INTEGRASI: Hitung Harga Beli Netto per unit (Diskon & PPN sudah terakumulasi)
+                    const netBuyPrice = Math.round((item.subtotal / item.qty) * (1 + ppnSupplier / 100));
 
                     const docRef = doc(colProducts, item.id);
                     const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
                         await updateDoc(docRef, { 
                             stock: finalStock, 
-                            buyPrice: item.buyPrice,
+                            buyPrice: netBuyPrice, // Menggunakan Harga Beli Netto
                             sellPrice: item.sellPrice 
                         });
                     } else {
                         await setDoc(docRef, {
                             name: item.name,
                             category: currentProd ? currentProd.category : "Obat Bebas",
-                            buyPrice: item.buyPrice,
+                            buyPrice: netBuyPrice, // Menggunakan Harga Beli Netto
                             sellPrice: item.sellPrice,
                             stock: finalStock,
                             supplierKey: supplierKey
@@ -2261,32 +2550,40 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
                         timestamp: timestampStr,
                         admin: state.currentUser.name
                     });
+
+                    itemsProcessed++;
+                    const percent = Math.round((itemsProcessed / totalItems) * 100);
+                    const percentEl = document.getElementById('loadingPercent');
+                    if (percentEl) percentEl.innerText = percent + '%';
                 }
 
-                await addDoc(colSystemLogs, {
-                    action: 'STOK_FAKTUR',
-                    details: `Simpan Faktur ${noFaktur} (${tglFaktur}) dari supplier ${actualSupplierName} dengan PPN ${ppnSupplier}% dan total ${state.fakturItems.length} item`,
-                    timestamp: timestampStr
-                });
+        await addDoc(colSystemLogs, {
+            action: 'STOK_FAKTUR',
+            details: `Simpan Faktur ${noFaktur} (${tglFaktur}) dari supplier ${actualSupplierName} dengan PPN ${ppnSupplier}% dan total ${state.fakturItems.length} item`,
+            timestamp: timestampStr
+        });
 
-                window.hideLoading();
-                window.showFeedback('Faktur Tersimpan', `Faktur ${noFaktur} berhasil disimpan ke database. Stok diperbarui.`);
-                
-                document.getElementById('bmNoFaktur').value = '';
-                document.getElementById('bmTglFaktur').value = '';
-                document.getElementById('bmPpnSupplier').value = '';
-                document.getElementById('bmFakturSupplier').value = '';
-                document.getElementById('bmJenisBayar').value = 'Cash';
-                document.getElementById('bmDueDate').value = '';
-                document.getElementById('bmDueDateContainer').classList.add('hidden');
-                state.fakturItems = [];
-                renderFakturQueue(); 
+        // Jeda sejenak agar visual 100% terbaca jelas oleh user
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-            } catch (e) {
-                window.hideLoading();
-                console.error(e);
-                window.showFeedback('Gagal', 'Terjadi kesalahan sistem saat menyimpan faktur.', 'error');
-            }
+        window.hideLoading();
+        window.showFeedback('Faktur Tersimpan', `Faktur ${noFaktur} berhasil disimpan ke database. Stok diperbarui.`);
+        
+        document.getElementById('bmNoFaktur').value = '';
+        document.getElementById('bmTglFaktur').value = '';
+        document.getElementById('bmPpnSupplier').value = '';
+        document.getElementById('bmFakturSupplier').value = '';
+        document.getElementById('bmJenisBayar').value = 'Cash';
+        document.getElementById('bmDueDate').value = '';
+        document.getElementById('bmDueDateContainer').classList.add('hidden');
+        state.fakturItems = [];
+        renderFakturQueue(); 
+
+    } catch (e) {
+        window.hideLoading();
+        console.error(e);
+        window.showFeedback('Gagal', 'Terjadi kesalahan sistem saat menyimpan faktur.', 'error');
+    }
         };
 
         window.resetOpnameProductSearch = () => {
@@ -3352,137 +3649,140 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
                 `;
                 window.print();
             } else if (type === 'barang-masuk') {
-    // 1. Ambil nilai filter aktif dari UI secara real-time
-    const dateFilter = document.getElementById('filterStockDate').value;
-    const typeFilter = document.getElementById('filterStockType').value;
-    const kwFilter = document.getElementById('filterStockKeyword').value.toLowerCase().trim();
+                const dateFilter = document.getElementById('filterStockDate').value;
+                const typeFilter = document.getElementById('filterStockType').value;
+                const kwFilter = document.getElementById('filterStockKeyword').value.toLowerCase().trim();
 
-    let filtered = [...state.stockLogs];
+                let filtered = [...state.stockLogs];
 
-    // 2. Jalankan Filter Dinamis (Sama persis dengan filter tabel halaman barang masuk)
-    if (dateFilter) {
-        filtered = filtered.filter(log => log.tglFaktur === dateFilter || (log.timestamp && log.timestamp.startsWith(dateFilter)));
-    }
-    if (typeFilter === 'supplier' && kwFilter) {
-        filtered = filtered.filter(log => log.supplier && log.supplier.toLowerCase().includes(kwFilter));
-    } else if (typeFilter === 'product' && kwFilter) {
-        filtered = filtered.filter(log => log.productName && log.productName.toLowerCase().includes(kwFilter));
-    } else if (typeFilter === 'invoice' && kwFilter) {
-        filtered = filtered.filter(log => log.noFaktur && log.noFaktur.toLowerCase().includes(kwFilter));
-    } else if (typeFilter === 'cash') {
-        filtered = filtered.filter(log => log.paymentType === 'Cash');
-    } else if (typeFilter === 'tempo') {
-        filtered = filtered.filter(log => log.paymentType === 'Tempo');
-    }
+                if (dateFilter) {
+                    filtered = filtered.filter(log => log.tglFaktur === dateFilter || (log.timestamp && log.timestamp.startsWith(dateFilter)));
+                }
+                if (typeFilter === 'supplier' && kwFilter) {
+                    filtered = filtered.filter(log => log.supplier && log.supplier.toLowerCase().includes(kwFilter));
+                } else if (typeFilter === 'product' && kwFilter) {
+                    filtered = filtered.filter(log => log.productName && log.productName.toLowerCase().includes(kwFilter));
+                } else if (typeFilter === 'invoice' && kwFilter) {
+                    filtered = filtered.filter(log => log.noFaktur && log.noFaktur.toLowerCase().includes(kwFilter));
+                } else if (typeFilter === 'cash') {
+                    filtered = filtered.filter(log => log.paymentType === 'Cash');
+                } else if (typeFilter === 'tempo') {
+                    filtered = filtered.filter(log => log.paymentType === 'Tempo');
+                }
 
-    if (filtered.length === 0) {
-        window.showFeedback('Kosong', 'Tidak ada data barang masuk yang sesuai filter untuk dicetak.', 'error');
-        return;
-    }
+                if (filtered.length === 0) {
+                    window.showFeedback('Kosong', 'Tidak ada data barang masuk yang sesuai filter untuk dicetak.', 'error');
+                    return;
+                }
 
-    // 3. Kelompokkan log item berdasarkan nomor faktur agar menjadi satu kesatuan dokumen
-    const groupedInvoices = {};
-    filtered.forEach(log => {
-        const key = log.noFaktur || 'LOKAL';
-        if (!groupedInvoices[key]) {
-            groupedInvoices[key] = {
-                noFaktur: key,
-                supplier: log.supplier || 'Unknown Supplier',
-                tglFaktur: log.tglFaktur || (log.timestamp ? log.timestamp.substring(0, 10) : '-'),
-                paymentType: log.paymentType || 'Cash',
-                dueDate: log.dueDate || '-',
-                admin: log.admin || 'System',
-                timestamp: log.timestamp || '',
-                ppnSupplier: log.ppnSupplier || 0,
-                items: []
-            };
-        }
-        groupedInvoices[key].items.push(log);
-    });
+                const groupedInvoices = {};
+                filtered.forEach(log => {
+                    const key = log.noFaktur || 'LOKAL';
+                    if (!groupedInvoices[key]) {
+                        groupedInvoices[key] = {
+                            noFaktur: key,
+                            supplier: log.supplier || 'Unknown Supplier',
+                            tglFaktur: log.tglFaktur || (log.timestamp ? log.timestamp.substring(0, 10) : '-'),
+                            paymentType: log.paymentType || 'Cash',
+                            dueDate: log.dueDate || '-',
+                            admin: log.admin || 'System',
+                            timestamp: log.timestamp || '',
+                            ppnSupplier: log.ppnSupplier || 0,
+                            items: []
+                        };
+                    }
+                    groupedInvoices[key].items.push(log);
+                });
 
-    const invoicesArray = Object.values(groupedInvoices).sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+                const invoicesArray = Object.values(groupedInvoices).sort((a, b) => b.timestamp.localeCompare(a.timestamp));
 
-    // 4. Desain layout cetak per tabel faktur profesional memanfaatkan class print-card bawaan
-    let invoicesHtml = invoicesArray.map(inv => {
-        let totalSubtotal = 0;
-        let itemRows = inv.items.map(item => {
-            const baseSubtotal = item.buyPrice * item.qty;
-            let calculatedDisc = item.discSupplierType === 'percentage' 
-                ? baseSubtotal * ((item.discSupplier || 0) / 100) 
-                : (item.discSupplier || 0);
-            const sub = baseSubtotal - calculatedDisc;
-            totalSubtotal += sub;
+                let invoicesHtml = invoicesArray.map(inv => {
+                    let totalSubtotal = 0;
+                    let itemRows = inv.items.map(item => {
+                        const baseSubtotal = item.buyPrice * item.qty;
+                        let calculatedDisc = item.discSupplierType === 'percentage' 
+                            ? baseSubtotal * ((item.discSupplier || 0) / 100) 
+                            : (item.discSupplier || 0);
+                        const sub = baseSubtotal - calculatedDisc;
+                        totalSubtotal += sub;
 
-            const discLabel = item.discSupplier > 0 
-                ? `<br><span class="text-[9px] text-rose-500 font-bold">Potongan: -${item.discSupplierType === 'percentage' ? item.discSupplier + '%' : formatRupiah(item.discSupplier)}</span>` 
-                : '';
+                        const discText = item.discSupplier > 0
+                            ? (item.discSupplierType === 'percentage'
+                                ? `${item.discSupplier.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`
+                                : formatRupiah(item.discSupplier))
+                            : '0,00%';
 
-            return `
-                <tr class="border-b border-slate-200">
-                    <td class="p-2 font-bold text-slate-800">${item.productName}</td>
-                    <td class="p-2 text-center font-bold">x${item.qty}</td>
-                    <td class="p-2 text-right">${formatRupiah(item.buyPrice)}${discLabel}</td>
-                    <td class="p-2 text-right font-semibold text-slate-900">${formatRupiah(sub)}</td>
-                </tr>
-            `;
-        }).join('');
+                        const sellPriceVal = item.sellPrice ? formatRupiah(item.sellPrice) : '-';
 
-        const ppnAmount = totalSubtotal * (inv.ppnSupplier / 100);
-        const grandTotal = totalSubtotal + ppnAmount;
+                        return `
+                            <tr class="border-b border-slate-200">
+                                <td class="p-2 font-bold text-slate-800">${item.productName}</td>
+                                <td class="p-2 text-center font-bold">x${item.qty}</td>
+                                <td class="p-2 text-right">${formatRupiah(item.buyPrice)}</td>
+                                <td class="p-2 text-right text-rose-500 font-semibold">${discText}</td>
+                                <td class="p-2 text-right font-bold text-indigo-600">${sellPriceVal}</td>
+                                <td class="p-2 text-right font-semibold text-slate-900">${formatRupiah(sub)}</td>
+                            </tr>
+                        `;
+                    }).join('');
 
-        return `
-            <div class="print-card p-4 mb-6 border border-slate-300 rounded-xl bg-white shadow-sm" style="page-break-inside: avoid; break-inside: avoid;">
-                <div class="print-card-header border-b border-slate-200 pb-3 mb-3 bg-slate-50/80 p-3 rounded-t-xl flex justify-between items-start">
-                    <div>
-                        <span class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">NOMOR FAKTUR</span>
-                        <h4 class="font-extrabold text-slate-800 text-sm">${inv.noFaktur}</h4>
+                    const ppnAmount = totalSubtotal * (inv.ppnSupplier / 100);
+                    const grandTotal = totalSubtotal + ppnAmount;
+
+                    return `
+                        <div class="print-card p-4 mb-6 border border-slate-300 rounded-xl bg-white shadow-sm" style="page-break-inside: avoid; break-inside: avoid;">
+                            <div class="print-card-header border-b border-slate-200 pb-3 mb-3 bg-slate-50/80 p-3 rounded-t-xl flex justify-between items-start">
+                                <div>
+                                    <span class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">NOMOR FAKTUR</span>
+                                    <h4 class="font-extrabold text-slate-800 text-sm">${inv.noFaktur}</h4>
+                                </div>
+                                <div class="text-right text-[10px] text-slate-600 font-medium space-y-0.5">
+                                    <div>Supplier: <strong class="text-slate-800 font-bold">${inv.supplier}</strong></div>
+                                    <div>Tanggal Faktur: <strong class="text-slate-800 font-bold">${inv.tglFaktur}</strong></div>
+                                    <div>Metode Bayar: <span class="px-1.5 py-0.5 bg-slate-200 font-bold text-slate-700 rounded text-[9px] uppercase">${inv.paymentType}</span> ${inv.paymentType === 'Tempo' ? `(Tempo: <span class="text-amber-600 font-bold">${inv.dueDate}</span>)` : ''}</div>
+                                    <div>Petugas: <strong class="text-slate-800 font-bold">${inv.admin}</strong></div>
+                                </div>
+                            </div>
+                            <table class="print-card-table w-full text-xs border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-100 font-bold text-slate-600 border-b">
+                                        <th class="p-2 text-left">Nama Obat / Barang</th>
+                                        <th class="p-2 text-center w-12">Qty</th>
+                                        <th class="p-2 text-right w-24">Harga Beli</th>
+                                        <th class="p-2 text-right w-24">Discount</th>
+                                        <th class="p-2 text-right w-24">Harga Jual</th>
+                                        <th class="p-2 text-right w-24">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${itemRows}
+                                </tbody>
+                            </table>
+                            <div class="mt-3 pt-2 border-t border-dashed border-slate-300 flex justify-end text-[11px] font-medium text-slate-600">
+                                <div class="w-64 space-y-1">
+                                    <div class="flex justify-between"><span>Subtotal:</span><span>${formatRupiah(totalSubtotal)}</span></div>
+                                    ${inv.ppnSupplier > 0 ? `<div class="flex justify-between"><span>PPN (${inv.ppnSupplier}%):</span><span>${formatRupiah(ppnAmount)}</span></div>` : ''}
+                                    <div class="flex justify-between font-black text-xs text-indigo-600 border-t pt-1 mt-1"><span>GRAND TOTAL:</span><span>${formatRupiah(grandTotal)}</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                printCont.innerHTML = `
+                    <div class="p-8 bg-white text-xs">
+                        <div class="text-center mb-6">
+                            <h2 class="text-xl font-black uppercase text-slate-950 mb-1">${state.settings.storeName}</h2>
+                            <p class="text-[10px] text-slate-500 font-medium">${state.settings.address} | Telp: ${state.settings.phone}</p>
+                            <div class="border-b-2 border-slate-900 my-3"></div>
+                            <h3 class="text-base font-black uppercase tracking-wider text-slate-800">Laporan Riwayat Pembelian Faktur (Barang Masuk)</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">Data difilter secara dinamis | Waktu Cetak: ${nowStr}</p>
+                        </div>
+                        ${invoicesHtml}
                     </div>
-                    <div class="text-right text-[10px] text-slate-600 font-medium space-y-0.5">
-                        <div>Supplier: <strong class="text-slate-800 font-bold">${inv.supplier}</strong></div>
-                        <div>Tanggal Faktur: <strong class="text-slate-800 font-bold">${inv.tglFaktur}</strong></div>
-                        <div>Metode Bayar: <span class="px-1.5 py-0.5 bg-slate-200 font-bold text-slate-700 rounded text-[9px] uppercase">${inv.paymentType}</span> ${inv.paymentType === 'Tempo' ? `(Tempo: <span class="text-amber-600 font-bold">${inv.dueDate}</span>)` : ''}</div>
-                        <div>Petugas: <strong class="text-slate-800 font-bold">${inv.admin}</strong></div>
-                    </div>
-                </div>
-                <table class="print-card-table w-full text-xs border-collapse">
-                    <thead>
-                        <tr class="bg-slate-100 font-bold text-slate-600 border-b">
-                            <th class="p-2 text-left">Nama Obat / Barang</th>
-                            <th class="p-2 text-center w-16">Qty</th>
-                            <th class="p-2 text-right w-32">Harga Satuan</th>
-                            <th class="p-2 text-right w-32">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${itemRows}
-                    </tbody>
-                </table>
-                <div class="mt-3 pt-2 border-t border-dashed border-slate-300 flex justify-end text-[11px] font-medium text-slate-600">
-                    <div class="w-64 space-y-1">
-                        <div class="flex justify-between"><span>Subtotal:</span><span>${formatRupiah(totalSubtotal)}</span></div>
-                        ${inv.ppnSupplier > 0 ? `<div class="flex justify-between"><span>PPN (${inv.ppnSupplier}%):</span><span>${formatRupiah(ppnAmount)}</span></div>` : ''}
-                        <div class="flex justify-between font-black text-xs text-indigo-600 border-t pt-1 mt-1"><span>GRAND TOTAL:</span><span>${formatRupiah(grandTotal)}</span></div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
-
-    // 5. Render seluruh struktur halaman nota ke container cetak utama
-    printCont.innerHTML = `
-        <div class="p-8 bg-white text-xs">
-            <div class="text-center mb-6">
-                <h2 class="text-xl font-black uppercase text-slate-950 mb-1">${state.settings.storeName}</h2>
-                <p class="text-[10px] text-slate-500 font-medium">${state.settings.address} | Telp: ${state.settings.phone}</p>
-                <div class="border-b-2 border-slate-900 my-3"></div>
-                <h3 class="text-base font-black uppercase tracking-wider text-slate-800">Laporan Riwayat Pembelian Faktur (Barang Masuk)</h3>
-                <p class="text-[10px] text-slate-400 mt-1">Data difilter secara dinamis | Waktu Cetak: ${nowStr}</p>
-            </div>
-            ${invoicesHtml}
-        </div>
-    `;
-    window.print();
-}
+                `;
+                window.print();
+            }
 
         };
 
@@ -3556,18 +3856,24 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
         });
 
         // Menangani perubahan tipe filter riwayat stok masuk
-        window.handleStockFilterTypeChange = () => {
-            const type = document.getElementById('filterStockType').value;
-            const kwInput = document.getElementById('filterStockKeyword');
-            if (['supplier', 'product', 'invoice'].includes(type)) {
-                kwInput.classList.remove('hidden');
-            } else {
-                kwInput.classList.add('hidden');
-                kwInput.value = '';
-            }
-        };
+window.handleStockFilterTypeChange = () => {
+    const type = document.getElementById('filterStockType').value;
+    const kwContainer = document.getElementById('filterStockKeywordContainer');
+    const kwInput = document.getElementById('filterStockKeyword');
+    if (['supplier', 'product', 'invoice'].includes(type)) {
+        if (kwContainer) kwContainer.classList.remove('hidden');
+        if (kwInput) kwInput.classList.remove('hidden');
+    } else {
+        if (kwContainer) kwContainer.classList.add('hidden');
+        if (kwInput) {
+            kwInput.classList.add('hidden');
+            kwInput.value = '';
+        }
+    }
+};
 
         // Render riwayat stok masuk berbasis Card Faktur
+        // Render riwayat stok masuk berbasis Card Faktur dengan analisis utang dagang
         window.renderStockHistory = () => {
             const container = document.getElementById('stockHistoryContainer');
             if (!container) return;
@@ -3578,12 +3884,10 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
 
             let filtered = [...state.stockLogs];
 
-            // Filter berdasarkan tanggal faktur
             if (dateFilter) {
                 filtered = filtered.filter(log => log.tglFaktur === dateFilter || (log.timestamp && log.timestamp.startsWith(dateFilter)));
             }
 
-            // Filter berdasarkan kata kunci tipe filter
             if (typeFilter === 'supplier' && kwFilter) {
                 filtered = filtered.filter(log => log.supplier && log.supplier.toLowerCase().includes(kwFilter));
             } else if (typeFilter === 'product' && kwFilter) {
@@ -3596,7 +3900,6 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
                 filtered = filtered.filter(log => log.paymentType === 'Tempo');
             }
 
-            // Pengelompokan log stok berdasarkan nomor faktur
             const groupedInvoices = {};
             filtered.forEach(log => {
                 const key = log.noFaktur || 'LOKAL';
@@ -3616,8 +3919,62 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
                 groupedInvoices[key].items.push(log);
             });
 
-            // Urutkan grup faktur dari waktu transaksi terbaru
             const invoicesArray = Object.values(groupedInvoices).sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let overallFilteredTotal = 0;
+            let cashFilteredTotal = 0;
+            let tempoAktifTotal = 0;
+            let tempoDekatTotal = 0;
+
+            invoicesArray.forEach(inv => {
+                let totalSubtotal = 0;
+                inv.items.forEach(item => {
+                    const baseSubtotal = item.buyPrice * item.qty;
+                    let calculatedDisc = 0;
+                    if (item.discSupplierType === 'percentage') {
+                        calculatedDisc = baseSubtotal * ((item.discSupplier || 0) / 100);
+                    } else {
+                        calculatedDisc = item.discSupplier || 0;
+                    }
+                    totalSubtotal += (baseSubtotal - calculatedDisc);
+                });
+                const ppnAmount = totalSubtotal * (inv.ppnSupplier / 100);
+                const invoiceGrandTotal = totalSubtotal + ppnAmount;
+
+                overallFilteredTotal += invoiceGrandTotal;
+
+                if (inv.paymentType === 'Tempo') {
+                    if (inv.dueDate && inv.dueDate !== '-') {
+                        const due = new Date(inv.dueDate);
+                        due.setHours(0, 0, 0, 0);
+                        const diffTime = due.getTime() - today.getTime();
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                        if (diffDays <= 7) {
+                            tempoDekatTotal += invoiceGrandTotal;
+                        } else {
+                            tempoAktifTotal += invoiceGrandTotal;
+                        }
+                    } else {
+                        tempoAktifTotal += invoiceGrandTotal;
+                    }
+                } else {
+                    cashFilteredTotal += invoiceGrandTotal;
+                }
+            });
+
+            const statFakturTotalEl = document.getElementById('stat-faktur-total');
+            const statFakturCashEl = document.getElementById('stat-faktur-cash');
+            const statFakturTempoAktifEl = document.getElementById('stat-faktur-tempo-aktif');
+            const statFakturTempoDekatEl = document.getElementById('stat-faktur-tempo-dekat');
+
+            if (statFakturTotalEl) statFakturTotalEl.innerText = formatRupiah(overallFilteredTotal);
+            if (statFakturCashEl) statFakturCashEl.innerText = formatRupiah(cashFilteredTotal);
+            if (statFakturTempoAktifEl) statFakturTempoAktifEl.innerText = formatRupiah(tempoAktifTotal);
+            if (statFakturTempoDekatEl) statFakturTempoDekatEl.innerText = formatRupiah(tempoDekatTotal);
 
             const totalItems = invoicesArray.length;
             const totalPages = Math.ceil(totalItems / state.stockPageSize) || 1;
@@ -3627,7 +3984,6 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
             const end = start + state.stockPageSize;
             const paginatedInvoices = invoicesArray.slice(start, end);
 
-            // Perbarui paginasi lokal stok di UI
             const startIdx = totalItems === 0 ? 0 : start + 1;
             const endIdx = Math.min(end, totalItems);
             
@@ -3641,7 +3997,7 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
 
             if (paginatedInvoices.length === 0) {
                 container.innerHTML = `
-                    <div class="flex flex-col items-center justify-center py-10 text-slate-400">
+                    <div class="flex flex-col items-center justify-center py-10 text-slate-400 col-span-2">
                         <i class="fas fa-history text-3xl mb-2 opacity-30"></i>
                         <p class="text-xs font-semibold italic">Belum ada riwayat stok masuk</p>
                     </div>
@@ -3652,7 +4008,7 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
             container.innerHTML = paginatedInvoices.map(inv => {
                 let totalSubtotal = 0;
                 const itemsListHtml = inv.items.map(item => {
-                    const baseSubtotal = item.buyPrice * item.qty;
+                    const baseSubtotal = (item.buyPrice || 0) * (item.qty || 0);
                     let calculatedDisc = 0;
                     if (item.discSupplierType === 'percentage') {
                         calculatedDisc = baseSubtotal * ((item.discSupplier || 0) / 100);
@@ -3662,9 +4018,14 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
                     const sub = baseSubtotal - calculatedDisc;
                     totalSubtotal += sub;
 
+                    // Mengubah format tampilan discount dengan 2 angka di belakang desimal (0,00% - 100,00%)
                     const discText = item.discSupplier > 0
-                        ? `<br><span class="text-[9px] text-rose-500 font-bold">Disc: -${item.discSupplierType === 'percentage' ? item.discSupplier + '%' : formatRupiah(item.discSupplier)}</span>`
-                        : '';
+                        ? (item.discSupplierType === 'percentage'
+                            ? `${item.discSupplier.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`
+                            : formatRupiah(item.discSupplier))
+                        : '0,00%';
+
+                    const sellPriceVal = item.sellPrice ? formatRupiah(item.sellPrice) : '-';
 
                     const actionsHtml = state.currentUser && state.currentUser.role === 'Admin'
                         ? `
@@ -3677,15 +4038,17 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
                             </button>
                         </div>
                         `
-                        : '';
+                        : '-';
 
                     return `
                         <tr class="text-[10px] border-b border-slate-100 last:border-0 hover:bg-slate-50/50">
-                            <td class="py-2 pr-2 font-bold text-slate-700">${item.productName}</td>
-                            <td class="py-2 px-2 text-center font-bold text-emerald-600">x${item.qty}</td>
-                            <td class="py-2 px-2 text-right text-slate-500">${formatRupiah(item.buyPrice)}${discText}</td>
-                            <td class="py-2 px-2 text-right font-semibold text-slate-800">${formatRupiah(sub)}</td>
-                            <td class="py-2 pl-2 text-right">${actionsHtml}</td>
+                            <td class="py-2 px-1 font-bold text-slate-700">${item.productName}</td>
+                            <td class="py-2 px-1 text-center font-bold text-emerald-600">x${item.qty}</td>
+                            <td class="py-2 px-1 text-right text-slate-500">${formatRupiah(item.buyPrice)}</td>
+                            <td class="py-2 px-1 text-right text-rose-500 font-semibold">${discText}</td>
+                            <td class="py-2 px-1 text-right font-bold text-indigo-600">${sellPriceVal}</td>
+                            <td class="py-2 px-1 text-right font-semibold text-slate-800">${formatRupiah(sub)}</td>
+                            <td class="py-2 px-1 text-right">${actionsHtml}</td>
                         </tr>
                     `;
                 }).join('');
@@ -3693,8 +4056,33 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
                 const ppnAmount = totalSubtotal * (inv.ppnSupplier / 100);
                 const grandTotal = totalSubtotal + ppnAmount;
 
-                const cardHeaderBg = inv.paymentType === 'Tempo' ? 'bg-amber-500/10 border-amber-500/20' : 'bg-slate-100/80 border-slate-200/50';
-                const typeBadgeColor = inv.paymentType === 'Tempo' ? 'bg-amber-500 text-white' : 'bg-emerald-600 text-white';
+                let badgeHtml = '';
+                let cardHeaderBg = 'bg-slate-100/80 border-slate-200/50';
+
+                if (inv.paymentType === 'Tempo') {
+                    if (inv.dueDate && inv.dueDate !== '-') {
+                        const due = new Date(inv.dueDate);
+                        due.setHours(0, 0, 0, 0);
+                        const diffTime = due.getTime() - today.getTime();
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                        if (diffDays < 0) {
+                            badgeHtml = `<span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-rose-600 text-white animate-pulse">TERLEWAT ${Math.abs(diffDays)} HARI</span>`;
+                            cardHeaderBg = 'bg-rose-500/10 border-rose-500/20';
+                        } else if (diffDays <= 7) {
+                            badgeHtml = `<span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-white animate-pulse">DEKAT JATUH TEMPO (${diffDays} HARI)</span>`;
+                            cardHeaderBg = 'bg-amber-500/15 border-amber-500/30';
+                        } else {
+                            badgeHtml = `<span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-600 text-white">TEMPO (${diffDays} HARI)</span>`;
+                            cardHeaderBg = 'bg-amber-500/5 border-amber-500/10';
+                        }
+                    } else {
+                        badgeHtml = `<span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-600 text-white">TEMPO</span>`;
+                        cardHeaderBg = 'bg-amber-500/5 border-amber-500/10';
+                    }
+                } else {
+                    badgeHtml = `<span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white">CASH</span>`;
+                }
 
                 return `
                     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition duration-200">
@@ -3704,21 +4092,42 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
                                     <span class="text-[9px] uppercase font-bold text-slate-400">FAKTUR</span>
                                     <h4 class="font-extrabold text-slate-800 text-xs">${inv.noFaktur}</h4>
                                 </div>
-                                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full ${typeBadgeColor}">${inv.paymentType}</span>
+                                ${badgeHtml}
                             </div>
                             <div class="grid grid-cols-2 gap-2 text-[10px] text-slate-500 font-medium mt-1">
                                 <div>Supplier: <strong class="text-slate-700 font-bold">${inv.supplier}</strong></div>
                                 <div class="text-right">Tgl Faktur: <strong class="text-slate-700 font-bold">${inv.tglFaktur}</strong></div>
-                                ${inv.paymentType === 'Tempo' ? `<div>Jatuh Tempo: <strong class="text-amber-600 font-bold">${inv.dueDate}</strong></div>` : ''}
+                                ${inv.paymentType === 'Tempo' ? `<div>Jatuh Tempo: <strong class="text-rose-600 font-bold">${inv.dueDate}</strong></div>` : ''}
+                                <div class="text-slate-500 text-[10px]">PPN: <strong class="text-slate-700 font-bold">${inv.ppnSupplier}%</strong></div>
                                 <div class="${inv.paymentType === 'Tempo' ? 'text-right' : 'col-span-2'}">Admin: <strong class="text-slate-700 font-bold">${inv.admin}</strong></div>
+                            </div>
+                            <div class="mt-3 flex flex-wrap justify-between items-center gap-2 text-xs">
+                                <div class="text-slate-500">Metode Bayar: <strong class="text-slate-700 font-bold uppercase">${inv.paymentType}</strong></div>
+                                <div class="flex flex-wrap gap-2">
+                                    <button onclick="window.printStockInvoice('${(inv.noFaktur || 'LOKAL').replace(/'/g, "\\'")}')" class="text-[10px] bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl font-bold hover:bg-slate-200 transition">Cetak</button>
+                                    <button onclick="window.editStockInvoice('${(inv.noFaktur || 'LOKAL').replace(/'/g, "\\'")}')" class="text-[10px] bg-indigo-600 text-white px-3 py-1.5 rounded-xl font-bold hover:bg-indigo-700 transition">Edit Faktur</button>
+                                </div>
                             </div>
                         </div>
                         <div class="p-3">
-                            <table class="w-full text-left">
-                                <tbody class="divide-y divide-slate-100">
-                                    ${itemsListHtml}
-                                </tbody>
-                            </table>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-[10px] border-collapse min-w-[420px]">
+                                    <thead>
+                                        <tr class="bg-slate-50 font-bold text-slate-500 border-b">
+                                            <th class="py-1 px-1 text-left">Nama Produk</th>
+                                            <th class="py-1 px-1 text-center">Qty</th>
+                                            <th class="py-1 px-1 text-right">Harga Beli</th>
+                                            <th class="py-1 px-1 text-right">Discount</th>
+                                            <th class="py-1 px-1 text-right">Harga Jual</th>
+                                            <th class="py-1 px-1 text-right">Subtotal</th>
+                                            <th class="py-1 px-1 text-right">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        ${itemsListHtml}
+                                    </tbody>
+                                </table>
+                            </div>
                             <div class="mt-2 pt-2 border-t border-dashed border-slate-200 text-[10px] space-y-1">
                                 <div class="flex justify-between text-slate-500">
                                     <span>Subtotal:</span>
@@ -3838,6 +4247,7 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
         };
 
         // Membuka modal edit data transaksi stok masuk
+        // Membuka modal edit data transaksi stok masuk
         window.editStockLog = (id) => {
             const log = state.stockLogs.find(l => l.id === id);
             if (!log) return;
@@ -3846,15 +4256,35 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
             document.getElementById('editStockLogProdNameInput').value = log.productName;
             document.getElementById('editStockLogQtyInput').value = log.qty;
             document.getElementById('editStockLogPriceInput').value = new Intl.NumberFormat('id-ID').format(log.buyPrice);
+            
+            // PERBAIKAN: Format diskon dengan benar (desimal & tanda %) saat modal edit dibuka
+            const discVal = log.discSupplier || 0;
+            const discType = log.discSupplierType || 'percentage';
+            if (discType === 'percentage') {
+                document.getElementById('editStockLogDiscountInput').value = discVal.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+            } else {
+                document.getElementById('editStockLogDiscountInput').value = discVal.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+
+            document.getElementById('editStockLogSellPriceInput').value = log.sellPrice ? new Intl.NumberFormat('id-ID').format(log.sellPrice) : '';
+            document.getElementById('editStockLogDiscountType').value = discType;
 
             document.getElementById('editStockLogModal').classList.remove('hidden');
         };
 
         // Menjalankan perubahan kuantitas dan harga sedia baru di Firestore
+        // GANTI bagian dalam function executeEditStockLog dengan ini:
+// Menjalankan perubahan kuantitas dan harga sedia baru di Firestore
         window.executeEditStockLog = async () => {
             const id = document.getElementById('editStockLogId').value;
             const newQty = parseInt(document.getElementById('editStockLogQtyInput').value) || 0;
             const newPrice = parseNominal(document.getElementById('editStockLogPriceInput').value) || 0;
+            
+            // PERBAIKAN: Gunakan getDiscountNumericValue untuk menangkap format desimal persen (misal: 1,50)
+            const newDiscount = getDiscountNumericValue(document.getElementById('editStockLogDiscountInput').value) || 0;
+            
+            const newDiscountType = document.getElementById('editStockLogDiscountType').value || 'percentage';
+            const newSellPrice = parseNominal(document.getElementById('editStockLogSellPriceInput').value) || 0;
 
             if (newQty <= 0) {
                 window.showFeedback('Gagal', 'Qty harus lebih besar dari 0!', 'error');
@@ -3873,19 +4303,36 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
                     const oldQty = logData.qty;
                     const diffQty = newQty - oldQty;
 
+                    // Hitung kembali Netto per unit dari log yang diedit
+                    const baseSubtotal = newPrice * newQty;
+                    let calculatedDisc = 0;
+                    if (newDiscountType === 'percentage') {
+                        calculatedDisc = baseSubtotal * (newDiscount / 100);
+                    } else {
+                        calculatedDisc = newDiscount;
+                    }
+                    if (calculatedDisc > baseSubtotal) calculatedDisc = baseSubtotal;
+                    const subtotal = baseSubtotal - calculatedDisc;
+                    const ppnSupplier = logData.ppnSupplier || 0;
+                    const netBuyPrice = Math.round((subtotal / newQty) * (1 + ppnSupplier / 100));
+
                     const product = state.products.find(p => p.id === logData.productId);
                     if (product) {
                         const newStock = Math.max(0, product.stock + diffQty);
                         const prodRef = doc(colProducts, product.id);
                         await updateDoc(prodRef, { 
                             stock: newStock,
-                            buyPrice: newPrice 
+                            buyPrice: netBuyPrice, // Menggunakan Harga Beli Netto baru hasil edit
+                            sellPrice: newSellPrice || product.sellPrice
                         });
                     }
 
                     await updateDoc(logRef, {
                         qty: newQty,
-                        buyPrice: newPrice
+                        buyPrice: newPrice,
+                        discSupplier: newDiscount, // Tersimpan sebagai desimal murni (1.5)
+                        discSupplierType: newDiscountType,
+                        sellPrice: newSellPrice
                     });
 
                     await addDoc(colSystemLogs, {
@@ -3905,6 +4352,190 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
                 console.error(err);
                 window.showFeedback('Gagal', 'Gagal memproses edit data', 'error');
             }
+        };
+
+        window.getSupplierKeyFromName = (name) => {
+            const s1 = state.settings.supp1 || 'Supplier 1';
+            const s2 = state.settings.supp2 || 'Supplier 2';
+            const s3 = state.settings.supp3 || 'Supplier 3';
+            const s4 = state.settings.supp4 || 'Supplier 4';
+            if (name === s2) return 'supplier2';
+            if (name === s3) return 'supplier3';
+            if (name === s4) return 'supplier4';
+            return 'supplier1';
+        };
+
+        window.getSupplierNameFromKey = (key) => {
+            if (!key) return state.settings.supp1 || 'Supplier 1';
+            return state.settings[`supp${key.slice(-1)}`] || (`Supplier ${key.slice(-1)}`);
+        };
+
+        window.handleEditInvoicePaymentType = () => {
+            const paymentType = document.getElementById('editInvoicePaymentType').value;
+            const dueDateContainer = document.getElementById('editInvoiceDueDateContainer');
+            if (paymentType === 'Tempo') {
+                dueDateContainer.classList.remove('hidden');
+            } else {
+                dueDateContainer.classList.add('hidden');
+                document.getElementById('editInvoiceDueDate').value = '';
+            }
+        };
+
+        window.editStockInvoice = (invoiceKey) => {
+            const key = invoiceKey || 'LOKAL';
+            const invoiceLogs = state.stockLogs.filter(log => (log.noFaktur || 'LOKAL') === key);
+            if (!invoiceLogs.length) return;
+
+            const first = invoiceLogs[0];
+            const supplierSelect = document.getElementById('editInvoiceSupplier');
+            if (supplierSelect) {
+                supplierSelect.innerHTML = `
+                    <option value="supplier1">${state.settings.supp1 || 'Supplier 1'}</option>
+                    <option value="supplier2">${state.settings.supp2 || 'Supplier 2'}</option>
+                    <option value="supplier3">${state.settings.supp3 || 'Supplier 3'}</option>
+                    <option value="supplier4">${state.settings.supp4 || 'Supplier 4'}</option>
+                `;
+            }
+            document.getElementById('editInvoiceOriginalKey').value = key;
+            document.getElementById('editInvoiceNoFaktur').value = first.noFaktur || '';
+            document.getElementById('editInvoiceTglFaktur').value = first.tglFaktur || (first.timestamp ? first.timestamp.substring(0, 10) : '');
+            document.getElementById('editInvoicePpn').value = first.ppnSupplier || 0;
+            document.getElementById('editInvoicePaymentType').value = first.paymentType || 'Cash';
+            document.getElementById('editInvoiceSupplier').value = window.getSupplierKeyFromName(first.supplier || 'Supplier 1');
+            document.getElementById('editInvoiceDueDate').value = first.dueDate && first.dueDate !== '-' ? first.dueDate : '';
+            window.handleEditInvoicePaymentType();
+            document.getElementById('editInvoiceModal').classList.remove('hidden');
+        };
+
+        window.executeEditStockInvoice = async () => {
+            const originalKey = document.getElementById('editInvoiceOriginalKey').value || 'LOKAL';
+            const newNoFaktur = document.getElementById('editInvoiceNoFaktur').value.trim();
+            const newTglFaktur = document.getElementById('editInvoiceTglFaktur').value;
+            const newPpn = parseFloat(document.getElementById('editInvoicePpn').value) || 0;
+            const newPaymentType = document.getElementById('editInvoicePaymentType').value;
+            const newSupplierKey = document.getElementById('editInvoiceSupplier').value;
+            const newSupplierName = window.getSupplierNameFromKey(newSupplierKey);
+            const newDueDate = newPaymentType === 'Tempo' ? document.getElementById('editInvoiceDueDate').value : '-';
+
+            if (!newTglFaktur) {
+                window.showFeedback('Gagal', 'Tanggal faktur wajib diisi.', 'error');
+                return;
+            }
+            if (newPaymentType === 'Tempo' && !newDueDate) {
+                window.showFeedback('Gagal', 'Tanggal jatuh tempo wajib diisi untuk pembayaran Tempo.', 'error');
+                return;
+            }
+
+            const invoiceLogs = state.stockLogs.filter(log => (log.noFaktur || 'LOKAL') === originalKey);
+            if (!invoiceLogs.length) {
+                window.showFeedback('Gagal', 'Data faktur tidak ditemukan.', 'error');
+                return;
+            }
+
+            document.getElementById('editInvoiceModal').classList.add('hidden');
+            try {
+                window.showLoading();
+                for (const log of invoiceLogs) {
+                    const logRef = doc(colStockLogs, log.id);
+                    await updateDoc(logRef, {
+                        noFaktur: newNoFaktur,
+                        tglFaktur: newTglFaktur,
+                        ppnSupplier: newPpn,
+                        paymentType: newPaymentType,
+                        dueDate: newDueDate,
+                        supplier: newSupplierName
+                    });
+                }
+                await addDoc(colSystemLogs, {
+                    action: 'EDIT_INVOICE_STOCK',
+                    details: `Edit faktur stok ${originalKey} menjadi ${newNoFaktur} / ${newTglFaktur}`,
+                    timestamp: new Date().toISOString()
+                });
+                window.hideLoading();
+                window.showFeedback('Berhasil', 'Faktur stok berhasil diperbarui.');
+            } catch (err) {
+                window.hideLoading();
+                console.error(err);
+                window.showFeedback('Gagal', 'Gagal menyimpan perubahan faktur.', 'error');
+            }
+        };
+
+        window.printStockInvoice = (invoiceKey) => {
+            const key = invoiceKey || 'LOKAL';
+            const invoiceLogs = state.stockLogs.filter(log => (log.noFaktur || 'LOKAL') === key);
+            if (!invoiceLogs.length) {
+                window.showFeedback('Kosong', 'Data faktur tidak ditemukan untuk dicetak.', 'error');
+                return;
+            }
+            const printCont = document.getElementById('printContainer');
+            const first = invoiceLogs[0];
+            let totalSubtotal = 0;
+            const itemsHtml = invoiceLogs.map(item => {
+                const baseSubtotal = (item.buyPrice || 0) * (item.qty || 0);
+                const calculatedDisc = item.discSupplierType === 'percentage'
+                    ? baseSubtotal * ((item.discSupplier || 0) / 100)
+                    : (item.discSupplier || 0);
+                const sub = baseSubtotal - calculatedDisc;
+                totalSubtotal += sub;
+                const discLabel = item.discSupplier > 0
+                    ? `<br><span class="text-[9px] text-rose-500 font-bold">Potongan: -${item.discSupplierType === 'percentage' ? item.discSupplier + '%' : formatRupiah(item.discSupplier)}</span>`
+                    : '';
+                const sellLine = item.sellPrice ? `<br><span class="text-[9px] text-slate-400">Jual: ${formatRupiah(item.sellPrice)}</span>` : '';
+                return `
+                    <tr class="border-b border-slate-200">
+                        <td class="p-2 font-bold text-slate-800">${item.productName}</td>
+                        <td class="p-2 text-center font-bold">x${item.qty}</td>
+                        <td class="p-2 text-right">${formatRupiah(item.buyPrice)}${sellLine}${discLabel}</td>
+                        <td class="p-2 text-right font-semibold text-slate-900">${formatRupiah(sub)}</td>
+                    </tr>
+                `;
+            }).join('');
+            const ppnAmount = totalSubtotal * ((first.ppnSupplier || 0) / 100);
+            const grandTotal = totalSubtotal + ppnAmount;
+            const nowStr = new Date().toLocaleString('id-ID');
+            printCont.innerHTML = `
+                <div class="p-8 bg-white text-xs">
+                    <div class="text-center mb-6">
+                        <h2 class="text-xl font-black uppercase text-slate-950 mb-1">${state.settings.storeName}</h2>
+                        <p class="text-[10px] text-slate-500 font-medium">${state.settings.address} | Telp: ${state.settings.phone}</p>
+                        <div class="border-b-2 border-slate-900 my-3"></div>
+                        <h3 class="text-base font-black uppercase tracking-wider text-slate-800">Cetak Faktur Stok</h3>
+                        <p class="text-[10px] text-slate-400 mt-1">Waktu Cetak: ${nowStr}</p>
+                    </div>
+                    <div class="print-card p-4 mb-6 border border-slate-300 rounded-xl bg-white shadow-sm" style="page-break-inside: avoid; break-inside: avoid;">
+                        <div class="print-card-header border-b border-slate-200 pb-3 mb-3 bg-slate-50/80 p-3 rounded-t-xl flex justify-between items-start">
+                            <div>
+                                <span class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">NOMOR FAKTUR</span>
+                                <h4 class="font-extrabold text-slate-800 text-sm">${first.noFaktur || 'LOKAL'}</h4>
+                            </div>
+                            <div class="text-right text-[10px] text-slate-600 font-medium space-y-0.5">
+                                <div>Supplier: <strong class="text-slate-800 font-bold">${first.supplier}</strong></div>
+                                <div>Tanggal Faktur: <strong class="text-slate-800 font-bold">${first.tglFaktur}</strong></div>
+                                <div>Metode Bayar: <span class="px-1.5 py-0.5 bg-slate-200 font-bold text-slate-700 rounded text-[9px] uppercase">${first.paymentType}</span> ${first.paymentType === 'Tempo' ? `(Tempo: <span class="text-amber-600 font-bold">${first.dueDate}</span>)` : ''}</div>
+                            </div>
+                        </div>
+                        <table class="print-card-table w-full text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 font-bold text-slate-600 border-b">
+                                    <th class="p-2 text-left">Nama Obat / Barang</th>
+                                    <th class="p-2 text-center w-16">Qty</th>
+                                    <th class="p-2 text-right w-32">Harga Satuan</th>
+                                    <th class="p-2 text-right w-32">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>${itemsHtml}</tbody>
+                        </table>
+                        <div class="mt-3 pt-2 border-t border-dashed border-slate-300 flex justify-end text-[11px] font-medium text-slate-600">
+                            <div class="w-64 space-y-1">
+                                <div class="flex justify-between"><span>Subtotal:</span><span>${formatRupiah(totalSubtotal)}</span></div>
+                                ${first.ppnSupplier > 0 ? `<div class="flex justify-between"><span>PPN (${first.ppnSupplier}%):</span><span>${formatRupiah(ppnAmount)}</span></div>` : ''}
+                                <div class="flex justify-between font-black text-xs text-indigo-600 border-t pt-1 mt-1"><span>GRAND TOTAL:</span><span>${formatRupiah(grandTotal)}</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            window.print();
         };
 
         // Expose state methods to window scope
