@@ -1,7 +1,6 @@
 const CACHE_NAME = 'kasirpro-v1-cache';
 const ASSETS_TO_CACHE = [
   './',
-  './index.html',
   './logo.png'
 ];
 
@@ -43,8 +42,16 @@ self.addEventListener('fetch', event => {
   
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
-      return cachedResponse || fetch(event.request).catch(() => {
-        // Penanganan jika offline dan aset tidak ada di cache
+      // Jika ada di cache, gunakan cache. Jika tidak, ambil dari jaringan (network).
+      return cachedResponse || fetch(event.request).catch(err => {
+        console.warn('Akses jaringan gagal, mengaktifkan respon cadangan offline:', err);
+        
+        // Mencegah ERR_FAILED dengan mengembalikan respon kosong yang valid secara HTTP jika gagal total
+        return new Response('Koneksi terputus. Silakan periksa jaringan Anda.', {
+          status: 503,
+          statusText: 'Service Unavailable',
+          headers: new Headers({ 'Content-Type': 'text/plain' })
+        });
       });
     })
   );
