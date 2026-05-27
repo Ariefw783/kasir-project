@@ -311,20 +311,28 @@
 
     <div id="app-wrapper" class="flex min-h-screen w-full hidden">
         <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/60 z-40 hidden backdrop-blur-sm transition-opacity" onclick="toggleSidebar()"></div>
-        <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-slate-900 to-slate-800 text-slate-300 shadow-[4px_0_24px_rgba(0,0,0,0.1)] transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-50 flex flex-col">
+     
+     <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-slate-900 to-slate-800 text-slate-300 shadow-[4px_0_24px_rgba(0,0,0,0.1)] transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-50 flex flex-col">
             <div class="flex items-center justify-between p-5 border-b border-slate-700/50">
                 <div class="flex items-center gap-3">
-                    <div class="bg-gradient-to-br from-indigo-500 to-blue-600 text-white p-2.5 rounded-xl">
-                        <i class="fas fa-store text-lg"></i>
+                    <!-- Menggunakan logo custom eksternal dengan ukuran serasi -->
+                    <img src="logo.png" alt="Logo KasirPro" class="w-10 h-10 object-contain rounded-xl">
+                    
+                    <!-- Struktur dua baris kustom dengan warna yang Anda inginkan -->
+                    <div class="flex flex-col leading-none">
+                        <span class="text-[10px] font-black text-yellow-400 uppercase tracking-widest mb-1 select-none">Apotek</span>
+                        <h2 class="text-white font-bold text-base tracking-wide leading-none">Keluarga<span class="text-emerald-400">Sehat</span></h2>
                     </div>
-                    <h2 class="text-white font-bold text-xl tracking-wide">Kasir<span class="text-indigo-400">Pro</span></h2>
                 </div>
+                <!-- Tombol penutup sidebar mobile -->
                 <button onclick="toggleSidebar()" class="text-slate-400 lg:hidden"><i class="fas fa-times text-xl"></i></button>
-            </div>
+            </div> 
             
             <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
                 <p class="px-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Menu Utama</p>
-                <button id="menu-produk" onclick="switchView('view-produk', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-600/15 text-indigo-400 font-semibold transition">
+                
+                <!-- Perbaikan: Ditambahkan kembali kelas "text-left" agar baris menu sejajar rapi -->
+                <button id="menu-produk" onclick="switchView('view-produk', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-600/15 text-indigo-400 font-semibold text-left transition">
                     <i class="fas fa-box w-5 text-center"></i> Daftar Produk
                 </button>
                 <button id="menu-barang-masuk" onclick="switchView('view-barang-masuk', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition text-left text-slate-400">
@@ -690,9 +698,9 @@
 <div id="view-barang-masuk" class="view-section hidden animate-[fadeIn_0.3s_ease-out]">
     <div class="max-w-5xl mx-auto space-y-6">
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-            <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                <i class="fas fa-file-invoice text-indigo-500"></i> Form Faktur Pembelian (Barang Masuk)
-            </h2>
+            <h2 id="bmFormTitle" class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+    <i class="fas fa-file-invoice text-indigo-500"></i> Form Faktur Pembelian (Barang Masuk)
+</h2>
             
             <!-- 1. Header Faktur -->
             <div class="bg-slate-50 p-4 rounded-xl mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 border border-slate-100">
@@ -804,7 +812,7 @@
                     <p class="text-[10px] text-slate-400 font-bold uppercase">Total Pembayaran Faktur</p>
                     <p id="bmFakturTotalText" class="text-2xl font-black text-slate-900">Rp 0,00</p>
                 </div>
-                <button type="button" onclick="saveFakturInvoice()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-emerald-100 transition-all flex items-center justify-center gap-2">
+                <button id="btnSaveFaktur" type="button" onclick="saveFakturInvoice()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-emerald-100 transition-all flex items-center justify-center gap-2">
                     <i class="fas fa-save"></i> Simpan Faktur
                 </button>
             </div>
@@ -1472,12 +1480,15 @@
             posPageSize: 10,
             stockPage: 1,
             stockPageSize: 1,
-            opnamePage: 1,         // Untuk riwayat audit
-            opnamePageSize: 3,     // Dibatasi maksimal 3 sesi per halaman (Instruksi 8 & 9)
+            opnamePage: 1,         
+            opnamePageSize: 3,     
             deleteTrxId: null,
             fakturItems: [],
-            opnameQueue: [],       // Menyimpan daftar antrean stock opname sementara
-            opnameHistory: []      // Menyimpan riwayat audit stock opname final
+            opnameQueue: [],       
+            opnameHistory: [],
+            
+            // TAMBAHKAN LINE INI:
+            editingInvoiceKey: null 
         };
 
         window.state = state;
@@ -2499,41 +2510,70 @@ const initSync = () => {
             else if (supplierKey === 'supplier3') actualSupplierName = s3Name;
             else if (supplierKey === 'supplier4') actualSupplierName = s4Name;
 
-            // GANTI BLOK try { ... } DI DALAM FUNGSI window.saveFakturInvoice MENJADI:
-    try {
-                window.showLoading("MENYIMPAN FAKTUR", "MENGUNGGAH DATA BARANG MASUK KE CLOUD FIREBASE");
+            try {
+                window.showLoading("MENYIMPAN FAKTUR", "MEMPROSES LOGIKA ROLLBACK & PENYIMPANAN DATA UTUH");
                 const timestampStr = new Date().toISOString();
+
+                // ==========================================
+                // LOGIKA UTAMA ROLLBACK (Hanya berjalan jika mengedit faktur lama)
+                // ==========================================
+                if (state.editingInvoiceKey) {
+                    const originalLogs = state.stockLogs.filter(log => (log.noFaktur || 'LOKAL') === state.editingInvoiceKey);
+                    
+                    for (const log of originalLogs) {
+                        const prodRef = doc(colProducts, log.productId);
+                        const prodSnap = await getDoc(prodRef);
+                        if (prodSnap.exists()) {
+                            const currentStock = prodSnap.data().stock || 0;
+                            const rolledBackStock = Math.max(0, currentStock - log.qty);
+                            await updateDoc(prodRef, { stock: rolledBackStock });
+                        }
+                        // Hapus log lama dari Firestore
+                        await deleteDoc(doc(colStockLogs, log.id));
+                    }
+
+                    await addDoc(colSystemLogs, {
+                        action: 'EDIT_ROLLBACK',
+                        details: `Menjalankan pembatalan stok faktur #${state.editingInvoiceKey} untuk ditimpa dengan data baru`,
+                        timestamp: timestampStr
+                    });
+                }
+                // ==========================================
+
                 const totalItems = state.fakturItems.length;
                 let itemsProcessed = 0;
                 
                 for (let i = 0; i < totalItems; i++) {
                     const item = state.fakturItems[i];
-                    const currentProd = state.products.find(x => x.id === item.id);
-                    const currentStock = currentProd ? currentProd.stock : 0;
-                    const finalStock = currentStock + item.qty;
-
-                    // INTEGRASI: Hitung Harga Beli Netto per unit (Diskon & PPN sudah terakumulasi)
-                    const netBuyPrice = Math.round((item.subtotal / item.qty) * (1 + ppnSupplier / 100));
-
+                    
                     const docRef = doc(colProducts, item.id);
                     const docSnap = await getDoc(docRef);
+                    
+                    // PERBAIKAN: Baca stok langsung dari Firestore (Anti-Race Condition)
+                    let freshStock = 0;
+                    const netBuyPrice = Math.round((item.subtotal / item.qty) * (1 + ppnSupplier / 100));
+
                     if (docSnap.exists()) {
+                        freshStock = docSnap.data().stock || 0;
+                        const finalStock = freshStock + item.qty;
                         await updateDoc(docRef, { 
                             stock: finalStock, 
-                            buyPrice: netBuyPrice, // Menggunakan Harga Beli Netto
+                            buyPrice: netBuyPrice,
                             sellPrice: item.sellPrice 
                         });
                     } else {
+                        const finalStock = item.qty;
                         await setDoc(docRef, {
                             name: item.name,
-                            category: currentProd ? currentProd.category : "Obat Bebas",
-                            buyPrice: netBuyPrice, // Menggunakan Harga Beli Netto
+                            category: "Obat Bebas",
+                            buyPrice: netBuyPrice,
                             sellPrice: item.sellPrice,
                             stock: finalStock,
                             supplierKey: supplierKey
                         });
                     }
 
+                    // Tulis ulang log baru hasil edit
                     await addDoc(colStockLogs, {
                         productId: item.id,
                         productName: item.name,
@@ -2557,33 +2597,48 @@ const initSync = () => {
                     if (percentEl) percentEl.innerText = percent + '%';
                 }
 
-        await addDoc(colSystemLogs, {
-            action: 'STOK_FAKTUR',
-            details: `Simpan Faktur ${noFaktur} (${tglFaktur}) dari supplier ${actualSupplierName} dengan PPN ${ppnSupplier}% dan total ${state.fakturItems.length} item`,
-            timestamp: timestampStr
-        });
+                await addDoc(colSystemLogs, {
+                    action: state.editingInvoiceKey ? 'STOK_FAKTUR_EDIT' : 'STOK_FAKTUR',
+                    details: state.editingInvoiceKey 
+                        ? `Memperbarui Faktur #${state.editingInvoiceKey} menjadi #${noFaktur}` 
+                        : `Simpan Faktur baru #${noFaktur}`,
+                    timestamp: timestampStr
+                });
 
-        // Jeda sejenak agar visual 100% terbaca jelas oleh user
-        await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 500));
 
-        window.hideLoading();
-        window.showFeedback('Faktur Tersimpan', `Faktur ${noFaktur} berhasil disimpan ke database. Stok diperbarui.`);
-        
-        document.getElementById('bmNoFaktur').value = '';
-        document.getElementById('bmTglFaktur').value = '';
-        document.getElementById('bmPpnSupplier').value = '';
-        document.getElementById('bmFakturSupplier').value = '';
-        document.getElementById('bmJenisBayar').value = 'Cash';
-        document.getElementById('bmDueDate').value = '';
-        document.getElementById('bmDueDateContainer').classList.add('hidden');
-        state.fakturItems = [];
-        renderFakturQueue(); 
+                window.hideLoading();
+                window.showFeedback('Faktur Tersimpan', `Faktur ${noFaktur} berhasil disimpan ke database. Stok diperbarui.`);
+                
+                // Reset form dan kembalikan UI ke mode default
+                document.getElementById('bmNoFaktur').value = '';
+                document.getElementById('bmTglFaktur').value = '';
+                document.getElementById('bmPpnSupplier').value = '';
+                document.getElementById('bmFakturSupplier').value = '';
+                document.getElementById('bmJenisBayar').value = 'Cash';
+                document.getElementById('bmDueDate').value = '';
+                document.getElementById('bmDueDateContainer').classList.add('hidden');
+                
+                // Reset teks Form ke Mode Input Baru
+                const formHeader = document.getElementById('bmFormTitle');
+                if (formHeader) {
+                    formHeader.innerHTML = `<i class="fas fa-file-invoice text-indigo-500"></i> Form Faktur Pembelian (Barang Masuk)`;
+                }
+                const btnSave = document.getElementById('btnSaveFaktur');
+                if (btnSave) {
+                    btnSave.className = "w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-emerald-100 transition-all flex items-center justify-center gap-2";
+                    btnSave.innerHTML = `<i class="fas fa-save"></i> Simpan Faktur`;
+                }
 
-    } catch (e) {
-        window.hideLoading();
-        console.error(e);
-        window.showFeedback('Gagal', 'Terjadi kesalahan sistem saat menyimpan faktur.', 'error');
-    }
+                state.editingInvoiceKey = null; // Kosongkan pelacak edit
+                state.fakturItems = [];
+                renderFakturQueue(); 
+
+            } catch (e) {
+                window.hideLoading();
+                console.error(e);
+                window.showFeedback('Gagal', 'Terjadi kesalahan sistem saat memproses transaksi.', 'error');
+            }
         };
 
         window.resetOpnameProductSearch = () => {
@@ -4027,28 +4082,13 @@ window.handleStockFilterTypeChange = () => {
 
                     const sellPriceVal = item.sellPrice ? formatRupiah(item.sellPrice) : '-';
 
-                    const actionsHtml = state.currentUser && state.currentUser.role === 'Admin'
-                        ? `
-                        <div class="flex gap-1 justify-end">
-                            <button onclick="window.editStockLog('${item.id}')" class="text-indigo-600 hover:bg-indigo-50 p-1.5 rounded-lg transition text-[10px]" title="Edit Qty/Harga">
-                                <i class="fas fa-pencil-alt"></i>
-                            </button>
-                            <button onclick="window.deleteStockLog('${item.id}')" class="text-rose-600 hover:bg-rose-50 p-1.5 rounded-lg transition text-[10px]" title="Hapus Riwayat">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                        `
-                        : '-';
-
                     return `
                         <tr class="text-[10px] border-b border-slate-100 last:border-0 hover:bg-slate-50/50">
                             <td class="py-2 px-1 font-bold text-slate-700">${item.productName}</td>
                             <td class="py-2 px-1 text-center font-bold text-emerald-600">x${item.qty}</td>
                             <td class="py-2 px-1 text-right text-slate-500">${formatRupiah(item.buyPrice)}</td>
                             <td class="py-2 px-1 text-right text-rose-500 font-semibold">${discText}</td>
-                            <td class="py-2 px-1 text-right font-bold text-indigo-600">${sellPriceVal}</td>
                             <td class="py-2 px-1 text-right font-semibold text-slate-800">${formatRupiah(sub)}</td>
-                            <td class="py-2 px-1 text-right">${actionsHtml}</td>
                         </tr>
                     `;
                 }).join('');
@@ -4118,9 +4158,7 @@ window.handleStockFilterTypeChange = () => {
                                             <th class="py-1 px-1 text-center">Qty</th>
                                             <th class="py-1 px-1 text-right">Harga Beli</th>
                                             <th class="py-1 px-1 text-right">Discount</th>
-                                            <th class="py-1 px-1 text-right">Harga Jual</th>
                                             <th class="py-1 px-1 text-right">Subtotal</th>
-                                            <th class="py-1 px-1 text-right">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100">
@@ -4380,31 +4418,82 @@ window.handleStockFilterTypeChange = () => {
                 document.getElementById('editInvoiceDueDate').value = '';
             }
         };
+        // MULAI PENAMBAHAN KODE BARU (Di bawah fungsi window.handleEditInvoicePaymentType):
+        window.toggleDueDateField = (val) => {
+            const container = document.getElementById('bmDueDateContainer');
+            if (val === 'Tempo') {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+                document.getElementById('bmDueDate').value = '';
+            }
+        };
+// AKHIR PENAMBAHAN KODE BARU
 
+        // Menarik kembali seluruh item faktur lama ke keranjang Barang Masuk
         window.editStockInvoice = (invoiceKey) => {
             const key = invoiceKey || 'LOKAL';
             const invoiceLogs = state.stockLogs.filter(log => (log.noFaktur || 'LOKAL') === key);
-            if (!invoiceLogs.length) return;
+            if (!invoiceLogs.length) {
+                window.showFeedback('Gagal', 'Data faktur tidak ditemukan.', 'error');
+                return;
+            }
 
             const first = invoiceLogs[0];
-            const supplierSelect = document.getElementById('editInvoiceSupplier');
-            if (supplierSelect) {
-                supplierSelect.innerHTML = `
-                    <option value="supplier1">${state.settings.supp1 || 'Supplier 1'}</option>
-                    <option value="supplier2">${state.settings.supp2 || 'Supplier 2'}</option>
-                    <option value="supplier3">${state.settings.supp3 || 'Supplier 3'}</option>
-                    <option value="supplier4">${state.settings.supp4 || 'Supplier 4'}</option>
-                `;
+            
+            // 1. Set status bahwa kita sedang mengedit faktur ini
+            state.editingInvoiceKey = key;
+
+            // 2. Isi data header form dengan metadata faktur yang akan diedit
+            document.getElementById('bmNoFaktur').value = first.noFaktur || '';
+            document.getElementById('bmTglFaktur').value = first.tglFaktur || (first.timestamp ? first.timestamp.substring(0, 10) : '');
+            document.getElementById('bmPpnSupplier').value = first.ppnSupplier || 0;
+            document.getElementById('bmJenisBayar').value = first.paymentType || 'Cash';
+            document.getElementById('bmFakturSupplier').value = window.getSupplierKeyFromName(first.supplier || 'Supplier 1');
+            document.getElementById('bmDueDate').value = first.dueDate && first.dueDate !== '-' ? first.dueDate : '';
+            
+            // Trigger penyesuaian kolom jatuh tempo jatuh tempo
+            window.toggleDueDateField(first.paymentType);
+
+            // 3. Masukkan semua item obat dari log faktur ke dalam keranjang antrean sementara (state.fakturItems)
+            state.fakturItems = invoiceLogs.map(log => {
+                const baseSubtotal = log.buyPrice * log.qty;
+                const calculatedDisc = log.discSupplierType === 'percentage'
+                    ? baseSubtotal * ((log.discSupplier || 0) / 100)
+                    : (log.discSupplier || 0);
+
+                return {
+                    id: log.productId,
+                    name: log.productName,
+                    buyPrice: log.buyPrice,
+                    sellPrice: log.sellPrice || 0,
+                    qty: log.qty,
+                    discSupplier: log.discSupplier || 0,
+                    discSupplierType: log.discSupplierType || 'percentage',
+                    subtotal: baseSubtotal - calculatedDisc,
+                    supplierKey: window.getSupplierKeyFromName(log.supplier),
+                    supplier: log.supplier
+                };
+            });
+
+            // 4. Ubah teks Header Form dan Tombol Simpan secara dinamis
+            const formHeader = document.getElementById('bmFormTitle');
+            if (formHeader) {
+                formHeader.innerHTML = `<i class="fas fa-edit text-amber-500 animate-pulse"></i> Edit Faktur Pembelian #${key}`;
             }
-            document.getElementById('editInvoiceOriginalKey').value = key;
-            document.getElementById('editInvoiceNoFaktur').value = first.noFaktur || '';
-            document.getElementById('editInvoiceTglFaktur').value = first.tglFaktur || (first.timestamp ? first.timestamp.substring(0, 10) : '');
-            document.getElementById('editInvoicePpn').value = first.ppnSupplier || 0;
-            document.getElementById('editInvoicePaymentType').value = first.paymentType || 'Cash';
-            document.getElementById('editInvoiceSupplier').value = window.getSupplierKeyFromName(first.supplier || 'Supplier 1');
-            document.getElementById('editInvoiceDueDate').value = first.dueDate && first.dueDate !== '-' ? first.dueDate : '';
-            window.handleEditInvoicePaymentType();
-            document.getElementById('editInvoiceModal').classList.remove('hidden');
+            const btnSave = document.getElementById('btnSaveFaktur');
+            if (btnSave) {
+                btnSave.className = "w-full sm:w-auto bg-amber-500 hover:bg-amber-650 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-amber-100 transition-all flex items-center justify-center gap-2";
+                btnSave.innerHTML = `<i class="fas fa-save"></i> Perbarui Faktur`;
+            }
+
+            // 5. Render antrean tabel dan pindahkan layar aktif ke tab Barang Masuk
+            renderFakturQueue();
+            
+            const tabMenu = document.getElementById('menu-barang-masuk');
+            if (tabMenu) {
+                switchView('view-barang-masuk', tabMenu);
+            }
         };
 
         window.executeEditStockInvoice = async () => {
