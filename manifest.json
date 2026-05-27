@@ -1,0 +1,24 @@
+{
+  "short_name": "KasirPro",
+  "name": "KasirPro V.1 - Apotek Keluarga Sehat",
+  "description": "Aplikasi Kasir Apotek Keluarga Sehat berbasis Cloud",
+  "icons": [
+    {
+      "src": "logo.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "display": "standalone",
+  "orientation": "portrait"
+}
