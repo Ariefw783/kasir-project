@@ -1,3 +1,4 @@
+
 const CACHE_NAME = 'kasirpro-v2-cache';
 const ASSETS_TO_CACHE = [
   './',
@@ -28,7 +29,7 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Event penanganan Fetch (Request Jaringan)
+// Event penanganan Fetch (Request Jaringan) - Strategi Hybrid
 self.addEventListener('fetch', event => {
   // Biarkan request Firebase / Firestore langsung bypass tanpa masuk ke cache lokal Service Worker
   if (
@@ -40,19 +41,24 @@ self.addEventListener('fetch', event => {
     return;
   }
   
-  event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      // Jika ada di cache, gunakan cache. Jika tidak, ambil dari jaringan (network).
-      return cachedResponse || fetch(event.request).catch(err => {
-        console.warn('Akses jaringan gagal, mengaktifkan respon cadangan offline:', err);
-        
-        // Mencegah ERR_FAILED dengan mengembalikan respon kosong yang valid secara HTTP jika gagal total
-        return new Response('Koneksi terputus. Silakan periksa jaringan Anda.', {
-          status: 503,
-          statusText: 'Service Unavailable',
-          headers: new Headers({ 'Content-Type': 'text/plain' })
-        });
-      });
-    })
-  );
+  // 1. Strategi Network-First khusus untuk index.html agar perubahan kode langsung terlihat
+  if (event.request.mode === 'navigate' || event.request.url.endsWith('index.html') || event.request.url === self.location.origin + '/') {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          // Jika jaringan berhasil, simpan/perbarui file index.html terbaru ke dalam cache
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseClone));
+          return response;
+        })
+        .catch(() => caches.match(event.request)) // Jika offline atau jaringan gagal, gunakan cache sebagai cadangan
+    );
+  } else {
+    // 2. Strategi Cache-First untuk aset statis lainnya (seperti logo.png) agar aplikasi memuat lebih cepat
+    event.respondWith(
+      caches.match(event.request).then(cachedResponse => {
+        return cachedResponse || fetch(event.request).catch(() => {});
+      })
+    );
+  }
 });
