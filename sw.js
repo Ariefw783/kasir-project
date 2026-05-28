@@ -1,5 +1,4 @@
-
-const CACHE_NAME = 'kasirpro-v2-cache';
+const CACHE_NAME = 'kasirpro-v2.1-cache';
 const ASSETS_TO_CACHE = [
   './',
   './logo.png'
