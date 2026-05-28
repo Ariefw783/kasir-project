@@ -175,20 +175,20 @@
         .anim-connecting { animation: db-flow 1s infinite linear; background: #f59e0b; }
         .anim-offline { background: #ef4444; }
         
-    /* Animasi Mengambang & Berpendar Amber untuk Logo Firebase */
+    /* Animasi Mengambang & Berpendar Lembut untuk Logo Baru */
         @keyframes firebase-float-glow {
             0%, 100% { 
-                filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.4)); 
+                filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.4)); /* Menggunakan pendaran warna Indigo/Biru lembut */
                 transform: translateY(0) scale(1); 
             }
             50% { 
-                filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.85)); 
+                filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.8)); 
                 transform: translateY(-6px) scale(1.05); 
             }
         }
         .firebase-animated {
             animation: firebase-float-glow 2.5s ease-in-out infinite;
-        }    
+        } 
 
     </style>
     <!-- Tambahan Link PWA Manifest dan Theme Color -->
@@ -202,17 +202,13 @@
     <div id="loadingModal" class="fixed inset-0 bg-slate-900/80 z-[3100] flex justify-center items-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center modal-enter">
             
-            <!-- Firebase Animated Logo Container -->
+    <!-- Animated Logo Container -->
             <div class="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center">
                 <!-- Cincin pemutar luar teknologi tinggi (High-tech outer spinning ring) -->
-                <div class="absolute inset-0 rounded-full border-4 border-amber-500/10 border-t-amber-500 animate-spin"></div>
+                <div class="absolute inset-0 rounded-full border-4 border-indigo-500/10 border-t-indigo-500 animate-spin"></div>
                 
-                <!-- Logo Vektor Firebase dengan Animasi Mengambang & Berpendar -->
-                <svg class="w-12 h-12 firebase-animated relative z-10" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5.44111 23.3611L14.7211 2.82111C15.1111 1.95111 16.3211 1.93111 16.7511 2.78111L20.2611 9.77111L5.44111 23.3611Z" fill="#FFC400"/>
-                    <path d="M26.4711 23.3311L21.7511 7.23111C21.4611 6.25111 20.0811 6.18111 19.6911 7.12111L16.2611 15.3511L26.4711 23.3311Z" fill="#F47C00"/>
-                    <path d="M5.44111 23.3611L14.9311 28.6911C15.5911 29.0611 16.4011 29.0611 17.0611 28.6911L26.5611 23.3611L20.2611 13.8411L16.2611 15.3511L5.44111 23.3611Z" fill="#DD2C00"/>
-                </svg>
+                <!-- Logo Kustom Baru dengan Animasi Mengambang & Berpendar -->
+                <img src="logo.png" alt="Logo KasirPro" class="w-12 h-12 firebase-animated relative z-10 object-contain">
             </div>
 
             <h3 class="text-xl font-bold text-slate-800 mb-2">DATABASE LOADING</h3>
@@ -226,8 +222,9 @@
 
     <!-- GANTI bagian header di dalam #login-screen dengan kode ini -->
     <div id="login-screen" class="fixed inset-0 z-[1000] flex flex-col items-center justify-center p-6">
-        <div class="mb-8 text-center">
-          
+        <div class="mb-8 text-center flex flex-col items-center">
+            <!-- Penambahan Logo Baru di atas Judul Utama -->
+            <img src="logo.png" alt="Logo KasirPro" class="w-24 h-24 object-contain mb-6 filter drop-shadow-[0_4px_12px_rgba(255,255,255,0.15)]">
             
             <h1 class="text-3xl font-black text-white mb-2">KASIR<span class="text-indigo-500">PRO</span><span class="text-yellow-300"> V.1</span></h1>
             <h2 class="text-5xl font-black text-white mb-2">APOTEK<span class="text-indigo-400"> KELUARGA SEHAT</span></h2><br>
@@ -4647,4 +4644,4 @@ window.handleStockFilterTypeChange = () => {
         }
     </script>
 </body>
-</html>
+</html> 
