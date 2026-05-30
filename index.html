@@ -3612,6 +3612,13 @@ const initSync = () => {
         window.processDeleteTransaction = async () => {
             const pass = document.getElementById('deleteTrxConfirmInput').value;
             if (pass !== 'admin**') {
+                // 1. Sembunyikan modal hapus transaksi terlebih dahulu agar tidak menghalangi notifikasi
+                document.getElementById('deleteTrxModal').classList.add('hidden');
+                
+                // 2. Kosongkan kembali kolom input sandi
+                document.getElementById('deleteTrxConfirmInput').value = '';
+                
+                // 3. Tampilkan notifikasi kesalahan kata sandi
                 window.showFeedback('Gagal', 'Sandi admin salah untuk menghapus transaksi!', 'error');
                 return;
             }
