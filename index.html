@@ -55,13 +55,26 @@
         .pos-btn { border-radius: 0px !important; transition: all 0.2s; }
 
         @media print {
-            @page { size: auto; margin: 10mm; }
-            body { background: white !important; overflow: visible !important; }
+            @page { size: auto; margin: 5mm; }
+            
+            /* Menetralkan tinggi 100vh agar browser tidak membuat halaman kosong tambahan */
+            html, body { 
+                height: auto !important; 
+                min-height: 0 !important; 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                background: white !important; 
+                overflow: visible !important; 
+            }
+            
             #app-wrapper, #login-screen, .fixed, .modal-backdrop, [role="dialog"], #toast-container { display: none !important; }
+            
             #printContainer { 
                 display: block !important; 
-                background: white;
-                width: 100%;
+                background: white !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
             .print-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
             .print-table th, .print-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
@@ -251,7 +264,7 @@
 
         <div class="fixed bottom-14 right-8 text-right select-none">
             <span class="text-[10px] font-sans font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 uppercase tracking-wider block">
-                Pembaharuan Terakhir: Kamis, 28 Mei 2026
+                Pembaharuan Terakhir: Sabtu, 30 Mei 2026
             </span>
         </div>
 
@@ -345,6 +358,9 @@
                 <button id="menu-transaksi" onclick="switchView('view-transaksi', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition text-left text-slate-400">
                     <i class="fas fa-receipt w-5 text-center text-rose-400"></i> Daftar Transaksi
                 </button>
+                <button id="menu-rencana" onclick="switchView('view-rencana', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition text-left text-slate-400">
+                    <i class="fas fa-clipboard-list w-5 text-center text-indigo-400"></i> Rencana Produk Baru
+                </button>
                 
                 <div id="admin-extras" class="hidden">
                     <p class="px-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-6 mb-3">Sistem</p>
@@ -378,21 +394,25 @@
 
         <!-- Main Wrapper -->
         <div class="flex-1 flex flex-col h-full w-full lg:ml-64 relative">
-            <header class="bg-white/80 backdrop-blur-md border-b border-slate-200/60 z-30 px-6 py-3 flex justify-between items-center shrink-0 sticky top-0">
-                <div class="flex items-center gap-4">
-                    <button onclick="toggleSidebar()" class="p-2 rounded-lg border border-slate-200 lg:hidden text-slate-600"><i class="fas fa-bars"></i></button>
-                    <div class="flex items-center gap-4">
-                        <h1 id="header-title" class="text-lg font-bold text-slate-800 leading-none">Dashboard</h1>
-                        <div class="h-8 w-[1px] bg-slate-200 mx-2 hidden sm:block"></div>
-                        <p id="digital-clock" class="text-[11px] font-bold text-indigo-600 uppercase tracking-tight leading-tight">Memuat Waktu...</p>
-                    </div>
+            <header class="bg-white/80 backdrop-blur-md border-b border-slate-200/60 z-30 px-4 sm:px-6 py-3 flex justify-between items-center shrink-0 sticky top-0">
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <button onclick="toggleSidebar()" class="p-2 rounded-lg border border-slate-200 lg:hidden text-slate-600"><i class="fas fa-bars text-sm"></i></button>
+                    <h1 id="header-title" class="text-base sm:text-lg font-bold text-slate-800 leading-none">Dashboard</h1>
                 </div>
-                <div class="flex flex-col items-end">
-                    <div id="firebase-status" class="flex items-center gap-2 text-[10px] font-bold text-amber-500 bg-amber-50 px-3 py-1.5 rounded-full uppercase border border-amber-100">
-                        <i class="fas fa-circle-notch fa-spin"></i> Database Menghubungkan...
+                
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <!-- Waktu Real-Time Bergaris (Responsif) -->
+                    <div class="border border-slate-200 rounded-xl px-2.5 py-1.5 sm:px-4 sm:py-2 bg-slate-50/50 shadow-sm flex items-center">
+                        <p id="digital-clock" class="text-[10px] sm:text-xs font-bold text-indigo-600 uppercase tracking-tight leading-none">Memuat Waktu...</p>
                     </div>
-                    <div id="db-indicator-box" class="w-full h-1 bg-slate-100 rounded-full mt-1 overflow-hidden relative">
-                        <div id="db-indicator-bar" class="absolute inset-0 anim-connecting"></div>
+                    
+                    <!-- Indikator Database Modern (Selalu Memiliki Teks Pendek di Ponsel) -->
+                    <div id="firebase-status" class="flex items-center gap-1.5 sm:gap-2 text-[10px] font-bold px-2 py-1.5 sm:px-3 sm:py-1.5 rounded-xl uppercase border border-amber-100 bg-amber-50 text-amber-600 shadow-sm transition-all duration-300">
+                        <span class="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5">
+                            <span id="db-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                            <span id="db-dot" class="relative inline-flex rounded-full h-2 w-2 sm:h-2.5 sm:w-2.5 bg-amber-500"></span>
+                        </span>
+                        <span id="db-text">Database Menghubungkan...</span>
                     </div>
                 </div>
             </header>
@@ -1005,7 +1025,109 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- View Rencana Produk Baru -->
+<div id="view-rencana" class="view-section hidden animate-[fadeIn_0.3s_ease-out] space-y-6">
+    <!-- Form Input Rencana Produk -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+        <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+            <i class="fas fa-clipboard-list text-indigo-500"></i> Usulkan Rencana Produk Baru
+        </h2>
+        <form id="rencanaForm" onsubmit="window.saveRencanaProduct(event)" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+            <div class="md:col-span-3">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Nama Produk Rencana</label>
+                <input type="text" id="rencanaName" required class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none font-semibold text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Contoh: VITAMIN C 1000MG">
+            </div>
+            <div class="md:col-span-3">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Kategori</label>
+                <select id="rencanaCat" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer">
+                    <option value="Obat Bebas">Obat Bebas</option>
+                    <option value="Obat Bebas Terbatas">Obat Bebas Terbatas</option>
+                    <option value="Obat Keras">Obat Keras</option>
+                    <option value="Jamu">Jamu</option>
+                    <option value="Obat Herbal">Obat Herbal</option>
+                    <option value="Narkotika">Narkotika</option>
+                    <option value="Fitofarmaka">Fitofarmaka</option>
+                    <option value="Lainnya">Lainnya</option>
+                </select>
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Rencana Supplier</label>
+                <select id="rencanaSupplier" required class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer">
+                    <option value="">Pilih Supplier...</option>
+                </select>
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Catatan / Alasan</label>
+                <input type="text" id="rencanaNotes" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none font-semibold text-xs focus:ring-2 focus:ring-indigo-500" placeholder="Banyak ditanyakan pasien">
+            </div>
+            <div class="md:col-span-2">
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-lg text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-indigo-100">
+                    <i class="fas fa-plus"></i> Usulkan
+                </button>
+            </div>
+        </form>
+    </div>
 
+    <!-- Tabel Rencana Produk (Paginasi 25) -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="p-4 border-b border-slate-100 bg-white/50 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                    <i class="fas fa-clipboard-check text-indigo-500"></i> Daftar Usulan Rencana Produk Baru
+                </h3>
+                <p class="text-xs text-slate-400">Total rencana produk yang sedang direncanakan atau telah terealisasi ke toko.</p>
+            </div>
+            <div class="flex gap-2 w-full md:w-auto">
+                <select id="rencanaFilterStatus" onchange="window.state.rencanaPage = 1; window.renderRencanaTable();" class="text-xs p-2 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="all">Semua Status</option>
+                    <option value="Rencana">Status Rencana</option>
+                    <option value="Terealisasi">Status Terealisasi</option>
+                </select>
+                <button onclick="window.generatePDF('rencana')" class="text-xs bg-rose-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-rose-700 transition flex items-center justify-center gap-2 shadow-lg shadow-rose-100">
+                    <i class="fas fa-file-pdf"></i> Ekspor PDF
+                </button>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-100">
+                        <th class="px-5 py-3">Nama Produk</th>
+                        <th class="px-5 py-3">Kategori</th>
+                        <th class="px-5 py-3">Rencana Supplier</th>
+                        <th class="px-5 py-3">Catatan / Alasan</th>
+                        <th class="px-5 py-3 text-center">Status</th>
+                        <th class="px-5 py-3 text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="rencanaTableBody" class="divide-y divide-slate-100 bg-white">
+                    <tr>
+                        <td colspan="6" class="p-6 text-center text-slate-400 italic font-medium">Belum ada data rencana produk baru.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- Kontrol Paginasi Lokal Rencana Produk (Limit 25) -->
+        <div class="p-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50/50">
+            <div class="text-xs text-slate-500 font-medium">
+                Menampilkan <span id="rencana-paginated-start" class="font-bold">0</span> - <span id="rencana-paginated-end" class="font-bold">0</span> dari <span id="rencana-paginated-total" class="font-bold">0</span> usulan
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="window.prevRencanaPage()" id="btn-prev-rencana" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition">
+                    <i class="fas fa-chevron-left mr-1"></i> Prev
+                </button>
+                <span class="text-xs font-bold text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg">
+                    Halaman <span id="rencana-current-page">1</span>
+                </span>
+                <button onclick="window.nextRencanaPage()" id="btn-next-rencana" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition">
+                    Next <i class="fas fa-chevron-right mr-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+                
                 <!-- View Pengaturan -->
                 <div id="view-pengaturan" class="view-section hidden h-full overflow-y-auto animate-[fadeIn_0.3s_ease-out]">
                     <div class="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
@@ -1472,25 +1594,27 @@
         if (typeof window.supplier4Products === 'undefined') window.supplier4Products = ["MILANTA LIQUID", "PROMAG CHEW", "ENTROSTOP TAB"];
 
         let state = {
-            products: [], firestoreProducts: [], cart: [], transactions: [], stockLogs: [],
-            settings: { storeName: 'KASIR PRO', adminName: 'Administrator', cashier1Name: 'Kasir 1', cashier2Name: 'Kasir 2', address: '-', phone: '-', supp1:'', supp2:'', supp3:'', supp4:'' },
-            currentUser: null, lastTrx: null, targetLogin: null, selectedCashierIndex: null,
-            productPage: 1,
-            productPageSize: 10,
-            posPage: 1,
-            posPageSize: 10,
-            stockPage: 1,
-            stockPageSize: 1,
-            opnamePage: 1,         
-            opnamePageSize: 3,     
-            deleteTrxId: null,
-            fakturItems: [],
-            opnameQueue: [],       
-            opnameHistory: [],
-            
-            // TAMBAHKAN LINE INI:
-            editingInvoiceKey: null 
-        };
+    products: [], firestoreProducts: [], cart: [], transactions: [], stockLogs: [],
+    rencanaProducts: [], // Menyimpan data usulan produk (TAMBAHAN)
+    settings: { storeName: 'KASIR PRO', adminName: 'Administrator', cashier1Name: 'Kasir 1', cashier2Name: 'Kasir 2', address: '-', phone: '-', supp1:'', supp2:'', supp3:'', supp4:'' },
+    currentUser: null, lastTrx: null, targetLogin: null, selectedCashierIndex: null,
+    productPage: 1,
+    productPageSize: 10,
+    posPage: 1,
+    posPageSize: 10,
+    stockPage: 1,
+    stockPageSize: 1,
+    opnamePage: 1,         
+    opnamePageSize: 3,     
+    rencanaPage: 1,         // Halaman rencana aktif (TAMBAHAN)
+    rencanaPageSize: 25,    // Paginasi dibatasi 25 produk (TAMBAHAN)
+    deleteTrxId: null,
+    fakturItems: [],
+    opnameQueue: [],       
+    opnameHistory: [],
+    editingInvoiceKey: null,
+    currentRealizingRencanaId: null // Melacak usulan mana yang sedang dikonversi (TAMBAHAN)
+};
 
         window.state = state;
 
@@ -1552,6 +1676,7 @@
         const colStockLogs = collection(db, 'artifacts', appId, 'public', 'data', 'stock_logs');
         const colSystemLogs = collection(db, 'artifacts', appId, 'public', 'data', 'system_logs');
         const colStockOpname = collection(db, 'artifacts', appId, 'public', 'data', 'stock_opname');
+        const colPlannedProducts = collection(db, 'artifacts', appId, 'public', 'data', 'planned_products');
 
         window.showFeedback = (title, text, type = 'success') => {
             const modal = document.getElementById('feedbackModal');
@@ -1755,18 +1880,39 @@ window.hideLoading = () => {
 
         onAuthStateChanged(auth, async (user) => {
             const statusEl = document.getElementById('firebase-status');
-            const barEl = document.getElementById('db-indicator-bar');
+            const pingEl = document.getElementById('db-ping');
+            const dotEl = document.getElementById('db-dot');
+            const textEl = document.getElementById('db-text');
+            const isMobile = window.innerWidth < 640;
 
             if (user) {
                 state.user = user;
-                statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Database Online';
-                statusEl.className = 'flex items-center gap-2 text-[10px] font-bold text-emerald-500 bg-emerald-50 px-3 py-1.5 rounded-full uppercase border border-emerald-100';
-                barEl.className = "absolute inset-0 anim-online";
+                if (statusEl) {
+                    statusEl.className = 'flex items-center gap-1.5 sm:gap-2 text-[10px] font-bold px-2 py-1.5 sm:px-3 sm:py-1.5 rounded-xl uppercase border border-emerald-100 bg-emerald-50 text-emerald-600 shadow-sm transition-all duration-300';
+                }
+                if (pingEl) {
+                    pingEl.className = 'animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75';
+                }
+                if (dotEl) {
+                    dotEl.className = 'relative inline-flex rounded-full h-2 w-2 sm:h-2.5 sm:w-2.5 bg-emerald-500';
+                }
+                if (textEl) {
+                    textEl.innerText = isMobile ? 'Online' : 'Database Online';
+                }
                 initSync();
             } else { 
-                statusEl.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Database Menghubungkan...';
-                statusEl.className = 'flex items-center gap-2 text-[10px] font-bold text-amber-500 bg-amber-50 px-3 py-1.5 rounded-full uppercase border border-amber-100';
-                barEl.className = "absolute inset-0 anim-connecting";
+                if (statusEl) {
+                    statusEl.className = 'flex items-center gap-1.5 sm:gap-2 text-[10px] font-bold px-2 py-1.5 sm:px-3 sm:py-1.5 rounded-xl uppercase border border-amber-100 bg-amber-50 text-amber-600 shadow-sm transition-all duration-300';
+                }
+                if (pingEl) {
+                    pingEl.className = 'animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75';
+                }
+                if (dotEl) {
+                    dotEl.className = 'relative inline-flex rounded-full h-2 w-2 sm:h-2.5 sm:w-2.5 bg-amber-500';
+                }
+                if (textEl) {
+                    textEl.innerText = isMobile ? 'Koneksi...' : 'Database Menghubungkan...';
+                }
                 await signInAnonymously(auth); 
             }
         });
@@ -1912,88 +2058,97 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
             filter.value = currentVal;
         };
 
-        // GANTI SELURUH FUNGSI initSync MENJADI SEPERTI BERIKUT:
 const initSync = () => {
-    window.showLoading();
-    
-    // Melacak pemuatan pertama dari tiap koleksi
-    const collectionsLoaded = {
-        settings: false,
-        products: false,
-        transactions: false,
-        stockLogs: false,
-        stockOpname: false
-    };
+        window.showLoading();
+        
+        // Melacak pemuatan pertama dari tiap koleksi (6 Koleksi)
+        const collectionsLoaded = {
+            settings: false,
+            products: false,
+            transactions: false,
+            stockLogs: false,
+            stockOpname: false,
+            plannedProducts: false
+        };
 
-    const trackLoadingProgress = (key) => {
-        if (!collectionsLoaded[key]) {
-            collectionsLoaded[key] = true;
-            const loadedCount = Object.values(collectionsLoaded).filter(Boolean).length;
-            const percent = Math.round((loadedCount / 5) * 100);
-            
-            const percentEl = document.getElementById('loadingPercent');
-            if (percentEl) percentEl.innerText = percent + '%';
-            
-            if (loadedCount >= 5) {
-                // Selesai 100%, beri sedikit jeda visual sebelum menutup modal
-                setTimeout(() => {
-                    window.hideLoading();
-                }, 500);
+        const trackLoadingProgress = (key) => {
+            if (!collectionsLoaded[key]) {
+                collectionsLoaded[key] = true;
+                const loadedCount = Object.values(collectionsLoaded).filter(Boolean).length;
+                const percent = Math.round((loadedCount / 6) * 100);
+                
+                const percentEl = document.getElementById('loadingPercent');
+                if (percentEl) percentEl.innerText = percent + '%';
+                
+                if (loadedCount >= 6) {
+                    setTimeout(() => {
+                        window.hideLoading();
+                    }, 500);
+                }
+            }
+        };
+
+        // Load opname queue dari localStorage
+        const localQueue = localStorage.getItem('kasirpro_opname_queue');
+        if (localQueue) {
+            try {
+                state.opnameQueue = JSON.parse(localQueue);
+            } catch(e) {
+                state.opnameQueue = [];
             }
         }
-    };
 
-    // Load opname queue from localStorage
-    const localQueue = localStorage.getItem('kasirpro_opname_queue');
-    if (localQueue) {
-        try {
-            state.opnameQueue = JSON.parse(localQueue);
-        } catch(e) {
-            state.opnameQueue = [];
-        }
-    }
+        onSnapshot(doc(colSettings, 'config'), (snap) => {
+            if (snap.exists()) {
+                state.settings = { ...state.settings, ...snap.data() };
+                document.getElementById('setStoreName').value = state.settings.storeName;
+                document.getElementById('setAdminName').value = state.settings.adminName;
+                document.getElementById('setCashier1Name').value = state.settings.cashier1Name;
+                document.getElementById('setCashier2Name').value = state.settings.cashier2Name;
+                document.getElementById('setPhone').value = state.settings.phone;
+                document.getElementById('setAddress').value = state.settings.address;
+                document.getElementById('setSupp1').value = state.settings.supp1 || '';
+                document.getElementById('setSupp2').value = state.settings.supp2 || '';
+                document.getElementById('setSupp3').value = state.settings.supp3 || '';
+                document.getElementById('setSupp4').value = state.settings.supp4 || '';
+                renderSupplierDropdown();
+                updateSupplierFilterOptions();
+                reconcileProducts();
+            }
+            trackLoadingProgress('settings');
+        });
 
-    onSnapshot(doc(colSettings, 'config'), (snap) => {
-        if (snap.exists()) {
-            state.settings = { ...state.settings, ...snap.data() };
-            document.getElementById('setStoreName').value = state.settings.storeName;
-            document.getElementById('setAdminName').value = state.settings.adminName;
-            document.getElementById('setCashier1Name').value = state.settings.cashier1Name;
-            document.getElementById('setCashier2Name').value = state.settings.cashier2Name;
-            document.getElementById('setPhone').value = state.settings.phone;
-            document.getElementById('setAddress').value = state.settings.address;
-            document.getElementById('setSupp1').value = state.settings.supp1 || '';
-            document.getElementById('setSupp2').value = state.settings.supp2 || '';
-            document.getElementById('setSupp3').value = state.settings.supp3 || '';
-            document.getElementById('setSupp4').value = state.settings.supp4 || '';
-            renderSupplierDropdown();
-            updateSupplierFilterOptions();
+        onSnapshot(colProducts, (snap) => {
+            state.firestoreProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             reconcileProducts();
-        }
-        trackLoadingProgress('settings');
-    });
-    onSnapshot(colProducts, (snap) => {
-        state.firestoreProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        reconcileProducts();
-        trackLoadingProgress('products');
-    });
-    onSnapshot(colTransactions, (snap) => {
-        state.transactions = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.timestamp.localeCompare(a.timestamp));
-        renderTransactions();
-        updateHeaderStats();
-        trackLoadingProgress('transactions');
-    });
-    onSnapshot(colStockLogs, (snap) => {
-        state.stockLogs = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.timestamp.localeCompare(a.timestamp));
-        renderStockHistory();
-        trackLoadingProgress('stockLogs');
-    });
-    onSnapshot(colStockOpname, (snap) => {
-        state.opnameHistory = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.timestamp.localeCompare(a.timestamp));
-        renderOpnameHistory();
-        trackLoadingProgress('stockOpname');
-    });
-};
+            trackLoadingProgress('products');
+        });
+
+        onSnapshot(colTransactions, (snap) => {
+            state.transactions = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.timestamp.localeCompare(a.timestamp));
+            renderTransactions();
+            updateHeaderStats();
+            trackLoadingProgress('transactions');
+        });
+
+        onSnapshot(colStockLogs, (snap) => {
+            state.stockLogs = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.timestamp.localeCompare(a.timestamp));
+            renderStockHistory();
+            trackLoadingProgress('stockLogs');
+        });
+
+        onSnapshot(colStockOpname, (snap) => {
+            state.opnameHistory = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.timestamp.localeCompare(a.timestamp));
+            renderOpnameHistory();
+            trackLoadingProgress('stockOpname');
+        });
+
+        onSnapshot(colPlannedProducts, (snap) => {
+            state.rencanaProducts = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+            window.renderRencanaTable();
+            trackLoadingProgress('plannedProducts');
+        });
+    };
 
         window.prevProductPage = () => {
             if (state.productPage > 1) {
@@ -2212,23 +2367,31 @@ const initSync = () => {
         window.closeProductModal = () => document.getElementById('productModal').classList.add('hidden');
 
         window.saveProduct = async (e) => {
-            if(e) e.preventDefault();
-            const id = document.getElementById('formId').value || `PRD-${Date.now()}`;
-            const data = {
-                name: normalizeProductName(document.getElementById('formName').value).toUpperCase(),
-                supplierKey: document.getElementById('formSupplier').value,
-                category: document.getElementById('formCat').value,
-                buyPrice: parseNominal(document.getElementById('formBuy').value),
-                sellPrice: parseNominal(document.getElementById('formSell').value),
-                stock: parseInt(document.getElementById('formStock').value)
-            };
-            try {
-                await setDoc(doc(colProducts, id), data);
-                await addDoc(colSystemLogs, { action: 'PRODUK', details: `Update produk ${data.name}`, timestamp: new Date().toISOString() });
-                closeProductModal();
-                window.showFeedback('Sukses', `Produk ${data.name} disimpan.`);
-            } catch (e) { window.showFeedback('Gagal', 'Masalah koneksi', 'error'); }
-        };
+    if(e) e.preventDefault();
+    const id = document.getElementById('formId').value || `PRD-${Date.now()}`;
+    const data = {
+        name: normalizeProductName(document.getElementById('formName').value).toUpperCase(),
+        supplierKey: document.getElementById('formSupplier').value,
+        category: document.getElementById('formCat').value,
+        buyPrice: parseNominal(document.getElementById('formBuy').value),
+        sellPrice: parseNominal(document.getElementById('formSell').value),
+        stock: parseInt(document.getElementById('formStock').value)
+    };
+    try {
+        await setDoc(doc(colProducts, id), data);
+
+        // Jika proses simpan dipicu dari konversi rencana produk (Opsi B)
+        if (state.currentRealizingRencanaId) {
+            const rencanaDocRef = doc(colPlannedProducts, state.currentRealizingRencanaId);
+            await updateDoc(rencanaDocRef, { status: 'Terealisasi' });
+            state.currentRealizingRencanaId = null; // Reset pelacak status realisasi
+        }
+
+        await addDoc(colSystemLogs, { action: 'PRODUK', details: `Update produk ${data.name}`, timestamp: new Date().toISOString() });
+        closeProductModal();
+        window.showFeedback('Sukses', `Produk ${data.name} disimpan.`);
+    } catch (e) { window.showFeedback('Gagal', 'Masalah koneksi', 'error'); }
+};
 
         window.editProduct = (id) => {
             const p = state.products.find(x => x.id === id);
@@ -2266,7 +2429,8 @@ const initSync = () => {
         window.renderSupplierDropdown = () => {
     const s = document.getElementById('formSupplier');
     const bmFS = document.getElementById('bmFakturSupplier');
-    const opnameFS = document.getElementById('opnameFormSupplier'); // <-- Tambahkan baris ini
+    const opnameFS = document.getElementById('opnameFormSupplier');
+    const renFS = document.getElementById('rencanaSupplier'); // TAMBAHAN
     const s1 = state.settings.supp1 || "Supplier 1";
     const s2 = state.settings.supp2 || "Supplier 2";
     const s3 = state.settings.supp3 || "Supplier 3";
@@ -2286,11 +2450,15 @@ const initSync = () => {
         bmFS.innerHTML = optionsHtml;
         bmFS.value = currentVal;
     }
-    // <-- Tambahkan blok kode di bawah ini agar Stock Opname ikut terupdate
     if (opnameFS) {
         const currentVal = opnameFS.value;
         opnameFS.innerHTML = optionsHtml;
         opnameFS.value = currentVal;
+    }
+    if (renFS) { // TAMBAHAN
+        const currentVal = renFS.value;
+        renFS.innerHTML = optionsHtml;
+        renFS.value = currentVal;
     }
 };
 
@@ -3384,11 +3552,18 @@ const initSync = () => {
             }
         };
 
-        window.printLastReceipt = () => {
-            if (!state.lastTrx) return;
-            const printCont = document.getElementById('printContainer');
+        // Fungsi utama cetak struk berdasarkan ID Transaksi (Bisa dipanggil dari mana saja)
+        window.printReceiptById = (trxId) => {
+            const trx = state.transactions.find(t => t.id === trxId);
+            if (!trx) {
+                window.showFeedback('Gagal', 'Data transaksi tidak ditemukan!', 'error');
+                return;
+            }
             
-            let itemsHtml = state.lastTrx.items.map(i => `
+            const printCont = document.getElementById('printContainer');
+            if (!printCont) return;
+
+            let itemsHtml = trx.items.map(i => `
                 <div class="flex justify-between font-mono py-1">
                     <div>${i.name} (x${i.qty})</div>
                     <div>${formatRupiah(i.price * i.qty)}</div>
@@ -3400,24 +3575,31 @@ const initSync = () => {
                     <div class="text-center font-bold text-base uppercase mb-2">${state.settings.storeName}</div>
                     <div class="text-center text-[10px] text-slate-500 mb-4">${state.settings.address}<br>Telp: ${state.settings.phone}</div>
                     <div class="border-t border-b border-dashed border-slate-400 py-2 mb-4">
-                        <div class="flex justify-between text-[10px]"><div>ID Transaksi:</div><div>${state.lastTrx.id}</div></div>
-                        <div class="flex justify-between text-[10px]"><div>Kasir:</div><div>${state.lastTrx.cashier}</div></div>
-                        <div class="flex justify-between text-[10px]"><div>Waktu:</div><div>${new Date(state.lastTrx.timestamp).toLocaleString('id-ID')}</div></div>
+                        <div class="flex justify-between text-[10px]"><div>ID Transaksi:</div><div>${trx.id}</div></div>
+                        <div class="flex justify-between text-[10px]"><div>Kasir:</div><div>${trx.cashier}</div></div>
+                        <div class="flex justify-between text-[10px]"><div>Waktu:</div><div>${new Date(trx.timestamp).toLocaleString('id-ID')}</div></div>
                     </div>
                     <div class="mb-4">
                         ${itemsHtml}
                     </div>
                     <div class="border-t border-dashed border-slate-400 pt-2 text-[11px]">
-                        <div class="flex justify-between"><div>Subtotal:</div><div>${formatRupiah(state.lastTrx.subtotal || state.lastTrx.total)}</div></div>
-                        <div class="flex justify-between text-rose-600"><div>Diskon:</div><div>-${formatRupiah(state.lastTrx.discount || 0)}</div></div>
-                        <div class="flex justify-between font-extrabold text-xs"><div>TOTAL:</div><div>${formatRupiah(state.lastTrx.total)}</div></div>
-                        <div class="flex justify-between text-slate-500"><div>Tunai:</div><div>${formatRupiah(state.lastTrx.cash)}</div></div>
-                        <div class="flex justify-between font-bold"><div>Kembalian:</div><div>${formatRupiah(state.lastTrx.change)}</div></div>
+                        <div class="flex justify-between"><div>Subtotal:</div><div>${formatRupiah(trx.subtotal || trx.total)}</div></div>
+                        <div class="flex justify-between text-rose-600"><div>Diskon:</div><div>-${formatRupiah(trx.discount || 0)}</div></div>
+                        <div class="flex justify-between font-extrabold text-xs"><div>TOTAL:</div><div>${formatRupiah(trx.total)}</div></div>
+                        <div class="flex justify-between text-slate-500"><div>Tunai:</div><div>${formatRupiah(trx.cash)}</div></div>
+                        <div class="flex justify-between font-bold"><div>Kembalian:</div><div>${formatRupiah(trx.change)}</div></div>
                     </div>
                     <div class="text-center mt-6 text-[10px] text-slate-400 font-bold uppercase tracking-widest">Terima Kasih Atas Kunjungan Anda</div>
                 </div>
             `;
             window.print();
+        };
+
+        // Fungsi pendukung untuk mencetak transaksi kasir yang baru saja selesai belanja
+        window.printLastReceipt = () => {
+            if (state.lastTrx) {
+                window.printReceiptById(state.lastTrx.id);
+            }
         };
 
         window.deleteTransaction = (trxId) => {
@@ -3486,6 +3668,9 @@ const initSync = () => {
                     const deleteBtn = state.currentUser && state.currentUser.role === 'Admin' 
                         ? `<button onclick="deleteTransaction('${t.id}')" class="text-rose-600 hover:bg-rose-50 p-2 rounded-lg" title="Hapus Transaksi"><i class="fas fa-trash"></i></button>`
                         : '';
+                    // Tombol cetak struk mandiri untuk setiap baris riwayat
+                    const printBtn = `<button onclick="window.printReceiptById('${t.id}')" class="text-indigo-600 hover:bg-indigo-50 p-2 rounded-lg" title="Cetak Struk"><i class="fas fa-print"></i></button>`;
+
                     tbody.innerHTML += `
                         <tr class="hover:bg-slate-50 transition text-xs">
                             <td class="px-5 py-4 text-slate-400">${new Date(t.timestamp).toLocaleString('id-ID')}</td>
@@ -3493,7 +3678,8 @@ const initSync = () => {
                             <td class="px-5 py-4 font-bold text-slate-700">${t.cashier}</td>
                             <td class="px-5 py-4 text-slate-500 max-w-xs truncate" title="${itemsText}">${itemsText}</td>
                             <td class="px-5 py-4 text-right font-black text-indigo-600">${formatRupiah(t.total)}</td>
-                            <td class="px-5 py-4 text-center">
+                            <td class="px-5 py-4 text-center flex justify-center items-center gap-2">
+                                ${printBtn}
                                 ${deleteBtn}
                             </td>
                         </tr>
@@ -3568,7 +3754,6 @@ const initSync = () => {
                 `;
                 window.print();
             } else if (type === 'riwayat-opname') {
-                // Cetak PDF Berbasis Kelompok Kartu Periode (Instruksi 11 & 12)
                 const dateFilter = document.getElementById('filterOpnameDate').value;
                 let filtered = state.opnameHistory;
                 if (dateFilter) {
@@ -3580,7 +3765,6 @@ const initSync = () => {
                     return;
                 }
 
-                // Pengelompokan visual berbasis kartu "Periode Stock Opname" (Instruksi 12)
                 const groupedByPeriode = {};
                 filtered.forEach(session => {
                     const key = session.periode || "Tanpa Periode";
@@ -3701,6 +3885,52 @@ const initSync = () => {
                             <tbody>${rows}</tbody>
                         </table>
                         <div class="text-right mt-6 font-extrabold text-sm text-indigo-600">GRAND TOTAL PENDAPATAN: ${formatRupiah(sumTotal)}</div>
+                    </div>
+                `;
+                window.print();
+            } else if (type === 'rencana') {
+                const statusFilter = document.getElementById('rencanaFilterStatus').value;
+                let filtered = [...state.rencanaProducts];
+                if (statusFilter !== 'all') {
+                    filtered = filtered.filter(r => r.status === statusFilter);
+                }
+
+                if (filtered.length === 0) {
+                    window.showFeedback('Kosong', 'Tidak ada data rencana produk untuk dicetak.', 'error');
+                    return;
+                }
+
+                let rows = filtered.map(r => {
+                    const suppName = window.getSupplierNameFromKey(r.supplierKey);
+                    return `
+                        <tr>
+                            <td class="px-3 py-2 border font-bold text-slate-800">${r.name}</td>
+                            <td class="px-3 py-2 border text-slate-400">${r.category}</td>
+                            <td class="px-3 py-2 border text-slate-700 font-semibold">${suppName}</td>
+                            <td class="px-3 py-2 border text-slate-500">${r.notes}</td>
+                            <td class="px-3 py-2 border text-center font-bold text-slate-800">${r.status}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                printCont.innerHTML = `
+                    <div class="p-8 bg-white text-xs">
+                        <h2 class="text-xl font-bold uppercase text-center mb-1">${state.settings.storeName}</h2>
+                        <p class="text-[10px] text-center text-slate-500 mb-6">${state.settings.address} | Telp: ${state.settings.phone}</p>
+                        <h3 class="text-base font-bold uppercase mb-4 text-center border-b pb-2">Laporan Daftar Rencana Produk Baru</h3>
+                        <p class="mb-4 text-slate-500">Dicetak Pada: <strong class="text-slate-800">${nowStr}</strong> | Filter Status: <strong class="text-slate-800">${statusFilter}</strong></p>
+                        <table class="print-table">
+                            <thead>
+                                <tr>
+                                    <th class="border px-3 py-2 text-left">Nama Produk</th>
+                                    <th class="border px-3 py-2 text-left">Kategori</th>
+                                    <th class="border px-3 py-2 text-left">Rencana Supplier</th>
+                                    <th class="border px-3 py-2 text-left">Catatan / Alasan</th>
+                                    <th class="border px-3 py-2 text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
                     </div>
                 `;
                 window.print();
@@ -3839,14 +4069,40 @@ const initSync = () => {
                 `;
                 window.print();
             }
-
         };
 
         setInterval(() => {
             const clock = document.getElementById('digital-clock');
             if (clock) {
                 const now = new Date();
-                clock.innerText = now.toLocaleDateString('id-ID', { weekday: 'long' }) + ' - ' + now.toLocaleTimeString('id-ID');
+                const isMobile = window.innerWidth < 640;
+                
+                if (isMobile) {
+                    // Format ringkas untuk HP agar hemat ruang: "30 Mei  |  23:16"
+                    const datePart = now.toLocaleDateString('id-ID', { 
+                        day: 'numeric', 
+                        month: 'short' 
+                    });
+                    const timePart = now.toLocaleTimeString('id-ID', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    clock.innerText = `${datePart}  |  ${timePart}`;
+                } else {
+                    // Format lengkap untuk Desktop: "Sabtu, 30 Mei 2026  |  23:16:05"
+                    const datePart = now.toLocaleDateString('id-ID', { 
+                        weekday: 'long', 
+                        day: 'numeric', 
+                        month: 'long', 
+                        year: 'numeric' 
+                    });
+                    const timePart = now.toLocaleTimeString('id-ID', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                    clock.innerText = `${datePart}  |  ${timePart}`;
+                }
             }
         }, 1000);
 
@@ -4628,6 +4884,184 @@ window.handleStockFilterTypeChange = () => {
             window.print();
         };
 
+        // =========================================================================
+// FITUR MODUL RENCANA PRODUK BARU (OPSI B - PAGINASI 25)
+// =========================================================================
+window.saveRencanaProduct = async (e) => {
+    if(e) e.preventDefault();
+    const name = normalizeProductName(document.getElementById('rencanaName').value).toUpperCase();
+    const category = document.getElementById('rencanaCat').value;
+    const supplierKey = document.getElementById('rencanaSupplier').value;
+    const notes = document.getElementById('rencanaNotes').value.trim() || '-';
+    
+    if (!name || !supplierKey) {
+        window.showFeedback('Ditolak', 'Harap lengkapi formulir usulan produk!', 'error');
+        return;
+    }
+
+    // Hindari mendaftarkan obat rencana jika obat tersebut sudah aktif di toko
+    const isExists = state.products.some(p => p.name.toUpperCase() === name);
+    if (isExists) {
+        window.showFeedback('Ditolak', 'Produk ini sudah aktif di database toko!', 'error');
+        return;
+    }
+
+    // Hindari usulan rencana ganda dengan nama yang sama yang belum terealisasi
+    const isDuplicateRencana = state.rencanaProducts.some(r => r.name.toUpperCase() === name && r.status === 'Rencana');
+    if (isDuplicateRencana) {
+        window.showFeedback('Ditolak', 'Produk ini sudah terdaftar di daftar usulan rencana!', 'error');
+        return;
+    }
+
+    const newRencanaId = `REN-${Date.now()}`;
+    const rencanaData = {
+        name,
+        category,
+        supplierKey,
+        notes,
+        status: 'Rencana',
+        timestamp: new Date().toISOString()
+    };
+
+    try {
+        window.showLoading("MENYIMPAN USULAN", "MEMPROSES DATA USULAN KE FIREBASE");
+        await setDoc(doc(colPlannedProducts, newRencanaId), rencanaData);
+        await addDoc(colSystemLogs, { action: 'RENCANA_PRODUK', details: `Menambah usulan produk ${name}`, timestamp: new Date().toISOString() });
+        
+        document.getElementById('rencanaForm').reset();
+        window.hideLoading();
+        window.showFeedback('Berhasil', `Usulan produk ${name} berhasil disimpan.`);
+    } catch(err) {
+        window.hideLoading();
+        window.showFeedback('Gagal', 'Terjadi kesalahan saat menyimpan data.', 'error');
+    }
+};
+
+window.renderRencanaTable = () => {
+    const tbody = document.getElementById('rencanaTableBody');
+    if (!tbody) return;
+
+    const statusFilter = document.getElementById('rencanaFilterStatus').value;
+    let filtered = [...state.rencanaProducts];
+
+    if (statusFilter !== 'all') {
+        filtered = filtered.filter(r => r.status === statusFilter);
+    }
+
+    const totalItems = filtered.length;
+    const totalPages = Math.ceil(totalItems / state.rencanaPageSize) || 1;
+    
+    if (state.rencanaPage > totalPages) state.rencanaPage = totalPages;
+
+    const start = (state.rencanaPage - 1) * state.rencanaPageSize;
+    const end = start + state.rencanaPageSize;
+    const paginated = filtered.slice(start, end);
+
+    if (paginated.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 italic font-medium">Tidak ada data usulan rencana produk.</td></tr>`;
+    } else {
+        tbody.innerHTML = paginated.map(item => {
+            const supplierName = window.getSupplierNameFromKey(item.supplierKey);
+            const isRencana = item.status === 'Rencana';
+            const statusBadge = isRencana 
+                ? `<span class="bg-amber-100 text-amber-800 text-[10px] px-2.5 py-1 rounded-full font-bold uppercase">Rencana</span>`
+                : `<span class="bg-emerald-100 text-emerald-800 text-[10px] px-2.5 py-1 rounded-full font-bold uppercase">Terealisasi</span>`;
+
+            // Opsi B: Menonaktifkan tombol Realisasikan jika statusnya sudah Terealisasi
+            const actionBtn = isRencana
+                ? `<button onclick="window.realizeRencanaProduct('${item.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition flex items-center justify-center gap-1"><i class="fas fa-check-double"></i> Realisasikan</button>`
+                : `<button disabled class="bg-slate-100 text-slate-400 font-bold px-3 py-1.5 rounded-lg text-xs cursor-not-allowed">Terealisasi</button>`;
+
+            return `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="px-5 py-4 font-bold text-slate-800">${item.name}</td>
+                    <td class="px-5 py-4"><span class="bg-slate-100 text-[9px] px-2 py-0.5 rounded font-bold uppercase">${item.category}</span></td>
+                    <td class="px-5 py-4 font-bold text-slate-700">${supplierName}</td>
+                    <td class="px-5 py-4 text-slate-500 font-medium max-w-xs truncate" title="${item.notes}">${item.notes}</td>
+                    <td class="px-5 py-4 text-center">${statusBadge}</td>
+                    <td class="px-5 py-4 text-center flex justify-center gap-2">
+                        ${actionBtn}
+                        <button onclick="window.deleteRencanaProduct('${item.id}')" class="text-rose-600 p-2 hover:bg-rose-50 rounded-lg" title="Hapus Usulan"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // Set Label Informasi Paginasi (Maksimal 25)
+    const startIdx = totalItems === 0 ? 0 : start + 1;
+    const endIdx = Math.min(end, totalItems);
+
+    document.getElementById('rencana-paginated-start').innerText = startIdx;
+    document.getElementById('rencana-paginated-end').innerText = endIdx;
+    document.getElementById('rencana-paginated-total').innerText = totalItems;
+    document.getElementById('rencana-current-page').innerText = state.rencanaPage;
+
+    document.getElementById('btn-prev-rencana').disabled = (state.rencanaPage === 1);
+    document.getElementById('btn-next-rencana').disabled = (state.rencanaPage === totalPages);
+};
+
+window.prevRencanaPage = () => {
+    if (state.rencanaPage > 1) {
+        state.rencanaPage--;
+        window.renderRencanaTable();
+    }
+};
+
+window.nextRencanaPage = () => {
+    const statusFilter = document.getElementById('rencanaFilterStatus').value;
+    let filtered = [...state.rencanaProducts];
+    if (statusFilter !== 'all') {
+        filtered = filtered.filter(r => r.status === statusFilter);
+    }
+    const totalPages = Math.ceil(filtered.length / state.rencanaPageSize) || 1;
+    if (state.rencanaPage < totalPages) {
+        state.rencanaPage++;
+        window.renderRencanaTable();
+    }
+};
+
+window.deleteRencanaProduct = async (id) => {
+    if (confirm("Hapus usulan rencana produk ini secara permanen?")) {
+        try {
+            window.showLoading();
+            await deleteDoc(doc(colPlannedProducts, id));
+            await addDoc(colSystemLogs, { action: 'HAPUS_RENCANA', details: `Hapus rencana produk ID: ${id}`, timestamp: new Date().toISOString() });
+            window.hideLoading();
+            window.showFeedback('Berhasil', 'Usulan rencana produk telah dihapus.');
+        } catch(e) {
+            window.hideLoading();
+            window.showFeedback('Gagal', 'Gagal memproses penghapusan data', 'error');
+        }
+    }
+};
+
+window.realizeRencanaProduct = (id) => {
+    const rencana = state.rencanaProducts.find(r => r.id === id);
+    if (!rencana) return;
+
+    // Kunci ID produk rencana yang sedang direalisasikan
+    state.currentRealizingRencanaId = rencana.id;
+
+    // Prefill modal input produk utama dengan data usulan
+    document.getElementById('productForm').reset();
+    document.getElementById('formId').value = `PRD-${Date.now()}`;
+    document.getElementById('formName').value = rencana.name;
+    document.getElementById('formSupplier').value = rencana.supplierKey;
+    document.getElementById('formCat').value = rencana.category;
+    
+    document.getElementById('formBuy').value = '0';
+    document.getElementById('formSell').value = '0';
+    document.getElementById('formStock').value = '0';
+
+    // Buka input isian form secara dinamis
+    document.getElementById('formFieldsContainerBlock').classList.remove('hidden');
+
+    // Tampilkan modal produk
+    document.getElementById('modalTitle').innerText = 'Realisasikan Produk Baru';
+    document.getElementById('productModal').classList.remove('hidden');
+};
+
         // Expose state methods to window scope
         window.formatPercentMask = (v) => v; // Fallback
         
@@ -4644,4 +5078,4 @@ window.handleStockFilterTypeChange = () => {
         }
     </script>
 </body>
-</html> 
+</html>
