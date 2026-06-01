@@ -1,0 +1,25 @@
+//HAYATI HERBAL
+
+window.supplier5Products = [
+  "MADU ANGKAK DS",
+  "MADU PAHIT DS",
+  "MADU PAHIT ASYIFA",
+  "GOLIBAN 1KG",
+  "GOLIBAN 1/2KG",
+  "HERBA JAWI",
+  "SUMCREAM",
+  "JATI CINA CELUP",
+  "JATI CINA TUBRUK",
+  "JAHE R.L",
+  "NATAPRO",
+  "VERMINT (K)",
+  "TRAMBOFIT (K)",
+  "SAYAMIL (K)",
+  "AJABAN GOLD",
+  "DHA GOLD",  
+  "AL JAZIRA", 
+  "AL SABIRA",
+  "MADU BATUK AN-NASR",
+  "MADU BATUK ELIMAN",
+  "ETAWA AMH",
+];
