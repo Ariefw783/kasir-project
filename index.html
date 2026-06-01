@@ -526,192 +526,78 @@
                     </div>
                 </div>
 
-                <!-- View Stock Opname -->
+                <!-- View Stock Opname (Sederhana Khusus Cetak & Isi Manual) -->
                 <div id="view-stock-opname" class="view-section hidden animate-[fadeIn_0.3s_ease-out] space-y-6">
-                    <!-- Form Utama Stock Opname -->
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-4 mb-6">
                             <div>
                                 <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                                    <i class="fas fa-clipboard-check text-amber-500"></i> Stock Opname / Penyesuaian Audit
+                                    <i class="fas fa-clipboard-check text-indigo-500"></i> Lembar Kerja Stock Opname (Isi Manual)
                                 </h2>
-                                <p class="text-xs text-slate-400">Verifikasi, sesuaikan sisa stok fisik obat, dan kelola antrean stock opname toko secara aman</p>
+                                <p class="text-xs text-slate-400">Gunakan halaman ini untuk memverifikasi data dan mencetak lembar pemeriksaan fisik sediaan obat masuk secara manual</p>
                             </div>
                         </div>
 
-                        <!-- Form Input Baru -->
-                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end bg-slate-50/50 p-4 rounded-xl border border-slate-100 mb-6">
-                            <!-- Periode -->
-                            <div class="md:col-span-3">
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Periode Stock Opname</label>
-                                <input type="text" id="opnamePeriode" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none font-semibold text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Contoh: Mei 2026">
-                            </div>
-                            <!-- Tanggal -->
-                            <div class="md:col-span-3">
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Tanggal Stock Opname</label>
-                                <input type="date" id="opnameTanggal" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                            <!-- Dropdown Supplier -->
-                            <div class="md:col-span-3">
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Dropdown Supplier</label>
-                                <select id="opnameFormSupplier" onchange="resetOpnameProductSearch()" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer">
-                                    <option value="">Pilih Supplier...</option>
-                                    <option value="supplier1">Supplier 1</option>
-                                    <option value="supplier2">Supplier 2</option>
-                                    <option value="supplier3">Supplier 3</option>
-                                    <option value="supplier4">Supplier 4</option>
-                                </select>
-                            </div>
-                            <!-- Pencarian Live Search -->
-                            <div class="md:col-span-3 relative">
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Cari Produk (Live Filter)</label>
-                                <div class="relative">
-                                    <input type="text" id="opnameProductSearch" oninput="handleOpnameLiveSearch()" class="w-full p-2.5 pl-8 bg-white border border-slate-200 rounded-lg outline-none font-semibold text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Ketik nama produk...">
-                                    <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center text-slate-400"><i class="fas fa-search text-[10px]"></i></span>
-                                </div>
-                                <div id="opnameLiveSuggestions" class="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-48 overflow-y-auto hidden custom-scrollbar"></div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6">
-                            <!-- Stok Sistem -->
+                        <!-- Form Parameter Cetak Lembar Kerja -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end bg-slate-50/50 p-4 rounded-xl border border-slate-100 mb-6">
                             <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Stok Sistem</label>
-                                <input type="number" id="opnameStockSystem" readonly class="w-full p-2.5 bg-slate-100 border border-slate-200 rounded-lg outline-none text-xs font-bold text-slate-600 cursor-not-allowed" placeholder="0">
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Periode Audit</label>
+                                <input type="text" id="opnamePeriode" oninput="window.updateOpnameTableLive()" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none font-semibold text-xs focus:ring-2 focus:ring-indigo-500" placeholder="Contoh: Mei 2026">
                             </div>
-                            <!-- Stok Fisik -->
                             <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Stok Fisik</label>
-                                <input type="number" id="opnameStockPhysical" oninput="calculateOpnameDiff()" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-bold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="0">
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Tanggal Audit</label>
+                                <input type="date" id="opnameTanggal" oninput="window.updateOpnameTableLive()" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:ring-2 focus:ring-indigo-500">
                             </div>
-                            <!-- Selisih -->
                             <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Selisih</label>
-                                <input type="text" id="opnameDifference" readonly class="w-full p-2.5 bg-slate-100 border border-slate-200 rounded-lg outline-none text-xs font-bold text-slate-600 cursor-not-allowed" placeholder="0">
-                            </div>
-                            <!-- Total Nilai Minus -->
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Nilai Minus (Rp)</label>
-                                <input type="text" id="opnameMinus" readonly class="w-full p-2.5 bg-slate-100 border border-slate-200 rounded-lg outline-none text-xs font-bold text-rose-600 cursor-not-allowed" placeholder="Rp 0,00">
-                            </div>
-                            <!-- Alasan -->
-                            <div id="opnameReasonContainer">
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Keterangan / Alasan</label>
-                                <select id="opnameReason" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer">
-                                    <option value="">Pilih Alasan...</option>
-                                    <option value="Selisih Wajar">Selisih Wajar</option>
-                                    <option value="Rusak / Kadaluarsa">Rusak / Kadaluarsa</option>
-                                    <option value="Hilang">Hilang</option>
-                                    <option value="Kesalahan Input">Kesalahan Input</option>
-                                    <option value="Lainnya">Lainnya</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-end gap-3 border-t border-slate-100 pt-4">
-                            <input type="hidden" id="opnameSelectedProductId">
-                            <input type="hidden" id="opnameEditIndex" value="-1">
-                            <button type="button" onclick="clearOpnameForm()" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl text-xs transition">Reset Form</button>
-                            <button type="button" onclick="triggerOpnameItemConfirmation()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition flex items-center gap-2 shadow-lg shadow-indigo-100">
-                                <i class="fas fa-plus"></i> Tambah Ke Antrean
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Tabel Antrean Sementara Stock Opname -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                        <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                            <div>
-                                <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                                    <i class="fas fa-list-ol text-indigo-500"></i> Antrean Sementara Stock Opname (Local Storage)
-                                </h3>
-                                <p class="text-xs text-slate-400">Daftar item obat hasil penyesuaian fisik yang tersimpan secara lokal</p>
-                            </div>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs">
-                                <thead>
-                                    <tr class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-100">
-                                        <th class="px-5 py-3">Nama Obat</th>
-                                        <th class="px-5 py-3">Supplier</th>
-                                        <th class="px-5 py-3 text-center">Periode & Tgl</th>
-                                        <th class="px-5 py-3 text-center">Stok Sistem</th>
-                                        <th class="px-5 py-3 text-center">Stok Fisik</th>
-                                        <th class="px-5 py-3 text-center">Selisih</th>
-                                        <th class="px-5 py-3 text-right">Nilai Minus</th>
-                                        <th class="px-5 py-3">Keterangan / Alasan</th>
-                                        <th class="px-5 py-3 text-center">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="opnameQueueTableBody" class="divide-y divide-slate-100 bg-white">
-                                    <tr>
-                                        <td colspan="9" class="p-6 text-center text-slate-400 italic font-medium">Belum ada item obat di antrean sementara.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <!-- Summary and Finalize Block -->
-                        <div class="p-6 border-t border-slate-100 bg-slate-50 flex flex-col sm:flex-row justify-between items-center gap-4">
-                            <div>
-                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Ringkasan Total Kerugian Antrean (Minus)</p>
-                                <p id="opnameGrandTotal" class="text-2xl font-black text-rose-600">Rp 0,00</p>
-                            </div>
-                            <button type="button" onclick="finalizeStockOpname()" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-white font-bold px-8 py-4 rounded-xl shadow-lg shadow-amber-100 transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider">
-                                <i class="fas fa-check-double"></i> Finalisasi Opname / Selesai Opname
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Riwayat Stock Opname (Audit History Panel) -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                        <div class="p-4 border-b border-slate-100 bg-white/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                            <div>
-                                <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                                    <i class="fas fa-history text-indigo-500"></i> Riwayat Audit & Penyesuaian Opname
-                                </h3>
-                                <p class="text-xs text-slate-400">Daftar penyesuaian stok fisik yang telah difinalisasi</p>
-                            </div>
-                            <div class="flex items-center gap-2 w-full md:w-auto">
-                                <input type="date" id="filterOpnameDate" onchange="if(window.state){window.state.opnamePage = 1;} renderOpnameHistory()" class="text-xs p-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
-                                <button onclick="generatePDF('riwayat-opname')" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-rose-100 transition">
-                                    <i class="fas fa-file-pdf"></i> Cetak PDF Riwayat
+                                <button type="button" onclick="window.printOpnameSheet()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-lg text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-100">
+                                    <i class="fas fa-print"></i> Cetak Lembar Stock Opname (PDF)
                                 </button>
                             </div>
                         </div>
-                        <div class="overflow-x-auto">
+
+                        <!-- Tabel Preview Lembar Kerja (Ditambahkan Kolom No) -->
+                        <div class="overflow-x-auto border border-slate-100 rounded-xl">
                             <table class="w-full text-left text-xs">
                                 <thead>
                                     <tr class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-100">
-                                        <th class="px-5 py-3">Waktu Audit</th>
-                                        <th class="px-5 py-3">Periode Opname</th>
-                                        <th class="px-5 py-3">Petugas</th>
-                                        <th class="px-5 py-3 text-center">Item Dikoreksi</th>
-                                        <th class="px-5 py-3 text-right">Total Kerugian (Minus)</th>
-                                        <th class="px-5 py-3 text-center">Aksi</th>
+                                        <th class="px-4 py-3 text-center w-12">No</th>
+                                        <th class="px-5 py-3 w-32">Periode & Tgl</th>
+                                        <th class="px-5 py-3">Nama Obat</th>
+                                        <th class="px-5 py-3">Supplier</th>
+                                        <th class="px-5 py-3 text-center">Stok Sistem</th>
+                                        <th class="px-5 py-3 text-center w-24">Stok Fisik</th>
+                                        <th class="px-5 py-3 text-center w-24">Selisih</th>
+                                        <th class="px-5 py-3 text-center w-24">Nilai Minus</th>
+                                        <th class="px-5 py-3">Keterangan / Alasan</th>
                                     </tr>
                                 </thead>
-                                <tbody id="opnameHistoryTableBody" class="divide-y divide-slate-100 bg-white">
+                                <tbody id="opnamePreviewTableBody" class="divide-y divide-slate-100 bg-white">
                                     <tr>
-                                        <td colspan="6" class="p-6 text-center text-slate-400 italic font-medium">Belum ada riwayat stock opname.</td>
+                                        <td colspan="9" class="p-6 text-center text-slate-400 italic font-medium">Memuat data produk...</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-                        <!-- Kontrol Paginasi Riwayat Audit (Maksimal 3 Sesi per Halaman - Instruksi 8 & 9) -->
-                        <div class="p-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50/50">
+
+                        <!-- Kontrol Paginasi Layar (25 / 50) -->
+                        <div class="mt-4 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50/50 p-4 rounded-xl border border-slate-100">
                             <div class="text-xs text-slate-500 font-medium">
-                                Menampilkan <span id="opname-history-paginated-start" class="font-bold">0</span> - <span id="opname-history-paginated-end" class="font-bold">0</span> dari <span id="opname-history-paginated-total" class="font-bold">0</span> sesi audit
+                                Menampilkan <span id="opname-paginated-start" class="font-bold">0</span> - <span id="opname-paginated-end" class="font-bold">0</span> dari <span id="opname-paginated-total" class="font-bold">0</span> produk
                             </div>
                             <div class="flex items-center gap-2">
-                                <button onclick="prevOpnameHistoryPage()" id="btn-prev-opname-hist" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition">
+                                <button onclick="window.prevOpnamePage()" id="btn-prev-opname" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition">
                                     <i class="fas fa-chevron-left mr-1"></i> Prev
                                 </button>
                                 <span class="text-xs font-bold text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg">
-                                    Halaman <span id="opname-history-current-page">1</span>
+                                    Halaman <span id="opname-current-page">1</span>
                                 </span>
-                                <button onclick="nextOpnameHistoryPage()" id="btn-next-opname-hist" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition">
+                                <button onclick="window.nextOpnamePage()" id="btn-next-opname" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition">
                                     Next <i class="fas fa-chevron-right mr-1"></i>
                                 </button>
+                                <select id="opnamePageSizeSelect" onchange="window.changeOpnamePageSize()" class="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold outline-none ml-2">
+                                    <option value="25">25 / Halaman</option>
+                                    <option value="50">50 / Halaman</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -778,7 +664,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
                     <div class="md:col-span-2 relative">
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Pilih Produk</label>
-                        <input type="text" id="bmSelectProduct" oninput="handleLiveStockSearch(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-semibold" placeholder="Ketik nama produk...">
+                        <input type="text" id="bmSelectProduct" oninput="handleLiveStockSearch(this)" onblur="checkAndPrefillProductByName(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-semibold" placeholder="Ketik nama produk...">
                         <div id="bmLiveSuggestions" class="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-48 overflow-y-auto hidden custom-scrollbar"></div>
                     </div>
                     <input type="hidden" id="bmSelectSupplier">
@@ -1643,7 +1529,7 @@
     stockPage: 1,
     stockPageSize: 10, // Diubah menjadi default 10 per halaman
     opnamePage: 1,
-    opnamePageSize: 3,     
+    opnamePageSize: 25,     
     rencanaPage: 1,         // Halaman rencana aktif (TAMBAHAN)
     rencanaPageSize: 25,    // Paginasi dibatasi 25 produk (TAMBAHAN)
     deleteTrxId: null,
@@ -1918,9 +1804,9 @@ window.hideLoading = () => {
     if (window.innerWidth < 1024) toggleSidebar();
     
     if (id === 'view-stock-opname') {
-        renderOpnameQueueTable();
-        renderOpnameHistory();
+        window.renderOpnamePreviewTable();
     }
+
     // Tambahkan trigger render riwayat faktur saat menu di-klik
     if (id === 'view-riwayat-faktur') {
         renderStockHistory();
@@ -2089,7 +1975,7 @@ window.hideLoading = () => {
             updateHeaderStats();
             
             if (!document.getElementById('view-stock-opname').classList.contains('hidden')) {
-                renderOpnameQueueTable();
+                window.renderOpnamePreviewTable();
             }
         };
 
@@ -2249,6 +2135,24 @@ const initSync = () => {
             renderProductTable();
         };
 
+        // Fungsi pembantu untuk memverifikasi kecocokan nama obat secara langsung
+        window.checkAndPrefillProductByName = (el) => {
+            const supplierSelect = document.getElementById('bmFakturSupplier');
+            const selectedSupplier = supplierSelect ? supplierSelect.value : '';
+            if (!selectedSupplier) return;
+
+            const nameInput = el.value.trim().toUpperCase();
+            if (!nameInput) return;
+
+            // Cari apakah ada produk dengan nama persis sama di bawah supplier terpilih
+            const match = state.products.find(p => p.supplierKey === selectedSupplier && p.name.toUpperCase() === nameInput);
+            if (match) {
+                document.getElementById('bmSelectSupplier').value = match.supplier;
+                document.getElementById('bmPrice').value = new Intl.NumberFormat('id-ID').format(match.buyPrice);
+                document.getElementById('bmSellPrice').value = new Intl.NumberFormat('id-ID').format(match.sellPrice);
+            }
+        };
+
         window.handleLiveStockSearch = (el) => {
             const supplierSelect = document.getElementById('bmFakturSupplier');
             const selectedSupplier = supplierSelect ? supplierSelect.value : '';
@@ -2269,6 +2173,15 @@ const initSync = () => {
                 box.innerHTML = '';
                 suppInput.value = '';
                 return;
+            }
+
+            // [Otomatisasi] Periksa kecocokan persis saat pengguna mengetik/paste nama obat
+            const upperS = s.toUpperCase();
+            const exactMatch = state.products.find(p => p.supplierKey === selectedSupplier && p.name.toUpperCase() === upperS);
+            if (exactMatch) {
+                document.getElementById('bmSelectSupplier').value = exactMatch.supplier;
+                document.getElementById('bmPrice').value = new Intl.NumberFormat('id-ID').format(exactMatch.buyPrice);
+                document.getElementById('bmSellPrice').value = new Intl.NumberFormat('id-ID').format(exactMatch.sellPrice);
             }
 
             let matches = state.products.filter(p => {
@@ -5252,7 +5165,230 @@ window.realizeRencanaProduct = (id) => {
 
         // Expose state methods to window scope
         window.formatPercentMask = (v) => v; // Fallback
+    
+    // =========================================================================
+        // FITUR STOCK OPNAME BARU (KHUSUS PREVIEW, PAGINASI, DAN CETAK MANUAL)
+        // =========================================================================
         
+        // 1. Ekstraksi daftar produk dari log Barang Masuk yang diurutkan A-Z
+        window.getOpnameProducts = () => {
+            if (!state.stockLogs || state.stockLogs.length === 0) return [];
+
+            // Dapatkan seluruh ID produk unik yang pernah tercatat masuk di Log
+            const uniqueProductIds = [...new Set(state.stockLogs.map(log => log.productId))];
+            let results = [];
+
+            uniqueProductIds.forEach(id => {
+                // Cari data produk real-time di state.products
+                const liveProduct = state.products.find(p => p.id === id);
+                if (liveProduct) {
+                    results.push({
+                        id: liveProduct.id,
+                        name: liveProduct.name,
+                        buyPrice: liveProduct.buyPrice || 0,
+                        sellPrice: liveProduct.sellPrice || 0,
+                        stock: typeof liveProduct.stock === 'number' ? liveProduct.stock : 0,
+                        supplier: liveProduct.supplier,
+                        supplierKey: liveProduct.supplierKey
+                    });
+                } else {
+                    // Fallback jika produk tidak sengaja terhapus di database produk utama
+                    const fallbackLog = state.stockLogs.find(log => log.productId === id);
+                    if (fallbackLog) {
+                        results.push({
+                            id: id,
+                            name: fallbackLog.productName,
+                            buyPrice: fallbackLog.buyPrice || 0,
+                            sellPrice: fallbackLog.sellPrice || 0,
+                            stock: 0,
+                            supplier: fallbackLog.supplier,
+                            supplierKey: window.getSupplierKeyFromName(fallbackLog.supplier)
+                        });
+                    }
+                }
+            });
+
+            // Urutkan alfabetis berdasarkan Nama Produk (A ke Z)
+            results.sort((a, b) => a.name.localeCompare(b.name));
+            return results;
+        };
+
+        // 2. Fungsi Render Tabel Preview di Layar Komputer (Nomor Urut & Pemisahan Baris Harga)
+        window.renderOpnamePreviewTable = () => {
+            const tbody = document.getElementById('opnamePreviewTableBody');
+            if (!tbody) return;
+
+            const period = document.getElementById('opnamePeriode').value.trim() || '-';
+            const dateVal = document.getElementById('opnameTanggal').value;
+            const formattedDate = dateVal ? new Date(dateVal).toLocaleDateString('id-ID') : '-';
+            const metaText = `<strong>${period}</strong><br><span class="text-[10px] text-slate-400 font-semibold">${formattedDate}</span>`;
+
+            const opnameProducts = window.getOpnameProducts();
+            const totalItems = opnameProducts.length;
+            const totalPages = Math.ceil(totalItems / state.opnamePageSize) || 1;
+
+            if (state.opnamePage > totalPages) state.opnamePage = totalPages;
+
+            const start = (state.opnamePage - 1) * state.opnamePageSize;
+            const end = start + state.opnamePageSize;
+            const paginated = opnameProducts.slice(start, end);
+
+            const startIdx = totalItems === 0 ? 0 : start + 1;
+            const endIdx = Math.min(end, totalItems);
+
+            document.getElementById('opname-paginated-start').innerText = startIdx;
+            document.getElementById('opname-paginated-end').innerText = endIdx;
+            document.getElementById('opname-paginated-total').innerText = totalItems;
+            document.getElementById('opname-current-page').innerText = state.opnamePage;
+
+            document.getElementById('btn-prev-opname').disabled = (state.opnamePage === 1);
+            document.getElementById('btn-next-opname').disabled = (state.opnamePage === totalPages);
+
+            if (paginated.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="p-8 text-center text-slate-400 italic font-medium">
+                            <i class="fas fa-clipboard-list mr-2 opacity-30"></i> Belum ada data produk dari riwayat Barang Masuk.
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            tbody.innerHTML = paginated.map((p, idx) => {
+                const rowNo = start + idx + 1;
+                return `
+                    <tr class="hover:bg-slate-50 transition text-xs">
+                        <td class="px-4 py-3.5 text-center font-bold text-slate-600">${rowNo}</td>
+                        <td class="px-5 py-3.5 font-semibold text-slate-500">${metaText}</td>
+                        <td class="px-5 py-3.5">
+                            <span class="font-bold text-slate-800">${p.name}</span>
+                            <div class="text-[10px] text-slate-400 mt-0.5 block">Beli: ${formatRupiah(p.buyPrice)}</div>
+                            <div class="text-[10px] text-slate-400 block">Jual: ${formatRupiah(p.sellPrice)}</div>
+                        </td>
+                        <td class="px-5 py-3.5 font-semibold text-slate-500">${p.supplier}</td>
+                        <td class="px-5 py-3.5 text-center font-bold text-slate-700">${p.stock}</td>
+                        <td class="px-5 py-3.5 text-center text-slate-300 italic font-semibold">-</td>
+                        <td class="px-5 py-3.5 text-center text-slate-300 italic font-semibold">-</td>
+                        <td class="px-5 py-3.5 text-center text-slate-300 italic font-semibold">-</td>
+                        <td class="px-5 py-3.5 text-slate-300 italic font-semibold">-</td>
+                    </tr>
+                `;
+            }).join('');
+        };
+
+        // 3. Fungsi Live Feedback saat Mengetik Periode & Tanggal
+        window.updateOpnameTableLive = () => {
+            window.renderOpnamePreviewTable();
+        };
+
+        // 4. Navigasi Halaman Paginasi (Prev / Next)
+        window.prevOpnamePage = () => {
+            if (state.opnamePage > 1) {
+                state.opnamePage--;
+                window.renderOpnamePreviewTable();
+            }
+        };
+
+        window.nextOpnamePage = () => {
+            const opnameProducts = window.getOpnameProducts();
+            const totalPages = Math.ceil(opnameProducts.length / state.opnamePageSize) || 1;
+            if (state.opnamePage < totalPages) {
+                state.opnamePage++;
+                window.renderOpnamePreviewTable();
+            }
+        };
+
+        // 5. Pengubah Ukuran Paginasi di Layar (25 / 50)
+        window.changeOpnamePageSize = () => {
+            state.opnamePageSize = parseInt(document.getElementById('opnamePageSizeSelect').value) || 25;
+            state.opnamePage = 1;
+            window.renderOpnamePreviewTable();
+        };
+
+        // 6. Fungsi Utama Pembuatan Lembar Kerja Cetak PDF
+        window.printOpnameSheet = () => {
+            const period = document.getElementById('opnamePeriode').value.trim();
+            const dateVal = document.getElementById('opnameTanggal').value;
+
+            // Validasi Input
+            if (!period) {
+                window.showFeedback('Ditolak', 'Harap isi parameter Periode Stock Opname terlebih dahulu!', 'error');
+                return;
+            }
+            if (!dateVal) {
+                window.showFeedback('Ditolak', 'Harap isi parameter Tanggal Stock Opname terlebih dahulu!', 'error');
+                return;
+            }
+
+            const formattedDate = new Date(dateVal).toLocaleDateString('id-ID', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            const printCont = document.getElementById('printContainer');
+            if (!printCont) return;
+
+            const opnameProducts = window.getOpnameProducts();
+            if (opnameProducts.length === 0) {
+                window.showFeedback('Kosong', 'Tidak ada sediaan produk Barang Masuk untuk dicetak.', 'error');
+                return;
+            }
+
+           // Generate baris tabel PDF dengan kolom stok fisik, selisih, nilai minus, dan keterangan kosong
+            let rows = opnameProducts.map((p, idx) => `
+                <tr style="page-break-inside: avoid; break-inside: avoid;">
+                    <td class="px-2 py-3 border font-bold text-slate-700" style="text-align: center;">${idx + 1}</td>
+                    <td class="px-3 py-3 border font-semibold text-slate-500" style="text-align: center;">
+                        ${period}<br><span style="font-size: 8px;">${new Date(dateVal).toLocaleDateString('id-ID')}</span>
+                    </td>
+                    <td class="px-3 py-3 border">
+                        <strong class="text-slate-900">${p.name}</strong>
+                        <div style="font-size: 8px; color: #64748b; margin-top: 3px; line-height: 1.2;">Beli: ${formatRupiah(p.buyPrice)}</div>
+                        <div style="font-size: 8px; color: #64748b; line-height: 1.2;">Jual: ${formatRupiah(p.sellPrice)}</div>
+                    </td>
+                    <td class="px-3 py-3 border text-slate-600">${p.supplier}</td>
+                    <td class="px-3 py-3 border text-center font-bold text-slate-800">${p.stock}</td>
+                    <td class="px-3 py-3 border" style="width: 65px;"></td>
+                    <td class="px-3 py-3 border" style="width: 65px;"></td>
+                    <td class="px-3 py-3 border" style="width: 75px;"></td>
+                    <td class="px-3 py-3 border"></td>
+                </tr>
+            `).join('');
+
+            printCont.innerHTML = `
+                <div class="p-8 bg-white text-xs">
+                    <div class="text-center mb-6">
+                        <h2 class="text-xl font-black uppercase text-slate-950 mb-1">${state.settings.storeName}</h2>
+                        <p class="text-[10px] text-slate-500 font-medium">${state.settings.address} | Telp: ${state.settings.phone}</p>
+                        <div class="border-b-2 border-slate-900 my-3"></div>
+                        <h3 class="text-base font-black uppercase tracking-wider text-slate-800">Lembar Kerja Pemeriksaan Stock Opname (Manual)</h3>
+                        <p class="text-[10px] text-slate-500 mt-1">Periode Audit: <strong>${period}</strong> | Tanggal Pelaksanaan: <strong>${formattedDate}</strong></p>
+                    </div>
+                    <table class="print-table w-full text-left" style="border-collapse: collapse; margin-top: 15px;">
+                        <thead>
+                            <tr style="background-color: #f8fafc !important;">
+                                <th class="border px-2 py-2.5 text-center" style="width: 40px;">No</th>
+                                <th class="border px-3 py-2.5 text-center" style="width: 110px;">Periode & Tgl</th>
+                                <th class="border px-3 py-2.5 text-left">Nama Obat</th>
+                                <th class="border px-3 py-2.5 text-left">Supplier</th>
+                                <th class="border px-3 py-2.5 text-center" style="width: 70px;">Stok Sistem</th>
+                                <th class="border px-3 py-2.5 text-center" style="width: 70px;">Stok Fisik</th>
+                                <th class="border px-3 py-2.5 text-center" style="width: 70px;">Selisih</th>
+                                <th class="border px-3 py-2.5 text-center" style="width: 80px;">Nilai Minus</th>
+                                <th class="border px-3 py-2.5 text-left">Keterangan / Alasan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            window.print();
+        };    
+
     </script>
     
     <!-- Tambahan Skrip Pendaftaran Service Worker PWA -->
