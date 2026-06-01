@@ -10,6 +10,8 @@
     <script src="supplier2.js" onerror="console.warn('File supplier2.js tidak ditemukan, menggunakan fallback lokal')"></script>
     <script src="supplier3.js" onerror="console.warn('File supplier3.js tidak ditemukan, menggunakan fallback lokal')"></script>
     <script src="supplier4.js" onerror="console.warn('File supplier4.js tidak ditemukan, menggunakan fallback lokal')"></script>
+    <script src="supplier5.js" onerror="console.warn('File supplier5.js tidak ditemukan, menggunakan fallback lokal')"></script>
+    <script src="supplier6.js" onerror="console.warn('File supplier6.js tidak ditemukan, menggunakan fallback lokal')"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&family=JetBrains+Mono:wght=400;700&display=swap');
@@ -723,8 +725,8 @@
     <i class="fas fa-file-invoice text-indigo-500"></i> Form Faktur Pembelian (Barang Masuk)
 </h2>
             
-            <!-- 1. Header Faktur -->
-            <div class="bg-slate-50 p-4 rounded-xl mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 border border-slate-100">
+        <!-- 1. Header Faktur -->
+            <div class="bg-slate-50 p-4 rounded-xl mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-4 border border-slate-100">
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nomor Faktur</label>
                     <input type="text" id="bmNoFaktur" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none font-semibold text-xs focus:border-indigo-500" placeholder="FK-YYYYMMDD-XXXX">
@@ -736,11 +738,21 @@
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilihan Supplier</label>
                     <select id="bmFakturSupplier" onchange="document.getElementById('bmSelectProduct').value = ''; document.getElementById('bmLiveSuggestions').classList.add('hidden');" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-semibold focus:border-indigo-500">
-                        <option value="">Pilih Supplier...</option>
-                        <option value="supplier1">Supplier 1</option>
-                        <option value="supplier2">Supplier 2</option>
-                        <option value="supplier3">Supplier 3</option>
-                        <option value="supplier4">Supplier 4</option>
+                <option value="">Pilih Supplier...</option>
+                <option value="supplier1">Supplier 1</option>
+                <option value="supplier2">Supplier 2</option>
+                <option value="supplier3">Supplier 3</option>
+                <option value="supplier4">Supplier 4</option>
+                <option value="supplier5">Supplier 5</option>
+                <option value="supplier6">Supplier 6</option>
+                    </select>
+                </div>
+                <!-- Dropdown Metode PPN Baru -->
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Metode PPN</label>
+                    <select id="bmPpnMethod" onchange="window.handlePpnMethodChange()" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-none text-xs font-bold text-slate-700 focus:border-indigo-500 cursor-pointer">
+                        <option value="global">PPN Global (Satu Faktur)</option>
+                        <option value="per_product">PPN Per Produk (Item)</option>
                     </select>
                 </div>
                 <div>
@@ -764,7 +776,7 @@
             <div class="border-t border-slate-100 pt-6">
                 <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Input Item Obat</h3>
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-                    <div class="md:col-span-3 relative">
+                    <div class="md:col-span-2 relative">
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Pilih Produk</label>
                         <input type="text" id="bmSelectProduct" oninput="handleLiveStockSearch(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-semibold" placeholder="Ketik nama produk...">
                         <div id="bmLiveSuggestions" class="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-48 overflow-y-auto hidden custom-scrollbar"></div>
@@ -791,6 +803,12 @@
                             <input type="text" id="bmDiscSupplierVal" oninput="handleDiscountInputFormat(this, 'bmDiscSupplierType'); renderFakturQueue();" placeholder="0" class="w-full p-2.5 bg-transparent outline-none font-bold text-xs text-indigo-600">
                         </div>
                     </div>
+
+                    <!-- Input PPN Per Item Baru (Dinonaktifkan Default) -->
+                    <div class="md:col-span-1">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">PPN (%)</label>
+                        <input type="number" id="bmItemPpn" min="0" max="100" disabled class="w-full p-2.5 bg-slate-100 border border-slate-200 rounded-xl outline-none text-xs font-bold text-center cursor-not-allowed" value="0">
+                    </div>
                     
                     <div class="md:col-span-2">
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Jual (Rp)</label>
@@ -804,7 +822,7 @@
                 </div>
             </div>
 
-            <!-- 3. Tabel Antrean Sementara -->
+        <!-- 3. Tabel Antrean Sementara -->
             <div class="mt-6 border-t border-slate-100 pt-6">
                 <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Daftar Item Faktur (Antrean Sementara)</h3>
                 <div class="overflow-x-auto border border-slate-100 rounded-xl">
@@ -812,9 +830,10 @@
                         <thead class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-100">
                             <tr>
                                 <th class="p-3">Produk</th>
-                                <th class="p-3 text-right">Modal</th>
+                                <th class="p-3 text-right">Harga Beli</th>
+                                <th class="p-3 text-center">PPN Item (%)</th>
                                 <th class="p-3 text-center">Qty</th>
-                                <th class="p-3 text-right">Subtotal</th>
+                                <th class="p-3 text-right">Subtotal (DPP)</th>
                                 <th class="p-3 text-center">Aksi</th>
                             </tr>
                         </thead>
@@ -827,11 +846,12 @@
                 </div>
             </div>
 
-            <!-- 4. Ringkasan Total Faktur & Tombol Simpan Utama -->
-            <div class="mt-6 border-t border-slate-100 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50 p-4 rounded-xl">
-                <div>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase">Total Pembayaran Faktur</p>
-                    <p id="bmFakturTotalText" class="text-2xl font-black text-slate-900">Rp 0,00</p>
+        <!-- 4. Ringkasan Total Faktur & Tombol Simpan Utama (Dual-Mode PPN) -->
+            <div class="mt-6 border-t border-slate-100 pt-6 flex flex-col sm:flex-row justify-between items-center gap-6 bg-slate-50 p-4 rounded-xl">
+                <div class="grid grid-cols-1 gap-1 text-[11px] font-bold text-slate-600">
+                    <div>Total DPP (Sebelum PPN): <span id="bmFakturDppText" class="text-slate-900 font-black ml-1">Rp 0,00</span></div>
+                    <div class="text-rose-600">Total Akumulasi PPN: <span id="bmFakturPpnText" class="font-black ml-1">Rp 0,00</span></div>
+                    <div class="text-xs text-indigo-600 mt-1 uppercase tracking-tight">Grand Total Pembayaran: <span id="bmFakturTotalText" class="text-xl font-black text-indigo-700 ml-1">Rp 0,00</span></div>
                 </div>
                 <button id="btnSaveFaktur" type="button" onclick="saveFakturInvoice()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-emerald-100 transition-all flex items-center justify-center gap-2">
                     <i class="fas fa-save"></i> Simpan Faktur
@@ -924,7 +944,7 @@
             <div class="text-xs text-slate-500 font-medium">
                 Menampilkan <span id="stock-paginated-start" class="font-bold">0</span> - <span id="stock-paginated-end" class="font-bold">0</span> dari <span id="stock-paginated-total" class="font-bold">0</span> faktur
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
                 <button onclick="prevStockPage()" id="btn-prev-stock-page" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition">
                     <i class="fas fa-chevron-left mr-1"></i> Prev
                 </button>
@@ -934,6 +954,12 @@
                 <button onclick="nextStockPage()" id="btn-next-stock-page" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed transition">
                     Next <i class="fas fa-chevron-right mr-1"></i>
                 </button>
+                <!-- Dropdown Ukuran Halaman Baru -->
+                <select id="stockPageSizeSelect" onchange="window.changeStockPageSize()" class="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold outline-none ml-2">
+                    <option value="10">10 / Halaman</option>
+                    <option value="25">25 / Halaman</option>
+                    <option value="50">50 / Halaman</option>
+                </select>
             </div>
         </div>
     </div>
@@ -1169,6 +1195,14 @@
                                 <div>
                                     <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Supplier 4</label>
                                     <input type="text" id="setSupp4" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Supplier 5</label>
+                                    <input type="text" id="setSupp5" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Supplier 6</label>
+                                    <input type="text" id="setSupp6" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
                                 </div>
                             </div>
                             <div>
@@ -1495,6 +1529,8 @@
                             <option value="supplier2">Supplier 2</option>
                             <option value="supplier3">Supplier 3</option>
                             <option value="supplier4">Supplier 4</option>
+                            <option value="supplier5">Supplier 5</option>
+                            <option value="supplier6">Supplier 6</option>
                         </select>
                     </div>
                 </div>
@@ -1592,19 +1628,21 @@
         if (typeof window.supplier2Products === 'undefined') window.supplier2Products = ["DECOLGEN TAB", "OBH COMBI BEBAS", "PANADOL EXTRA"];
         if (typeof window.supplier3Products === 'undefined') window.supplier3Products = ["SANAFLU FORTE", "INTUNAL TABLET", "BABY COUGH"];
         if (typeof window.supplier4Products === 'undefined') window.supplier4Products = ["MILANTA LIQUID", "PROMAG CHEW", "ENTROSTOP TAB"];
+        if (typeof window.supplier5Products === 'undefined') window.supplier5Products = ["SANGOBION CAP", "NEUROBION FORTE", "CDR EFF TAB"];
+        if (typeof window.supplier6Products === 'undefined') window.supplier6Products = ["VICKS FORMULA 44", "WOODS COUGH", "STREPSILS LOZ"];
 
         let state = {
     products: [], firestoreProducts: [], cart: [], transactions: [], stockLogs: [],
-    rencanaProducts: [], // Menyimpan data usulan produk (TAMBAHAN)
-    settings: { storeName: 'KASIR PRO', adminName: 'Administrator', cashier1Name: 'Kasir 1', cashier2Name: 'Kasir 2', address: '-', phone: '-', supp1:'', supp2:'', supp3:'', supp4:'' },
+    rencanaProducts: [], 
+    settings: { storeName: 'KASIR PRO', adminName: 'Administrator', cashier1Name: 'Kasir 1', cashier2Name: 'Kasir 2', address: '-', phone: '-', supp1:'', supp2:'', supp3:'', supp4:'', supp5:'', supp6:'' },
     currentUser: null, lastTrx: null, targetLogin: null, selectedCashierIndex: null,
     productPage: 1,
     productPageSize: 10,
     posPage: 1,
     posPageSize: 10,
     stockPage: 1,
-    stockPageSize: 1,
-    opnamePage: 1,         
+    stockPageSize: 10, // Diubah menjadi default 10 per halaman
+    opnamePage: 1,
     opnamePageSize: 3,     
     rencanaPage: 1,         // Halaman rencana aktif (TAMBAHAN)
     rencanaPageSize: 25,    // Paginasi dibatasi 25 produk (TAMBAHAN)
@@ -1617,7 +1655,18 @@
 };
 
         window.state = state;
-
+    // FUNGSI BARU: Toggle Tampil/Sembunyikan Detail Item Faktur di Riwayat
+        window.toggleInvoiceDetail = (invoiceId, btn) => {
+            const el = document.getElementById(`invoice-detail-${invoiceId}`);
+            if (el) {
+                el.classList.toggle('hidden');
+                if (el.classList.contains('hidden')) {
+                    btn.innerHTML = '<i class="fas fa-chevron-down mr-1"></i> Tampilkan';
+                } else {
+                    btn.innerHTML = '<i class="fas fa-chevron-up mr-1"></i> Sembunyikan';
+                }
+            }
+        };
         window.handleDiscountInputFormat = (el, typeId) => {
             let type = document.getElementById(typeId).value;
             let digits = el.value.replace(/\D/g, '');
@@ -1953,12 +2002,16 @@ window.hideLoading = () => {
             const s2Name = state.settings.supp2 || "Supplier 2";
             const s3Name = state.settings.supp3 || "Supplier 3";
             const s4Name = state.settings.supp4 || "Supplier 4";
+            const s5Name = state.settings.supp5 || "Supplier 5";
+            const s6Name = state.settings.supp6 || "Supplier 6";
             
             const databases = [
                 { list: window.supplier1Products || [], supplier: s1Name, key: "supplier1" },
                 { list: window.supplier2Products || [], supplier: s2Name, key: "supplier2" },
                 { list: window.supplier3Products || [], supplier: s3Name, key: "supplier3" },
-                { list: window.supplier4Products || [], supplier: s4Name, key: "supplier4" }
+                { list: window.supplier4Products || [], supplier: s4Name, key: "supplier4" },
+                { list: window.supplier5Products || [], supplier: s5Name, key: "supplier5" },
+                { list: window.supplier6Products || [], supplier: s6Name, key: "supplier6" }
             ];
 
             const jsProductNamesSet = new Set();
@@ -1983,8 +2036,7 @@ window.hideLoading = () => {
                             isLocalProduct: false
                         });
                     } else {
-                        // Menghapus .substring(0, 15) agar ID merujuk pada nama lengkap produk tanpa terpotong
-const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/g, '')}`;
+                        const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/g, '')}`;
 
                         merged.push({
                             id: fallbackId,
@@ -2009,6 +2061,8 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
                     else if(saved.supplierKey === 'supplier2') sName = s2Name;
                     else if(saved.supplierKey === 'supplier3') sName = s3Name;
                     else if(saved.supplierKey === 'supplier4') sName = s4Name;
+                    else if(saved.supplierKey === 'supplier5') sName = s5Name;
+                    else if(saved.supplierKey === 'supplier6') sName = s6Name;
 
                     merged.push({
                         id: saved.id,
@@ -2046,6 +2100,8 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
             const s2 = state.settings.supp2 || "Supplier 2";
             const s3 = state.settings.supp3 || "Supplier 3";
             const s4 = state.settings.supp4 || "Supplier 4";
+            const s5 = state.settings.supp5 || "Supplier 5";
+            const s6 = state.settings.supp6 || "Supplier 6";
             
             const currentVal = filter.value;
             filter.innerHTML = `
@@ -2054,6 +2110,8 @@ const fallbackId = `PRD-${window.btoa(encodeURIComponent(upperName)).replace(/=/
                 <option value="supplier2">${s2}</option>
                 <option value="supplier3">${s3}</option>
                 <option value="supplier4">${s4}</option>
+                <option value="supplier5">${s5}</option>
+                <option value="supplier6">${s6}</option>
             `;
             filter.value = currentVal;
         };
@@ -2105,12 +2163,14 @@ const initSync = () => {
                 document.getElementById('setAdminName').value = state.settings.adminName;
                 document.getElementById('setCashier1Name').value = state.settings.cashier1Name;
                 document.getElementById('setCashier2Name').value = state.settings.cashier2Name;
-                document.getElementById('setPhone').value = state.settings.phone;
+               document.getElementById('setPhone').value = state.settings.phone;
                 document.getElementById('setAddress').value = state.settings.address;
                 document.getElementById('setSupp1').value = state.settings.supp1 || '';
                 document.getElementById('setSupp2').value = state.settings.supp2 || '';
                 document.getElementById('setSupp3').value = state.settings.supp3 || '';
                 document.getElementById('setSupp4').value = state.settings.supp4 || '';
+                document.getElementById('setSupp5').value = state.settings.supp5 || '';
+                document.getElementById('setSupp6').value = state.settings.supp6 || '';
                 renderSupplierDropdown();
                 updateSupplierFilterOptions();
                 reconcileProducts();
@@ -2435,6 +2495,8 @@ const initSync = () => {
     const s2 = state.settings.supp2 || "Supplier 2";
     const s3 = state.settings.supp3 || "Supplier 3";
     const s4 = state.settings.supp4 || "Supplier 4";
+    const s5 = state.settings.supp5 || "Supplier 5";
+    const s6 = state.settings.supp6 || "Supplier 6";
     
     const optionsHtml = `
         <option value="">Pilih Supplier...</option>
@@ -2442,6 +2504,8 @@ const initSync = () => {
         <option value="supplier2">${s2}</option>
         <option value="supplier3">${s3}</option>
         <option value="supplier4">${s4}</option>
+        <option value="supplier5">${s5}</option>
+        <option value="supplier6">${s6}</option>
     `;
     
     if (s) s.innerHTML = optionsHtml;
@@ -2471,10 +2535,13 @@ const initSync = () => {
             const sellPriceRaw = document.getElementById('bmSellPrice').value;
             const sellPrice = parseNominal(sellPriceRaw) || 0;
             
-            // Integrasi diskon jenis nominal dan persen (Instruksi 14)
             const discType = document.getElementById('bmDiscSupplierType').value;
             const discValRaw = document.getElementById('bmDiscSupplierVal').value;
             const discVal = getDiscountNumericValue(discValRaw);
+
+            // Deteksi PPN Item obat baru
+            const ppnMethod = document.getElementById('bmPpnMethod').value;
+            const itemPpn = ppnMethod === 'per_product' ? (parseFloat(document.getElementById('bmItemPpn').value) || 0) : 0;
 
             if (!productName) {
                 window.showFeedback('Ditolak', 'Silakan pilih produk terlebih dahulu!', 'error');
@@ -2485,7 +2552,7 @@ const initSync = () => {
                 return;
             }
             if (price < 0) {
-                window.showFeedback('Ditolak', 'Harga beli tidak boleh negatif!', 'error');
+                window.showFeedback('Ditolak', 'Harga murni beli tidak boleh negatif!', 'error');
                 return;
             }
             if (sellPrice < 0) {
@@ -2499,7 +2566,6 @@ const initSync = () => {
                 return;
             }
 
-            // Hitung Subtotal dengan Diskon Masker Baru
             let baseSubtotal = price * qty;
             let calculatedDisc = 0;
             if (discType === 'percentage') {
@@ -2520,7 +2586,8 @@ const initSync = () => {
                 qty: qty,
                 discSupplier: discVal,
                 discSupplierType: discType,
-                subtotal: subtotal,
+                subtotal: subtotal, // DPP item murni
+                ppn: itemPpn,       // Nilai PPN item obat
                 supplierKey: p.supplierKey,
                 supplier: p.supplier
             };
@@ -2539,6 +2606,7 @@ const initSync = () => {
             document.getElementById('bmPrice').value = '';
             document.getElementById('bmSellPrice').value = '';
             document.getElementById('bmDiscSupplierVal').value = '';
+            document.getElementById('bmItemPpn').value = '0';
             document.getElementById('bmSelectSupplier').value = '';
 
             renderFakturQueue();
@@ -2562,6 +2630,9 @@ const initSync = () => {
             } else {
                 discValField.value = (item.discSupplier || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             }
+
+            // Kembalikan isi data PPN obat murni
+            document.getElementById('bmItemPpn').value = item.ppn || 0;
             
             document.getElementById('bmEditIndex').value = index;
 
@@ -2590,29 +2661,51 @@ const initSync = () => {
         window.renderFakturQueue = () => {
             const tbody = document.getElementById('bmFakturTableBody');
             const supplierSelect = document.getElementById('bmFakturSupplier');
+            const ppnMethodSelect = document.getElementById('bmPpnMethod');
             if (!tbody) return;
 
+            // Kunci metode PPN jika isi antrean barang sudah ada
             if (state.fakturItems.length > 0) {
                 if (supplierSelect) {
                     supplierSelect.setAttribute('disabled', 'true');
                     supplierSelect.classList.add('bg-slate-100', 'cursor-not-allowed');
+                }
+                if (ppnMethodSelect) {
+                    ppnMethodSelect.setAttribute('disabled', 'true');
+                    ppnMethodSelect.classList.add('bg-slate-100', 'cursor-not-allowed');
                 }
             } else {
                 if (supplierSelect) {
                     supplierSelect.removeAttribute('disabled');
                     supplierSelect.classList.remove('bg-slate-100', 'cursor-not-allowed');
                 }
+                if (ppnMethodSelect) {
+                    ppnMethodSelect.removeAttribute('disabled');
+                    ppnMethodSelect.classList.remove('bg-slate-100', 'cursor-not-allowed');
+                }
             }
 
             if (state.fakturItems.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 italic font-medium">Belum ada item obat disisipkan.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 italic font-medium">Belum ada item obat disisipkan.</td></tr>`;
+                document.getElementById('bmFakturDppText').innerText = formatRupiah(0);
+                document.getElementById('bmFakturPpnText').innerText = formatRupiah(0);
                 document.getElementById('bmFakturTotalText').innerText = formatRupiah(0);
                 return;
             }
 
-            let total = 0;
+            let totalDpp = 0;
+            let totalPpn = 0;
+            const method = document.getElementById('bmPpnMethod').value;
+
             tbody.innerHTML = state.fakturItems.map((item, idx) => {
-                total += item.subtotal;
+                totalDpp += item.subtotal;
+                
+                let itemPpnVal = 0;
+                if (method === 'per_product') {
+                    itemPpnVal = item.subtotal * ((item.ppn || 0) / 100);
+                    totalPpn += itemPpnVal;
+                }
+
                 const discText = item.discSupplier && item.discSupplier > 0 
                     ? ` <span class="text-rose-500 font-bold">(-${item.discSupplierType === 'percentage' ? item.discSupplier + '%' : formatRupiah(item.discSupplier)})</span>` 
                     : '';
@@ -2620,6 +2713,7 @@ const initSync = () => {
                     <tr class="hover:bg-slate-50 transition text-xs">
                         <td class="p-3 font-semibold text-slate-800">${item.name}</td>
                         <td class="p-3 text-right text-slate-500">${formatRupiah(item.buyPrice)}${discText}</td>
+                        <td class="p-3 text-center font-bold text-slate-600">${method === 'per_product' ? (item.ppn || 0) + '%' : '-'}</td>
                         <td class="p-3 text-center font-bold text-slate-800">${item.qty}</td>
                         <td class="p-3 text-right font-bold text-indigo-600">${formatRupiah(item.subtotal)}</td>
                         <td class="p-3 text-center flex justify-center gap-2">
@@ -2634,9 +2728,16 @@ const initSync = () => {
                 `;
             }).join('');
 
-            const ppnVal = parseFloat(document.getElementById('bmPpnSupplier') ? document.getElementById('bmPpnSupplier').value : '0') || 0;
-            const grandTotal = total * (1 + ppnVal / 100);
+            // Kalkulasi nilai PPN sesuai mode aktif
+            if (method === 'global') {
+                const ppnVal = parseFloat(document.getElementById('bmPpnSupplier') ? document.getElementById('bmPpnSupplier').value : '0') || 0;
+                totalPpn = totalDpp * (ppnVal / 100);
+            }
 
+            const grandTotal = totalDpp + totalPpn;
+
+            document.getElementById('bmFakturDppText').innerText = formatRupiah(totalDpp);
+            document.getElementById('bmFakturPpnText').innerText = formatRupiah(totalPpn);
             document.getElementById('bmFakturTotalText').innerText = formatRupiah(grandTotal);
         };
 
@@ -2647,6 +2748,9 @@ const initSync = () => {
             const supplierKey = document.getElementById('bmFakturSupplier').value;
             const jenisBayar = document.getElementById('bmJenisBayar').value;
             const dueDate = document.getElementById('bmDueDate').value;
+            
+            // Baca metode PPN di form
+            const ppnMethod = document.getElementById('bmPpnMethod').value;
 
             if (!noFaktur) {
                 window.showFeedback('Ditolak', 'Silakan isi Nomor Faktur terlebih dahulu!', 'error');
@@ -2718,9 +2822,16 @@ const initSync = () => {
                     const docRef = doc(colProducts, item.id);
                     const docSnap = await getDoc(docRef);
                     
-                    // PERBAIKAN: Baca stok langsung dari Firestore (Anti-Race Condition)
+                    // Hitung PPN Item khusus mode dinonaktifkan
+                    let appliedPpnFactor = 0;
+                    if (ppnMethod === 'global') {
+                        appliedPpnFactor = ppnSupplier;
+                    } else {
+                        appliedPpnFactor = item.ppn || 0;
+                    }
+
                     let freshStock = 0;
-                    const netBuyPrice = Math.round((item.subtotal / item.qty) * (1 + ppnSupplier / 100));
+                    const netBuyPrice = Math.round((item.subtotal / item.qty) * (1 + appliedPpnFactor / 100));
 
                     if (docSnap.exists()) {
                         freshStock = docSnap.data().stock || 0;
@@ -2742,7 +2853,7 @@ const initSync = () => {
                         });
                     }
 
-                    // Tulis ulang log baru hasil edit
+                    // Tulis ulang log baru hasil edit dengan menyimpan data PPN per-item
                     await addDoc(colStockLogs, {
                         productId: item.id,
                         productName: item.name,
@@ -2750,10 +2861,12 @@ const initSync = () => {
                         qty: item.qty,
                         noFaktur: noFaktur,
                         tglFaktur: tglFaktur,
-                        ppnSupplier: ppnSupplier,
+                        ppnMethod: ppnMethod,
+                        ppnSupplier: appliedPpnFactor, // Menyimpan tarif PPN murni obat tersebut
                         discSupplier: item.discSupplier || 0,
                         discSupplierType: item.discSupplierType || 'percentage',
                         buyPrice: item.buyPrice,
+                        sellPrice: item.sellPrice,
                         paymentType: jenisBayar,
                         dueDate: jenisBayar === 'Tempo' ? dueDate : '-',
                         timestamp: timestampStr,
@@ -2783,10 +2896,13 @@ const initSync = () => {
                 document.getElementById('bmNoFaktur').value = '';
                 document.getElementById('bmTglFaktur').value = '';
                 document.getElementById('bmPpnSupplier').value = '';
+                document.getElementById('bmItemPpn').value = '0';
                 document.getElementById('bmFakturSupplier').value = '';
                 document.getElementById('bmJenisBayar').value = 'Cash';
                 document.getElementById('bmDueDate').value = '';
                 document.getElementById('bmDueDateContainer').classList.add('hidden');
+                document.getElementById('bmPpnMethod').value = 'global';
+                window.handlePpnMethodChange();
                 
                 // Reset teks Form ke Mode Input Baru
                 const formHeader = document.getElementById('bmFormTitle');
@@ -3707,7 +3823,9 @@ const initSync = () => {
                 supp1: document.getElementById('setSupp1').value,
                 supp2: document.getElementById('setSupp2').value,
                 supp3: document.getElementById('setSupp3').value,
-                supp4: document.getElementById('setSupp4').value
+                supp4: document.getElementById('setSupp4').value,
+                supp5: document.getElementById('setSupp5').value,
+                supp6: document.getElementById('setSupp6').value
             };
             try {
                 window.showLoading();
@@ -3989,7 +4107,7 @@ const initSync = () => {
 
                 const invoicesArray = Object.values(groupedInvoices).sort((a, b) => b.timestamp.localeCompare(a.timestamp));
 
-                let invoicesHtml = invoicesArray.map(inv => {
+            let invoicesHtml = invoicesArray.map(inv => {
                     let totalSubtotal = 0;
                     let itemRows = inv.items.map(item => {
                         const baseSubtotal = item.buyPrice * item.qty;
@@ -4005,15 +4123,12 @@ const initSync = () => {
                                 : formatRupiah(item.discSupplier))
                             : '0,00%';
 
-                        const sellPriceVal = item.sellPrice ? formatRupiah(item.sellPrice) : '-';
-
                         return `
                             <tr class="border-b border-slate-200">
                                 <td class="p-2 font-bold text-slate-800">${item.productName}</td>
                                 <td class="p-2 text-center font-bold">x${item.qty}</td>
                                 <td class="p-2 text-right">${formatRupiah(item.buyPrice)}</td>
                                 <td class="p-2 text-right text-rose-500 font-semibold">${discText}</td>
-                                <td class="p-2 text-right font-bold text-indigo-600">${sellPriceVal}</td>
                                 <td class="p-2 text-right font-semibold text-slate-900">${formatRupiah(sub)}</td>
                             </tr>
                         `;
@@ -4023,7 +4138,7 @@ const initSync = () => {
                     const grandTotal = totalSubtotal + ppnAmount;
 
                     return `
-                        <div class="print-card p-4 mb-6 border border-slate-300 rounded-xl bg-white shadow-sm" style="page-break-inside: avoid; break-inside: avoid;">
+                        <div class="print-invoice-card print-card p-4 mb-6 border border-slate-300 rounded-xl bg-white shadow-sm" style="page-break-inside: avoid; break-inside: avoid;">
                             <div class="print-card-header border-b border-slate-200 pb-3 mb-3 bg-slate-50/80 p-3 rounded-t-xl flex justify-between items-start">
                                 <div>
                                     <span class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">NOMOR FAKTUR</span>
@@ -4043,7 +4158,6 @@ const initSync = () => {
                                         <th class="p-2 text-center w-12">Qty</th>
                                         <th class="p-2 text-right w-24">Harga Beli</th>
                                         <th class="p-2 text-right w-24">Discount</th>
-                                        <th class="p-2 text-right w-24">Harga Jual</th>
                                         <th class="p-2 text-right w-24">Subtotal</th>
                                     </tr>
                                 </thead>
@@ -4063,6 +4177,20 @@ const initSync = () => {
                 }).join('');
 
                 printCont.innerHTML = `
+                    <style>
+                        /* Gaya khusus cetak: pisahkan kartu faktur pada kertas cetakan berbeda */
+                        @media print {
+                            .print-invoice-card {
+                                page-break-after: always !important;
+                                break-after: page !important;
+                            }
+                            /* Cegah adanya halaman kosong tak berguna di akhir laporan PDF */
+                            .print-invoice-card:last-child {
+                                page-break-after: avoid !important;
+                                break-after: avoid !important;
+                            }
+                        }
+                    </style>
                     <div class="p-8 bg-white text-xs">
                         <div class="text-center mb-6">
                             <h2 class="text-xl font-black uppercase text-slate-950 mb-1">${state.settings.storeName}</h2>
@@ -4191,8 +4319,7 @@ window.handleStockFilterTypeChange = () => {
     }
 };
 
-        // Render riwayat stok masuk berbasis Card Faktur
-        // Render riwayat stok masuk berbasis Card Faktur dengan analisis utang dagang
+     // Render riwayat stok masuk berbasis Card Faktur dengan analisis utang dagang
         window.renderStockHistory = () => {
             const container = document.getElementById('stockHistoryContainer');
             if (!container) return;
@@ -4337,14 +4464,11 @@ window.handleStockFilterTypeChange = () => {
                     const sub = baseSubtotal - calculatedDisc;
                     totalSubtotal += sub;
 
-                    // Mengubah format tampilan discount dengan 2 angka di belakang desimal (0,00% - 100,00%)
                     const discText = item.discSupplier > 0
                         ? (item.discSupplierType === 'percentage'
                             ? `${item.discSupplier.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`
                             : formatRupiah(item.discSupplier))
                         : '0,00%';
-
-                    const sellPriceVal = item.sellPrice ? formatRupiah(item.sellPrice) : '-';
 
                     return `
                         <tr class="text-[10px] border-b border-slate-100 last:border-0 hover:bg-slate-50/50">
@@ -4388,6 +4512,9 @@ window.handleStockFilterTypeChange = () => {
                     badgeHtml = `<span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white">CASH</span>`;
                 }
 
+                // Sanitasi ID agar aman digunakan sebagai ID elemen HTML
+                const safeInvoiceId = (inv.noFaktur || 'LOKAL').replace(/[^a-zA-Z0-9-]/g, '_');
+
                 return `
                     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition duration-200">
                         <div class="p-3 ${cardHeaderBg} border-b flex flex-col gap-1">
@@ -4408,12 +4535,18 @@ window.handleStockFilterTypeChange = () => {
                             <div class="mt-3 flex flex-wrap justify-between items-center gap-2 text-xs">
                                 <div class="text-slate-500">Metode Bayar: <strong class="text-slate-700 font-bold uppercase">${inv.paymentType}</strong></div>
                                 <div class="flex flex-wrap gap-2">
+                                    <!-- Tombol Toggle -->
+                                    <button onclick="window.toggleInvoiceDetail('${safeInvoiceId}', this)" class="text-[10px] bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl font-bold hover:bg-slate-200 transition">
+                                        <i class="fas fa-chevron-down mr-1"></i> Tampilkan
+                                    </button>
                                     <button onclick="window.printStockInvoice('${(inv.noFaktur || 'LOKAL').replace(/'/g, "\\'")}')" class="text-[10px] bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl font-bold hover:bg-slate-200 transition">Cetak</button>
                                     <button onclick="window.editStockInvoice('${(inv.noFaktur || 'LOKAL').replace(/'/g, "\\'")}')" class="text-[10px] bg-indigo-600 text-white px-3 py-1.5 rounded-xl font-bold hover:bg-indigo-700 transition">Edit Faktur</button>
                                 </div>
                             </div>
                         </div>
-                        <div class="p-3">
+                        
+                        <!-- Kontainer Detail Item Obat yang disembunyikan secara default -->
+                        <div id="invoice-detail-${safeInvoiceId}" class="hidden p-3 border-t border-slate-100">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left text-[10px] border-collapse min-w-[420px]">
                                     <thead>
@@ -4449,7 +4582,7 @@ window.handleStockFilterTypeChange = () => {
                     </div>
                 `;
             }).join('');
-        };
+        }; 
 
         // Paginasi riwayat stok mundur
         window.prevStockPage = () => {
@@ -4497,6 +4630,12 @@ window.handleStockFilterTypeChange = () => {
             }
         };
 
+        window.changeStockPageSize = () => {
+            state.stockPageSize = parseInt(document.getElementById('stockPageSizeSelect').value);
+            state.stockPage = 1;
+            renderStockHistory();
+        };
+        
         // Membuka konfirmasi hapus riwayat stok tunggal
         window.deleteStockLog = (id) => {
             const log = state.stockLogs.find(l => l.id === id);
@@ -4661,9 +4800,13 @@ window.handleStockFilterTypeChange = () => {
             const s2 = state.settings.supp2 || 'Supplier 2';
             const s3 = state.settings.supp3 || 'Supplier 3';
             const s4 = state.settings.supp4 || 'Supplier 4';
+            const s5 = state.settings.supp5 || 'Supplier 5';
+            const s6 = state.settings.supp6 || 'Supplier 6';
             if (name === s2) return 'supplier2';
             if (name === s3) return 'supplier3';
             if (name === s4) return 'supplier4';
+            if (name === s5) return 'supplier5';
+            if (name === s6) return 'supplier6';
             return 'supplier1';
         };
 
@@ -4693,6 +4836,32 @@ window.handleStockFilterTypeChange = () => {
             }
         };
 // AKHIR PENAMBAHAN KODE BARU
+        window.handlePpnMethodChange = () => {
+            const method = document.getElementById('bmPpnMethod').value;
+            const globalPpnInput = document.getElementById('bmPpnSupplier');
+            const itemPpnInput = document.getElementById('bmItemPpn');
+
+            if (method === 'global') {
+                globalPpnInput.removeAttribute('disabled');
+                globalPpnInput.classList.remove('bg-slate-100', 'cursor-not-allowed');
+                
+                if (itemPpnInput) {
+                    itemPpnInput.value = '0';
+                    itemPpnInput.setAttribute('disabled', 'true');
+                    itemPpnInput.classList.add('bg-slate-100', 'cursor-not-allowed');
+                }
+            } else {
+                globalPpnInput.value = '0';
+                globalPpnInput.setAttribute('disabled', 'true');
+                globalPpnInput.classList.add('bg-slate-100', 'cursor-not-allowed');
+                
+                if (itemPpnInput) {
+                    itemPpnInput.removeAttribute('disabled');
+                    itemPpnInput.classList.remove('bg-slate-100', 'cursor-not-allowed');
+                }
+            }
+            renderFakturQueue();
+        }; 
 
         // Menarik kembali seluruh item faktur lama ke keranjang Barang Masuk
         window.editStockInvoice = (invoiceKey) => {
@@ -4711,13 +4880,24 @@ window.handleStockFilterTypeChange = () => {
             // 2. Isi data header form dengan metadata faktur yang akan diedit
             document.getElementById('bmNoFaktur').value = first.noFaktur || '';
             document.getElementById('bmTglFaktur').value = first.tglFaktur || (first.timestamp ? first.timestamp.substring(0, 10) : '');
-            document.getElementById('bmPpnSupplier').value = first.ppnSupplier || 0;
+            
+            // Atur mode PPN secara dinamis saat edit dimuat
+            const originalMethod = first.ppnMethod || 'global';
+            document.getElementById('bmPpnMethod').value = originalMethod;
+            
+            if (originalMethod === 'global') {
+                document.getElementById('bmPpnSupplier').value = first.ppnSupplier || 0;
+            } else {
+                document.getElementById('bmPpnSupplier').value = 0;
+            }
+            
             document.getElementById('bmJenisBayar').value = first.paymentType || 'Cash';
             document.getElementById('bmFakturSupplier').value = window.getSupplierKeyFromName(first.supplier || 'Supplier 1');
             document.getElementById('bmDueDate').value = first.dueDate && first.dueDate !== '-' ? first.dueDate : '';
             
-            // Trigger penyesuaian kolom jatuh tempo jatuh tempo
+            // Trigger penyesuaian kolom jatuh tempo & sinkronisasi metode PPN
             window.toggleDueDateField(first.paymentType);
+            window.handlePpnMethodChange();
 
             // 3. Masukkan semua item obat dari log faktur ke dalam keranjang antrean sementara (state.fakturItems)
             state.fakturItems = invoiceLogs.map(log => {
@@ -4735,6 +4915,7 @@ window.handleStockFilterTypeChange = () => {
                     discSupplier: log.discSupplier || 0,
                     discSupplierType: log.discSupplierType || 'percentage',
                     subtotal: baseSubtotal - calculatedDisc,
+                    ppn: originalMethod === 'per_product' ? (log.ppnSupplier || 0) : 0,
                     supplierKey: window.getSupplierKeyFromName(log.supplier),
                     supplier: log.supplier
                 };
